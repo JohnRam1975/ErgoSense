@@ -1,0 +1,97 @@
+{
+  "generatedAt": "2026-07-01T22:37:17.074Z",
+  "version": "v2-contract",
+  "base": "http://localhost:3001",
+  "routes": {
+    "GET /api/sectors": {
+      "method": "GET",
+      "path": "/api/sectors",
+      "tag": "sectors",
+      "contractKind": "list",
+      "checks": {
+        "no_auth_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "invalid_token_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "wrong_tenant_403": {
+          "ok": true,
+          "detail": "HTTP 403",
+          "classification": null
+        },
+        "success_auth": {
+          "ok": true,
+          "detail": "HTTP 200 17ms",
+          "classification": null
+        },
+        "schema_valid": {
+          "ok": true,
+          "detail": "HTTP 200",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    },
+    "POST /api/sectors": {
+      "method": "POST",
+      "path": "/api/sectors",
+      "tag": "sectors",
+      "contractKind": "create",
+      "checks": {
+        "no_auth_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "invalid_token_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "invalid_payload_400": {
+          "ok": true,
+          "detail": "HTTP 403",
+          "classification": null
+        },
+        "empty_payload_400": {
+          "ok": true,
+          "detail": "HTTP 403",
+          "classification": null
+        },
+        "success_auth": {
+          "ok": true,
+          "detail": "HTTP 403 7ms",
+          "classification": null
+        },
+        "schema_valid": {
+          "ok": true,
+          "detail": "HTTP 403",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    }
+  },
+  "classifications": {},
+  "summary": {
+    "total": 2,
+    "passed": 13,
+    "failed": 0,
+    "actionable": 13,
+    "skipped": 1,
+    "effectiveFailed": 0
+  }
+}

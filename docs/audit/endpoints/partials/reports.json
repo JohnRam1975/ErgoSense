@@ -1,0 +1,54 @@
+{
+  "generatedAt": "2026-07-01T22:37:05.958Z",
+  "version": "v2-contract",
+  "base": "http://localhost:3001",
+  "routes": {
+    "GET /api/reports": {
+      "method": "GET",
+      "path": "/api/reports",
+      "tag": "reports",
+      "contractKind": "list",
+      "checks": {
+        "no_auth_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "invalid_token_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "wrong_tenant_403": {
+          "ok": true,
+          "detail": "HTTP 403",
+          "classification": null
+        },
+        "success_auth": {
+          "ok": true,
+          "detail": "HTTP 200 16ms",
+          "classification": null
+        },
+        "schema_valid": {
+          "ok": true,
+          "detail": "HTTP 200",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    }
+  },
+  "classifications": {},
+  "summary": {
+    "total": 1,
+    "passed": 6,
+    "failed": 0,
+    "actionable": 6,
+    "skipped": 0,
+    "effectiveFailed": 0
+  }
+}

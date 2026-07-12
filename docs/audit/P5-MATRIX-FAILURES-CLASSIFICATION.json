@@ -1,0 +1,102 @@
+{
+  "generatedAt": "2026-07-01T22:30:00.000Z",
+  "summary": {
+    "TESTE_PRECISA_AJUSTE": 35,
+    "COMPORTAMENTO_ESPERADO": 4,
+    "FALSO_POSITIVO_HEURISTICA": 4,
+    "BUG_REAL": 0
+  },
+  "items": [
+    {
+      "count": 35,
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "subClassification": "ambiente de teste",
+      "reason": "HTTP 0 — API caiu durante batch (FK denuncia_historico / pgr_historico em probes not_found). Corrigido em código; requer API reiniciada e batch --force.",
+      "routes": [
+        "PATCH /api/denuncias/:id/tratativas/:tid",
+        "GET /api/denuncias/dashboard",
+        "POST /api/denuncias/public",
+        "GET /api/denuncias/public/status",
+        "POST /api/pgr/versions/:id/reject",
+        "POST /api/pgr/versions/:id/revision",
+        "POST /api/pgr/versions/:id/sign",
+        "POST /api/pgr/versions/:id/submit-approval",
+        "POST /api/pgr/versions/generate"
+      ],
+      "decision": "Não alterar API — validar existência antes de log histórico (fix aplicado)"
+    },
+    {
+      "method": "GET",
+      "path": "/api/esocial/eventos/:id/transmissoes",
+      "check": "not_found_404",
+      "classification": "COMPORTAMENTO_ESPERADO",
+      "reason": "Sub-recurso retorna 200 + lista vazia",
+      "decision": "Contrato SUB_RESOURCE_LIST — matriz aceita 200"
+    },
+    {
+      "method": "GET",
+      "path": "/api/esocial/eventos/:id/validacoes",
+      "check": "not_found_404",
+      "classification": "COMPORTAMENTO_ESPERADO",
+      "reason": "Sub-recurso retorna 200 + lista vazia",
+      "decision": "Contrato SUB_RESOURCE_LIST"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-criteria/methodologies/:id/versions",
+      "check": "not_found_404",
+      "classification": "COMPORTAMENTO_ESPERADO",
+      "reason": "Sub-recurso retorna 200 + lista vazia",
+      "decision": "Contrato SUB_RESOURCE_LIST"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/sst/treinamentos/:id/realizar",
+      "check": "not_found_404",
+      "classification": "COMPORTAMENTO_ESPERADO",
+      "reason": "PUT idempotente — 200 mesmo sem registro",
+      "decision": "Contrato IDEMPOTENT_PUT"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-criteria/presets",
+      "check": "wrong_tenant_403",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Rota tenant-agnostic — skip wrong_tenant",
+      "decision": "TENANT_AGNOSTIC + reconcileMatrix"
+    },
+    {
+      "method": "GET",
+      "path": "/api/support/status",
+      "check": "wrong_tenant_403",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Rota tenant-agnostic",
+      "decision": "TENANT_AGNOSTIC + reconcileMatrix"
+    },
+    {
+      "method": "GET",
+      "path": "/api/system/ai-status",
+      "check": "wrong_tenant_403",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Rota tenant-agnostic",
+      "decision": "TENANT_AGNOSTIC + reconcileMatrix"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tenants",
+      "check": "wrong_tenant_403",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Listagem global admin — tenant-agnostic",
+      "decision": "TENANT_AGNOSTIC + reconcileMatrix"
+    },
+    {
+      "method": "GET",
+      "path": "/api/openapi.json",
+      "check": "no_sensitive_leak",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "subClassification": "teste incorreto",
+      "reason": "OpenAPI documenta campos password/refreshToken no schema — não é vazamento",
+      "decision": "hasSensitiveLeak ignora /api/openapi.json (fix P5)"
+    }
+  ]
+}

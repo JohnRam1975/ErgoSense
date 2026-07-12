@@ -1,0 +1,57 @@
+{
+  "generatedAt": "2026-07-01T22:36:37.728Z",
+  "version": "v2-contract",
+  "base": "http://localhost:3001",
+  "routes": {
+    "GET /api/public/plans": {
+      "method": "GET",
+      "path": "/api/public/plans",
+      "tag": "Público",
+      "contractKind": "public",
+      "checks": {
+        "success_auth": {
+          "ok": true,
+          "detail": "HTTP 200",
+          "classification": null
+        },
+        "schema_valid": {
+          "ok": true,
+          "detail": "HTTP 200",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    },
+    "POST /api/public/tenant-request": {
+      "method": "POST",
+      "path": "/api/public/tenant-request",
+      "tag": "Público",
+      "contractKind": "public",
+      "checks": {
+        "invalid_payload_400": {
+          "ok": true,
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    }
+  },
+  "classifications": {},
+  "summary": {
+    "total": 2,
+    "passed": 5,
+    "failed": 0,
+    "actionable": 5,
+    "skipped": 14,
+    "effectiveFailed": 0
+  }
+}

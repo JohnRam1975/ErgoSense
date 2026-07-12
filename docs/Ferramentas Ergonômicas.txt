@@ -1,0 +1,381 @@
+Ferramentas Ergonômicas
+Método NIOSH (Equação de levantamento de carga)
+Método OWAS
+Checklist OCRA
+Método RULA
+Método REBA
+Método ROSA
+Método Suzanne Rodgers
+Moore e Garg (Strain Index)
+Moore e Garg (Revised Strain Index)
+Método TLV HAL
+Checklist de Couto
+Questionário Bipolar
+Método QEC
+Método Lehmann
+Método PLIBEL
+Método NASA TLX
+Método HSE-IT
+Método Ergos - Carga Mental
+Análise de Imagem
+Análise de Vídeo
+Antropometria
+Método KIM (Empurrar e Puxar)
+Método KIM (Levantar, Segurar e Carregar)
+Utilização de EPI (NR 6)
+Avaliação de Calor (NHO 06)
+Avaliação de Ruído (NR 15)
+Avaliação de Digitação
+Avaliação de Iluminação (NHO 11)
+Método Snook e Ciriello
+eSocial
+
+--------------------------------------------
+
+Excelente ideia. Se o ErgoSense vai calcular automaticamente os métodos ergonômicos, ele precisa ter uma base de parâmetros aceitáveis, limites, classificações de risco e recomendações automáticas.
+
+Documento Mestre de Critérios Ergonômicos do ErgoSense
+
+1. NIOSH – Equação de Levantamento de Carga
+
+Índice de Levantamento (LI)
+
+Fórmula: LI = Peso Real / Limite de Peso Recomendado (RWL)
+
+Resultado	Classificação
+
+≤ 1,0	Aceitável
+1,01 a 2,99	Atenção
+≥ 3,0	Alto Risco
+
+
+Distância Horizontal
+
+Distância	Situação
+
+≤ 25 cm	Ideal
+26 a 40 cm	Aceitável
+> 40 cm	Crítica
+
+---
+
+2. RULA
+
+Pontuação Final
+
+Pontuação	Interpretação
+
+1-2	Aceitável
+3-4	Investigar
+5-6	Corrigir em breve
+7+	Correção imediata
+
+---
+
+3. REBA
+
+Pontuação Final
+
+Pontuação	Risco
+
+1	Desprezível
+2-3	Baixo
+4-7	Médio
+8-10	Alto
+11-15	Muito Alto
+
+---
+
+4. OWAS
+
+Classes
+
+Classe	Ação
+
+1	Aceitável
+2	Revisão futura
+3	Correção rápida
+4	Correção imediata
+
+---
+
+5. ROSA
+
+Avaliação Escritório
+
+Pontuação	Situação
+
+1-2	Aceitável
+3-4	Atenção
+≥ 5	Intervenção necessária
+
+---
+
+6. OCRA
+
+Índice OCRA
+
+Resultado	Situação
+
+≤ 2,2	Aceitável
+2,3 a 3,5	Atenção
+> 3,5	Alto risco
+
+---
+
+7. QEC
+
+Exposição
+
+Resultado	Situação
+
+< 40%	Baixa
+41-50%	Moderada
+51-70%	Alta
+> 70%	Muito Alta
+
+---
+
+8. KIM (Levantar, Segurar e Carregar)
+
+Pontuação
+
+Resultado	Situação
+
+<10	Baixo risco
+10-24	Moderado
+25-49	Alto
+≥50	Muito Alto
+
+---
+
+9. KIM (Empurrar e Puxar)
+
+Pontuação
+
+Resultado	Situação
+
+<10	Baixo
+10-24	Moderado
+25-49	Alto
+≥50	Muito Alto
+
+---
+
+10. Moore & Garg (Strain Index)
+
+Índice
+
+Resultado	Situação
+
+<3	Seguro
+3-5	Atenção
+5-7	Provável risco
+>7	Alto risco
+
+---
+
+11. Revised Strain Index
+
+Classificação
+
+Resultado	Situação
+
+<10	Aceitável
+10-20	Atenção
+>20	Crítico
+
+---
+
+12. TLV HAL
+
+Relação HAL x Força
+
+Resultado	Situação
+
+Abaixo TLV	Aceitável
+Entre TLV e AL	Atenção
+Acima TLV	Risco elevado
+
+---
+
+13. Suzanne Rodgers
+
+Tempo de Recuperação
+
+Frequência	Classificação
+
+Baixa	Aceitável
+Média	Atenção
+Alta	Crítica
+
+---
+
+14. NASA TLX
+
+Carga Mental
+
+Resultado	Situação
+
+0-29	Baixa
+30-49	Moderada
+50-69	Alta
+≥70	Muito Alta
+
+---
+
+15. HSE-IT
+
+Estresse Ocupacional
+
+Resultado	Situação
+
+Verde	Aceitável
+Amarelo	Atenção
+Vermelho	Intervenção
+
+---
+
+16. Calor (NHO 06)
+
+IBUTG
+
+Trabalho Leve:
+
+IBUTG
+
+≤30°C Aceitável
+
+
+Trabalho Moderado:
+
+IBUTG
+
+≤26,7°C Aceitável
+
+
+Trabalho Pesado:
+
+IBUTG
+
+≤25°C Aceitável
+
+---
+
+17. Ruído (NR15)
+
+Limite de Exposição
+
+dB(A)	Tempo
+
+85	8h
+90	4h
+95	2h
+100	1h
+105	30 min
+
+
+Acima de 85 dB:
+
+Uso obrigatório de EPI.
+
+---
+
+18. Iluminação (NHO 11)
+
+Escritórios
+
+Lux
+
+500 lux mínimo
+
+
+Áreas Industriais
+
+Lux
+
+300 a 1000 lux
+
+---
+
+19. Digitação
+
+Frequência
+
+Teclas/hora	Situação
+
+<8000	Aceitável
+8000-12000	Atenção
+>12000	Alto risco
+
+---
+
+20. Antropometria
+
+Altura da Bancada
+
+Trabalho leve:
+
+5 a 10 cm abaixo do cotovelo
+
+
+Trabalho de precisão:
+
+Na altura do cotovelo
+
+
+Trabalho pesado:
+
+10 a 20 cm abaixo do cotovelo
+
+---
+
+21. Snook e Ciriello
+
+Aceitabilidade
+
+Percentual da População
+
+≥90% Excelente
+75% a 89% Aceitável
+<75% Revisão necessária
+
+---
+
+22. Utilização de EPI (NR 6)
+
+Conformidade
+
+Resultado
+
+100% = Conforme
+<100% = Não Conforme
+
+---
+
+Regras Automáticas para o ErgoSense
+
+Quando a IA identificar:
+
+Tronco > 60° → Risco Alto
+
+Tronco > 90° → Risco Crítico
+
+Pescoço > 20° → Atenção
+
+Pescoço > 45° → Crítico
+
+Braço acima do ombro > 30 segundos → Crítico
+
+Joelho flexionado > 90° → Crítico
+
+Carga > 23 kg → Aplicar NIOSH obrigatório
+
+Distância carga-corpo > 40 cm → Penalidade automática
+
+Frequência > 15 levantamentos/min → Penalidade automática
+
+Permanência estática > 60 min → Alerta ergonômico
+
+
+Esses parâmetros já formam uma base suficientemente robusta para um módulo profissional de cálculo automático do ErgoSense, capaz de gerar laudos ergonômicos e classificações de risco semelhantes às utilizadas por softwares de mercado como Ergolândia e ferramentas acadêmicas de ergonomia.

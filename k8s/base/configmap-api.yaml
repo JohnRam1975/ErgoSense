@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ergosense-api-config
+  namespace: ergosense
+data:
+  NODE_ENV: production
+  PORT: "3001"
+  PGHOST: ergosense-postgres
+  PGPORT: "5432"
+  PGDATABASE: ergosense
+  PGUSER: ergosense
+  REDIS_ENABLED: "true"
+  REDIS_URL: redis://ergosense-redis:6379
+  CACHE_ENABLED: "true"
+  SESSION_REDIS_ENABLED: "true"
+  RABBITMQ_ENABLED: "true"
+  RABBITMQ_URL: amqp://ergosense:changeme@ergosense-rabbitmq:5672
+  TRACING_ENABLED: "true"
+  MFA_ENABLED: "true"
+  STORAGE_DRIVER: s3
+  STORAGE_BUCKET: ergosense-media
+  STORAGE_REGION: us-east-1
+  METRICS_ENABLED: "true"
+  TRUST_PROXY: "true"
+  CORS_ORIGINS: https://app.ergosense.example
+  TENANT_ENFORCE: "true"
+  LOG_LEVEL: info

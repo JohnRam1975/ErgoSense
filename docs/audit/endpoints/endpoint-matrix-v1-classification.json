@@ -1,0 +1,1181 @@
+{
+  "generatedAt": "2026-07-01T20:58:10.397Z",
+  "total": 146,
+  "summary": {
+    "COMPORTAMENTO_ESPERADO": 8,
+    "BUG_REAL": 1,
+    "CONTRATO_INDEFINIDO": 1,
+    "FALSO_POSITIVO_HEURISTICA": 19,
+    "TESTE_PRECISA_AJUSTE": 117
+  },
+  "items": [
+    {
+      "method": "POST",
+      "path": "/api/admin/tenant-requests/:id/block",
+      "check": "forbidden_role_403",
+      "detail": "HTTP 400",
+      "classification": "COMPORTAMENTO_ESPERADO",
+      "reason": "Schema/auth antes de RBAC"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/tenant-requests/:id/reject",
+      "check": "forbidden_role_403",
+      "detail": "HTTP 400",
+      "classification": "COMPORTAMENTO_ESPERADO",
+      "reason": "Schema/auth antes de RBAC"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/tenant-requests/:id/request-adjustment",
+      "check": "forbidden_role_403",
+      "detail": "HTTP 400",
+      "classification": "COMPORTAMENTO_ESPERADO",
+      "reason": "Schema/auth antes de RBAC"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/tenants/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 200",
+      "classification": "BUG_REAL",
+      "reason": "PUT tenant inexistente retornava 200"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/tenants/:id",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "CONTRATO_INDEFINIDO",
+      "reason": "invalid_payload_400 → HTTP 200"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/tenants/:id/block",
+      "check": "forbidden_role_403",
+      "detail": "HTTP 400",
+      "classification": "COMPORTAMENTO_ESPERADO",
+      "reason": "Schema/auth antes de RBAC"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/tenants/:id/reactivate",
+      "check": "forbidden_role_403",
+      "detail": "HTTP 400",
+      "classification": "COMPORTAMENTO_ESPERADO",
+      "reason": "Schema/auth antes de RBAC"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/tenants/:id/suspend",
+      "check": "forbidden_role_403",
+      "detail": "HTTP 400",
+      "classification": "COMPORTAMENTO_ESPERADO",
+      "reason": "Schema/auth antes de RBAC"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/aet/equipamentos/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 200",
+      "classification": "COMPORTAMENTO_ESPERADO",
+      "reason": "Status 200 OK"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/aet/mobiliario/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 200",
+      "classification": "COMPORTAMENTO_ESPERADO",
+      "reason": "Status 200 OK"
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/processos",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 201",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/aet/processos/:id",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/processos/:id/advance",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/processos/:id/gerar-relatorio",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/aet/processos/:id/metodos",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/aet/processos/:id/organizacao",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/aet/processos/:id/responsavel-tecnico",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/processos/:id/retreat",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/aet/processos/:id/teleatendimento",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/processos/:id/versoes",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 201",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/versoes/:id/atualizar-snapshot",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/versoes/:id/gerar-relatorio",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/versoes/:id/reject",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/versoes/:id/revision",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 201",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/engine/specialists",
+      "check": "wrong_tenant_403",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Rota tenant-agnostic"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/aet",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/analyze-ergonomics",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/control-measures",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/control-measures",
+      "check": "empty_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/control-measures",
+      "check": "success_auth",
+      "detail": "HTTP 0 16ms",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/control-measures",
+      "check": "schema_valid",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/expert/history",
+      "check": "no_auth_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/expert/history",
+      "check": "invalid_token_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/expert/history",
+      "check": "wrong_tenant_403",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/expert/history",
+      "check": "success_auth",
+      "detail": "HTTP 0 18ms",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/expert/history",
+      "check": "schema_valid",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/pgr",
+      "check": "no_auth_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/pgr",
+      "check": "invalid_token_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/pgr",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/pgr",
+      "check": "empty_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/pgr",
+      "check": "success_auth",
+      "detail": "HTTP 0 42ms",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/pgr",
+      "check": "schema_valid",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/psicossocial",
+      "check": "no_auth_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/psicossocial",
+      "check": "invalid_token_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/psicossocial",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/psicossocial",
+      "check": "empty_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/psicossocial",
+      "check": "success_auth",
+      "detail": "HTTP 0 19ms",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/psicossocial",
+      "check": "schema_valid",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/query",
+      "check": "no_auth_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/query",
+      "check": "invalid_token_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/query",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/query",
+      "check": "empty_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/query",
+      "check": "success_auth",
+      "detail": "HTTP 0 16ms",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/query",
+      "check": "schema_valid",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/recommendations",
+      "check": "no_auth_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/recommendations",
+      "check": "invalid_token_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/recommendations",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/recommendations",
+      "check": "empty_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/recommendations",
+      "check": "success_auth",
+      "detail": "HTTP 0 19ms",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/recommendations",
+      "check": "schema_valid",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/audit",
+      "check": "no_auth_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/audit",
+      "check": "invalid_token_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/audit",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/audit",
+      "check": "empty_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/audit",
+      "check": "success_auth",
+      "detail": "HTTP 0 23ms",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/audit",
+      "check": "schema_valid",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/compliance",
+      "check": "no_auth_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/compliance",
+      "check": "invalid_token_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/compliance",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/compliance",
+      "check": "empty_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/compliance",
+      "check": "success_auth",
+      "detail": "HTTP 0 14ms",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/compliance",
+      "check": "schema_valid",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/executive",
+      "check": "no_auth_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/executive",
+      "check": "invalid_token_401",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/executive",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/executive",
+      "check": "empty_payload_400",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/executive",
+      "check": "success_auth",
+      "detail": "HTTP 0 11ms",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/executive",
+      "check": "schema_valid",
+      "detail": "HTTP 0",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/technical",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/risk-analysis",
+      "check": "invalid_payload_400",
+      "detail": "HTTP 200",
+      "classification": "FALSO_POSITIVO_HEURISTICA",
+      "reason": "Body opcional / sem validateBody"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/analyses/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/analyses/:id/video",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/collaborators/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/compliance/alertas/:id/lida",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/deteccoes/:id/impactos",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/compliance/deteccoes/:id/validar",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/compliance/fontes/:code",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/normas/:id/versoes",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/normas/:id/versoes/compare",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/compliance/tarefas/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/denuncias/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/denuncias/:id/conclusao",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/denuncias/:id/evidencias",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/denuncias/:id/integrar",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/denuncias/:id/status",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/denuncias/:id/tratativas",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/denuncias/:id/tratativas/:tid",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/esocial/eventos/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/esocial/eventos/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/esocial/eventos/:id/assinar",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/esocial/eventos/:id/consultar-status",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/esocial/eventos/:id/enviar",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/esocial/eventos/:id/preparar-envio",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/esocial/eventos/:id/reenviar",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/esocial/eventos/:id/transmissoes",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/esocial/eventos/:id/validacoes",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/esocial/eventos/:id/validar",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/esocial/eventos/:id/xml",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/gro/action-plans/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/gro/action-plans/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/gro/indicators/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/gro/indicators/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/gro/reports/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/gro/workflow/:riskId/advance",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/gro/workflow/:riskId/complete-review",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/gro/workflow/:riskId/revert",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/openapi.json",
+      "check": "no_sensitive_leak",
+      "detail": "leak",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Conexão resetada — retry"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/org/setores/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/org/setores/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/org/unidades/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/org/unidades/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pgr/versions/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/pgr/versions/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pgr/versions/:id/approve",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pgr/versions/:id/reject",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pgr/versions/:id/revision",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pgr/versions/:id/sign",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pgr/versions/:id/submit-approval",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/psico/alertas/:id/read",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/psico/campanhas/:id/link",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/psico/fatores/:codigo",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/psico/plano-acao/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/psico/plano-acao/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/risk-criteria/methodologies/:id/activate/:versionId",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-criteria/methodologies/:id/versions",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/risk-criteria/methodologies/:id/versions",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/risk-inventory/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-inventory/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/risk-inventory/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-inventory/:id/compliance",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-inventory/:id/links",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/sst/apr/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/sst/capa/:id",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sst/epi/:id/entrega",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/sst/inspecoes/:id/realizar",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/sst/treinamentos/:id/realizar",
+      "check": "not_found_404",
+      "detail": "HTTP 401",
+      "classification": "TESTE_PRECISA_AJUSTE",
+      "reason": "Token expirado ou path inválido"
+    }
+  ]
+}

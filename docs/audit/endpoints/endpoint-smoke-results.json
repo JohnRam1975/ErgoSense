@@ -1,0 +1,635 @@
+{
+  "generatedAt": "2026-07-01T15:19:16.535Z",
+  "base": "http://localhost:3001",
+  "totals": {
+    "endpoints": 255,
+    "passed": 227,
+    "failed": 233,
+    "skipped": 35,
+    "smokeCoveragePct": 46
+  },
+  "byTag": {
+    "access-requests": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "Admin": {
+      "passed": 27,
+      "failed": 0,
+      "skipped": 1
+    },
+    "AET": {
+      "passed": 52,
+      "failed": 9,
+      "skipped": 9
+    },
+    "IA Expert": {
+      "passed": 9,
+      "failed": 29,
+      "skipped": 0
+    },
+    "Core": {
+      "passed": 0,
+      "failed": 13,
+      "skipped": 1
+    },
+    "Autenticação": {
+      "passed": 0,
+      "failed": 15,
+      "skipped": 0
+    },
+    "Compliance": {
+      "passed": 0,
+      "failed": 38,
+      "skipped": 4
+    },
+    "Denúncias": {
+      "passed": 0,
+      "failed": 19,
+      "skipped": 3
+    },
+    "Sistema": {
+      "passed": 0,
+      "failed": 2,
+      "skipped": 0
+    },
+    "eSocial": {
+      "passed": 0,
+      "failed": 32,
+      "skipped": 2
+    },
+    "GRO": {
+      "passed": 0,
+      "failed": 32,
+      "skipped": 2
+    },
+    "openapi.json": {
+      "passed": 0,
+      "failed": 1,
+      "skipped": 0
+    },
+    "Organização": {
+      "passed": 0,
+      "failed": 19,
+      "skipped": 3
+    },
+    "PGR": {
+      "passed": 7,
+      "failed": 15,
+      "skipped": 2
+    },
+    "Psicossocial": {
+      "passed": 36,
+      "failed": 1,
+      "skipped": 3
+    },
+    "Público": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "reports": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "risk-criteria": {
+      "passed": 18,
+      "failed": 2,
+      "skipped": 0
+    },
+    "risk-inventory": {
+      "passed": 15,
+      "failed": 0,
+      "skipped": 1
+    },
+    "sectors": {
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0
+    },
+    "SST": {
+      "passed": 40,
+      "failed": 6,
+      "skipped": 4
+    },
+    "Suporte": {
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0
+    },
+    "system": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "tenants": {
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "failures": [
+    {
+      "tag": "AET",
+      "name": "POST /api/aet/processos [auth POST empty→4xx]",
+      "detail": "HTTP 201"
+    },
+    {
+      "tag": "AET",
+      "name": "POST /api/aet/processos/:id/advance [auth POST empty→4xx]",
+      "detail": "HTTP 200"
+    },
+    {
+      "tag": "AET",
+      "name": "POST /api/aet/processos/:id/gerar-relatorio [auth POST empty→4xx]",
+      "detail": "HTTP 200"
+    },
+    {
+      "tag": "AET",
+      "name": "POST /api/aet/processos/:id/retreat [auth POST empty→4xx]",
+      "detail": "HTTP 200"
+    },
+    {
+      "tag": "AET",
+      "name": "POST /api/aet/processos/:id/versoes [auth POST empty→4xx]",
+      "detail": "HTTP 201"
+    },
+    {
+      "tag": "AET",
+      "name": "POST /api/aet/versoes/:id/atualizar-snapshot [auth POST empty→4xx]",
+      "detail": "HTTP 200"
+    },
+    {
+      "tag": "AET",
+      "name": "POST /api/aet/versoes/:id/gerar-relatorio [auth POST empty→4xx]",
+      "detail": "HTTP 200"
+    },
+    {
+      "tag": "AET",
+      "name": "POST /api/aet/versoes/:id/reject [auth POST empty→4xx]",
+      "detail": "HTTP 200"
+    },
+    {
+      "tag": "AET",
+      "name": "POST /api/aet/versoes/:id/revision [auth POST empty→4xx]",
+      "detail": "HTTP 201"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/aet [auth POST empty→4xx]",
+      "detail": "HTTP 200"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/analyze-ergonomics [auth POST empty→4xx]",
+      "detail": "HTTP 200"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/control-measures [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "GET /api/ai/expert/history [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "GET /api/ai/expert/history [auth GET <500]",
+      "detail": "HTTP 0 9ms"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/pgr [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/pgr [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/psicossocial [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/psicossocial [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/query [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/query [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/recommendations [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/recommendations [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/reports/audit [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/reports/audit [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/reports/compliance [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/reports/compliance [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/reports/executive [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/reports/executive [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/reports/technical [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/reports/technical [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/risk-analysis [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/risk-analysis [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/risk-inventory [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/risk-inventory [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/virtual-audit [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/virtual-audit [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/work-instruction [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "IA Expert",
+      "name": "POST /api/ai/expert/work-instruction [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Core",
+      "name": "GET /api/analyses [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Core",
+      "name": "GET /api/analyses [auth GET <500]",
+      "detail": "HTTP 0 7ms"
+    },
+    {
+      "tag": "Core",
+      "name": "POST /api/analyses [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Core",
+      "name": "POST /api/analyses [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Core",
+      "name": "DELETE /api/analyses/:id [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Core",
+      "name": "DELETE /api/analyses/:id [auth DELETE <500]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Core",
+      "name": "GET /api/analyses/:id/video [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Core",
+      "name": "GET /api/analyses/:id/video [auth GET <500]",
+      "detail": "HTTP 0 58ms"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "POST /api/auth/activate-account [public POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "GET /api/auth/activate-account/preview [public GET]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "POST /api/auth/login [public POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "POST /api/auth/logout [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "POST /api/auth/logout [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "POST /api/auth/mfa/disable [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "POST /api/auth/mfa/disable [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "POST /api/auth/mfa/enable [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "POST /api/auth/mfa/enable [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "POST /api/auth/mfa/setup [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "POST /api/auth/mfa/setup [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "GET /api/auth/mfa/status [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "GET /api/auth/mfa/status [auth GET <500]",
+      "detail": "HTTP 0 46ms"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "POST /api/auth/mfa/verify [public POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Autenticação",
+      "name": "POST /api/auth/refresh [public POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Core",
+      "name": "GET /api/collaborators [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Core",
+      "name": "GET /api/collaborators [auth GET <500]",
+      "detail": "HTTP 0 3ms"
+    },
+    {
+      "tag": "Core",
+      "name": "POST /api/collaborators [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Core",
+      "name": "POST /api/collaborators [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Core",
+      "name": "PUT /api/collaborators/:id [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/agendamento [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/agendamento [auth GET <500]",
+      "detail": "HTTP 0 5ms"
+    },
+    {
+      "tag": "Compliance",
+      "name": "PUT /api/compliance/agendamento [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/alertas [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/alertas [auth GET <500]",
+      "detail": "HTTP 0 5ms"
+    },
+    {
+      "tag": "Compliance",
+      "name": "PUT /api/compliance/alertas/:id/lida [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/dashboard [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/dashboard [auth GET <500]",
+      "detail": "HTTP 0 3ms"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/deteccoes [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/deteccoes [auth GET <500]",
+      "detail": "HTTP 0 8ms"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/deteccoes/:id/impactos [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/deteccoes/:id/impactos [auth GET <500]",
+      "detail": "HTTP 0 11ms"
+    },
+    {
+      "tag": "Compliance",
+      "name": "POST /api/compliance/deteccoes/:id/validar [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "POST /api/compliance/deteccoes/:id/validar [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/fontes [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/fontes [auth GET <500]",
+      "detail": "HTTP 0 5ms"
+    },
+    {
+      "tag": "Compliance",
+      "name": "PUT /api/compliance/fontes/:code [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/historico [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/historico [auth GET <500]",
+      "detail": "HTTP 0 31ms"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/normas [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/normas [auth GET <500]",
+      "detail": "HTTP 0 13ms"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/normas/:id/versoes [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/normas/:id/versoes [auth GET <500]",
+      "detail": "HTTP 0 14ms"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/normas/:id/versoes/compare [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/normas/:id/versoes/compare [auth GET <500]",
+      "detail": "HTTP 0 7ms"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/relatorios [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/relatorios [auth GET <500]",
+      "detail": "HTTP 0 8ms"
+    },
+    {
+      "tag": "Compliance",
+      "name": "POST /api/compliance/relatorios/gerar [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "POST /api/compliance/relatorios/gerar [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "POST /api/compliance/scan [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "POST /api/compliance/scan [auth POST empty→4xx]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/tarefas [sem auth→401]",
+      "detail": "HTTP 0"
+    },
+    {
+      "tag": "Compliance",
+      "name": "GET /api/compliance/tarefas [auth GET <500]",
+      "detail": "HTTP 0 7ms"
+    },
+    {
+      "tag": "Compliance",
+      "name": "PUT /api/compliance/tarefas/:id [sem auth→401]",
+      "detail": "HTTP 0"
+    }
+  ]
+}

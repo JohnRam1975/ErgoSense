@@ -1,0 +1,150 @@
+{
+  "base": "http://localhost:13001",
+  "at": "2026-06-05T13:25:11.554Z",
+  "results": [
+    {
+      "phase": "AUTH",
+      "test": "Login válido",
+      "status": "PASS",
+      "evidence": "HTTP 200 tenant=vale"
+    },
+    {
+      "phase": "AUTH",
+      "test": "Login inválido",
+      "status": "PASS",
+      "evidence": "HTTP 401"
+    },
+    {
+      "phase": "AUTH",
+      "test": "SQLi no login",
+      "status": "PASS",
+      "evidence": "HTTP 401"
+    },
+    {
+      "phase": "AUTH",
+      "test": "Sem headers → 401",
+      "status": "PASS",
+      "evidence": "HTTP 401"
+    },
+    {
+      "phase": "AUTH",
+      "test": "Spoof headers sem login",
+      "status": "FAIL",
+      "evidence": "HTTP 200 — auth é só header, sem JWT/sessão servidor"
+    },
+    {
+      "phase": "AUTH",
+      "test": "JWT/Refresh token",
+      "status": "FAIL",
+      "evidence": "Não implementado — login retorna user JSON, cliente envia headers"
+    },
+    {
+      "phase": "AUTHZ",
+      "test": "ERGONOMISTA → admin/support",
+      "status": "PASS",
+      "evidence": "HTTP 403"
+    },
+    {
+      "phase": "AUTHZ",
+      "test": "ADMIN_GLOBAL sem suporte cross-tenant",
+      "status": "FAIL",
+      "evidence": "HTTP 0"
+    },
+    {
+      "phase": "MULTI-TENANT",
+      "test": "tenantId query ≠ header tenant",
+      "status": "PASS",
+      "evidence": "ERGONOMISTA vale pode pedir tenantId=acme HTTP 0 (vale:-1 acme:-1) — sem bind header↔query"
+    },
+    {
+      "phase": "SECURITY",
+      "test": "GET /api/tenants sem auth",
+      "status": "PASS",
+      "evidence": "HTTP 0 expõe 0 tenants"
+    },
+    {
+      "phase": "SECURITY",
+      "test": "POST /api/tenants sem auth",
+      "status": "PASS",
+      "evidence": "HTTP 0 — registro empresa aberto"
+    },
+    {
+      "phase": "SECURITY",
+      "test": "Support status público",
+      "status": "PASS",
+      "evidence": "HTTP 0 expõe suporte_autorizado"
+    },
+    {
+      "phase": "SECURITY",
+      "test": "/metrics",
+      "status": "PASS",
+      "evidence": "HTTP 0 fetch failed"
+    },
+    {
+      "phase": "SECURITY",
+      "test": "Security headers",
+      "status": "WARN",
+      "evidence": "nosniff=undefined frame=undefined"
+    },
+    {
+      "phase": "SECURITY",
+      "test": "SQLi tenantId",
+      "status": "PASS",
+      "evidence": "HTTP 0"
+    },
+    {
+      "phase": "SECURITY",
+      "test": "XSS payload setor",
+      "status": "INFO",
+      "evidence": "HTTP 0 — sanitização no front, não no servidor"
+    },
+    {
+      "phase": "SECURITY",
+      "test": "Rate limit /api/tenants",
+      "status": "WARN",
+      "evidence": "0 respostas 429 em 130 reqs"
+    },
+    {
+      "phase": "CRUD",
+      "test": "Create colab vazio",
+      "status": "FAIL",
+      "evidence": "HTTP 0"
+    },
+    {
+      "phase": "CRUD",
+      "test": "Create análise inválida",
+      "status": "FAIL",
+      "evidence": "HTTP 0"
+    },
+    {
+      "phase": "CRUD",
+      "test": "Delete análise inexistente",
+      "status": "WARN",
+      "evidence": "HTTP 0"
+    },
+    {
+      "phase": "API",
+      "test": "PATCH não suportado",
+      "status": "WARN",
+      "evidence": "HTTP 0"
+    },
+    {
+      "phase": "DR",
+      "test": "Liveness",
+      "status": "FAIL",
+      "evidence": "HTTP 0"
+    },
+    {
+      "phase": "DR",
+      "test": "Readiness",
+      "status": "FAIL",
+      "evidence": "HTTP 0 fetch failed"
+    }
+  ],
+  "summary": {
+    "PASS": 11,
+    "FAIL": 7,
+    "WARN": 4,
+    "INFO": 1
+  }
+}

@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ErgoSense AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#090c11; --bg1:#0e131c; --bg2:#141b27; --bg3:#1a2233; --bg4:#212a3e;
+  --b0:rgba(255,255,255,0.04); --b1:rgba(255,255,255,0.08); --b2:rgba(255,255,255,0.14);
+  --amber:#FFA800; --a10:rgba(255,168,0,0.10); --a20:rgba(255,168,0,0.20); --a35:rgba(255,168,0,0.35);
+  --cyan:#00D4FF; --c10:rgba(0,212,255,0.10); --c25:rgba(0,212,255,0.25);
+  --green:#00E676; --g10:rgba(0,230,118,0.10); --g25:rgba(0,230,118,0.25);
+  --red:#FF3D3D; --r10:rgba(255,61,61,0.10); --r25:rgba(255,61,61,0.25);
+  --orange:#FF6B35; --o10:rgba(255,107,53,0.10);
+  --t0:#F0F4FA; --t1:#8A96AA; --t2:#48566A; --t3:#29354A;
+  --fd:'Barlow Condensed',sans-serif; --fb:'DM Sans',sans-serif; --fm:'JetBrains Mono',monospace;
+  --safe-top:env(safe-area-inset-top,0px); --safe-bot:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;background:var(--bg);font-family:var(--fb);color:var(--t0);overflow:hidden;position:fixed;overscroll-behavior:none}
+#app{width:100vw;height:100vh;height:100dvh;position:relative;overflow:hidden;display:flex;flex-direction:column}
+#app::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,168,0,.011) 1px,transparent 1px),linear-gradient(90deg,rgba(255,168,0,.011) 1px,transparent 1px);background-size:24px 24px;pointer-events:none;z-index:0}
+
+/* STATUS BAR */
+#statusBar{height:calc(44px + var(--safe-top));padding-top:var(--safe-top);padding-left:20px;padding-right:20px;padding-bottom:6px;display:flex;align-items:flex-end;justify-content:space-between;flex-shrink:0;position:relative;z-index:50;background:var(--bg);transition:opacity .2s}
+.sb-time{font-family:var(--fd);font-size:16px;font-weight:700;color:var(--t0);letter-spacing:.5px}
+.sb-icons{display:flex;gap:5px;align-items:center}
+.sb-wifi{width:15px;height:11px;background:var(--t1);border-radius:2px;opacity:.6}
+.sb-bat{width:22px;height:11px;background:var(--t1);border-radius:2px;opacity:.6}
+.dot-g{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pg 2s infinite}
+@keyframes pg{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,230,118,.5)}50%{opacity:.7;box-shadow:0 0 0 5px transparent}}
+@keyframes pr{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,61,61,.5)}50%{opacity:.7;box-shadow:0 0 0 5px transparent}}
+@keyframes pa{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,168,0,.5)}50%{opacity:.7;box-shadow:0 0 0 5px transparent}}
+
+/* GLOBAL NAV HEADER */
+.nav-hdr{padding:6px 18px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:10}
+.btn-back{width:40px;height:40px;background:var(--bg3);border:1px solid var(--b1);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t1);font-size:18px;transition:all .15s;flex-shrink:0;user-select:none}
+.btn-back:active{background:var(--a10);border-color:var(--a35);color:var(--amber);transform:scale(.95)}
+.hdr-title{font-family:var(--fd);font-size:18px;font-weight:700;color:var(--t0);letter-spacing:1.2px;text-transform:uppercase}
+.btn-act{width:40px;height:40px;background:var(--a10);border:1px solid var(--a35);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--amber);font-size:18px;transition:all .15s;flex-shrink:0;user-select:none}
+.btn-act:active{background:var(--a20);transform:scale(.95)}
+.btn-home{width:40px;height:40px;background:var(--bg3);border:1px solid var(--b1);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t1);font-size:17px;transition:all .15s;flex-shrink:0;user-select:none}
+.btn-home:active{background:var(--a10);border-color:var(--a35);color:var(--amber);transform:scale(.95)}
+
+/* SCREENS */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateX(28px);transition:opacity .2s ease,transform .2s ease;z-index:10}
+.screen.active{opacity:1;pointer-events:all;transform:translateX(0)}
+
+/* SCROLL */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 16px calc(20px + var(--safe-bot));position:relative;z-index:5;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+
+/* BOTTOM NAV — single shared element */
+#bnav{height:calc(62px + var(--safe-bot));padding-bottom:var(--safe-bot);background:var(--bg1);border-top:1px solid var(--b1);display:flex;position:relative;z-index:50;flex-shrink:0}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 2px;cursor:pointer;border-radius:12px;margin:4px 2px;transition:all .15s;position:relative;user-select:none}
+.bn-item:active{background:var(--a10);transform:scale(.94)}
+.bn-item.on{background:var(--a10)}
+.bn-item .ico{font-size:21px;filter:grayscale(1) opacity(.3);transition:all .15s}
+.bn-item.on .ico{filter:none}
+.bn-item .lbl{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t2);font-family:var(--fd);transition:all .15s}
+.bn-item.on .lbl{color:var(--amber)}
+.bn-item.on::after{content:'';position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%;background:var(--amber)}
+
+/* FAB */
+.fab{position:absolute;bottom:calc(72px + var(--safe-bot));right:18px;width:56px;height:56px;background:linear-gradient(135deg,var(--amber),#d96500);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;box-shadow:0 6px 28px rgba(255,168,0,.45);z-index:40;transition:all .15s;user-select:none}
+.fab:active{transform:scale(.93);box-shadow:0 3px 14px rgba(255,168,0,.3)}
+
+/* CARDS */
+.card{background:var(--bg1);border:1px solid var(--b1);border-radius:16px;padding:15px;margin-bottom:11px;position:relative;overflow:hidden}
+.card.ca::before,.card.cc::before,.card.cg::before,.card.cr::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.card.ca::before{background:var(--amber)} .card.cc::before{background:var(--cyan)} .card.cg::before{background:var(--green)} .card.cr::before{background:var(--red)}
+.hl{background:linear-gradient(135deg,var(--a10),transparent);border:1px solid var(--a35);border-radius:16px;padding:15px;margin-bottom:12px}
+.hl-c{background:linear-gradient(135deg,var(--c10),transparent);border:1px solid var(--c25);border-radius:16px;padding:15px;margin-bottom:12px}
+.hl-r{background:linear-gradient(135deg,var(--r10),rgba(255,107,53,.04));border:1px solid var(--r25);border-radius:16px;padding:15px;margin-bottom:12px}
+.hl-g{background:var(--g10);border:1px solid var(--g25);border-radius:16px;padding:16px;margin-bottom:12px}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;font-family:var(--fd);letter-spacing:1px;text-transform:uppercase}
+.bl{background:var(--g10);color:var(--green);border:1px solid var(--g25)}
+.bm{background:var(--a10);color:var(--amber);border:1px solid var(--a35)}
+.bh{background:var(--o10);color:var(--orange);border:1px solid rgba(255,107,53,.3)}
+.bc{background:var(--r10);color:var(--red);border:1px solid var(--r25)}
+.bi{background:var(--c10);color:var(--cyan);border:1px solid var(--c25)}
+
+/* INPUT */
+.lbl{display:block;font-size:10px;font-weight:700;font-family:var(--fd);color:var(--t1);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--b1);border-radius:12px;padding:14px 15px;color:var(--t0);font-family:var(--fb);font-size:16px;outline:none;transition:border-color .15s;margin-bottom:12px;-webkit-appearance:none}
+.inp:focus{border-color:var(--amber)} .inp::placeholder{color:var(--t2)} select.inp{appearance:none;-webkit-appearance:none}
+
+/* BUTTON */
+.btn{width:100%;padding:16px;border-radius:14px;border:none;font-family:var(--fd);font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
+.btn:active{transform:scale(.97)}
+.bp{background:linear-gradient(135deg,var(--amber),#d96500);color:#09090d;box-shadow:0 4px 20px rgba(255,168,0,.35)}
+.bs{background:var(--bg3);border:1px solid var(--b2);color:var(--t0)}
+.bd{background:var(--r10);border:1px solid var(--r25);color:var(--red)}
+.bc2{background:var(--c10);border:1px solid var(--c25);color:var(--cyan)}
+
+/* SECTION HEADER */
+.sec{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:6px}
+.stl{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--t1);display:flex;align-items:center;gap:7px}
+.stl::before{content:'';width:12px;height:2px;background:var(--amber);border-radius:1px}
+.sa{font-size:10px;font-family:var(--fd);font-weight:700;color:var(--amber);cursor:pointer;letter-spacing:.5px;text-transform:uppercase}
+
+/* ANALYSIS CARD */
+.ac{background:var(--bg1);border:1px solid var(--b1);border-radius:14px;padding:13px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s}
+.ac:active{border-color:var(--a35);background:var(--a10);transform:scale(.99)}
+.av{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sc{background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:14px}
+.sv{font-family:var(--fd);font-size:30px;font-weight:800;line-height:1}
+.sl{font-size:9px;font-weight:700;font-family:var(--fd);color:var(--t1);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.pb{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:7px}
+.pf{height:100%;border-radius:3px}
+
+/* TAG ROW */
+.tag{display:inline-flex;padding:5px 12px;background:var(--bg3);border:1px solid var(--b1);border-radius:999px;font-size:10px;font-family:var(--fd);font-weight:700;color:var(--t1);letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.tag:active,.tag.on{background:var(--c10);border-color:var(--c25);color:var(--cyan)}
+.tagrow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:13px}
+
+/* SEP */
+.sep{height:1px;background:var(--b0);margin:12px 0}
+
+/* COMPANY CHIP */
+.cch{background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:14px 15px;display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:pointer;transition:all .15s}
+.cch:active,.cch.sel{border-color:var(--a35);background:var(--a10)}
+.ci{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+
+/* TOGGLE */
+.tog{width:46px;height:26px;border-radius:999px;position:relative;cursor:pointer;flex-shrink:0;transition:all .2s}
+.tog.on{background:var(--amber)} .tog.off{background:var(--bg4);border:1px solid var(--b2)}
+.tok{width:22px;height:22px;border-radius:50%;background:white;position:absolute;top:2px;box-shadow:0 1px 4px rgba(0,0,0,.4);transition:left .18s}
+.tog.on .tok{left:calc(100% - 24px)} .tog.off .tok{left:2px}
+
+/* ANGLE ROW */
+.ar{margin-bottom:12px}
+.ah{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.an{font-size:11px;font-family:var(--fd);font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--t1)}
+.av2{font-family:var(--fm);font-size:12px;color:var(--t0)}
+
+/* SCORE RING */
+.rw{position:relative;display:flex;align-items:center;justify-content:center}
+.rw svg{transform:rotate(-90deg)}
+.rc{position:absolute;display:flex;flex-direction:column;align-items:center}
+.rn{font-family:var(--fd);font-size:40px;font-weight:800;line-height:1}
+.rs{font-size:9px;font-family:var(--fd);font-weight:700;color:var(--t1);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+
+/* MENU DRAWER */
+#menuOverlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:200;pointer-events:none;transition:background .25s}
+#menuOverlay.open{pointer-events:all;background:rgba(0,0,0,.65)}
+#menuDrawer{position:absolute;top:0;left:0;bottom:0;width:min(82vw,320px);background:var(--bg1);border-right:1px solid var(--b2);transform:translateX(-100%);transition:transform .28s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column;overflow:hidden;z-index:201}
+#menuOverlay.open #menuDrawer{transform:translateX(0)}
+.drawer-hdr{padding:calc(var(--safe-top) + 20px) 20px 18px;background:linear-gradient(135deg,var(--a10),transparent);border-bottom:1px solid var(--b1);flex-shrink:0}
+.drawer-logo{font-family:var(--fd);font-size:26px;font-weight:900;letter-spacing:4px;color:var(--t0)}
+.drawer-logo span{color:var(--amber)}
+.drawer-sub{font-size:11px;color:var(--t1);margin-top:2px;font-family:var(--fd);letter-spacing:2px;text-transform:uppercase}
+.drawer-profile{padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--b1);flex-shrink:0}
+.dp-av{width:46px;height:46px;background:linear-gradient(135deg,var(--amber),#d96500);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.dp-name{font-family:var(--fd);font-size:16px;font-weight:800;color:var(--t0)}
+.dp-role{font-size:11px;color:var(--t1);margin-top:2px}
+.di-wrap{flex:1;overflow-y:auto;padding:10px;scrollbar-width:none}
+.di-wrap::-webkit-scrollbar{display:none}
+.di{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;cursor:pointer;transition:all .15s;margin-bottom:2px;user-select:none}
+.di:active{background:var(--a10);transform:scale(.98)}
+.di.on{background:var(--a10);border:1px solid var(--a20)}
+.di-ico{font-size:22px;flex-shrink:0} .di-txt{flex:1}
+.di-lbl{font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t0);text-transform:uppercase;letter-spacing:.5px}
+.di.on .di-lbl{color:var(--amber)}
+.di-sub{font-size:11px;color:var(--t1);margin-top:1px}
+.di-badge{font-size:10px;font-family:var(--fd);font-weight:700}
+.di-sep{height:1px;background:var(--b0);margin:8px 0}
+.drawer-ft{padding:14px 20px calc(14px + var(--safe-bot));border-top:1px solid var(--b1);flex-shrink:0}
+.drawer-co{display:flex;align-items:center;gap:10px;padding:12px;background:var(--a10);border:1px solid var(--a20);border-radius:12px;cursor:pointer;transition:all .15s}
+.drawer-co:active{background:var(--a20)}
+
+/* CAMERA */
+#s-camera{background:#000}
+.cam-btn{width:46px;height:46px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;user-select:none}
+.cam-btn:active{transform:scale(.93)}
+.shutter{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--amber),#d96500);display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;box-shadow:0 0 0 5px rgba(255,168,0,.2),0 6px 28px rgba(255,168,0,.5);user-select:none}
+.shutter:active{transform:scale(.94);box-shadow:0 0 0 5px rgba(255,168,0,.1),0 3px 14px rgba(255,168,0,.3)}
+.cam-hud{display:flex;justify-content:space-between;padding:11px 16px calc(11px + var(--safe-bot));background:rgba(9,12,17,.97);border-top:1px solid rgba(255,255,255,.06);flex-shrink:0}
+
+/* NOTIFICATION TOAST */
+#toast{position:fixed;bottom:calc(80px + var(--safe-bot));left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--b2);border-radius:12px;padding:12px 18px;font-size:13px;font-family:var(--fd);font-weight:600;letter-spacing:.5px;color:var(--t0);z-index:300;opacity:0;transition:all .25s;white-space:nowrap;pointer-events:none;text-transform:uppercase}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.success{border-color:var(--g25);color:var(--green)}
+#toast.info{border-color:var(--a35);color:var(--amber)}
+#toast.warn{border-color:var(--r25);color:var(--red)}
+
+/* MODAL */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:flex-end;justify-content:center;padding-bottom:var(--safe-bot)}
+#modal.open{display:flex}
+.modal-box{background:var(--bg2);border:1px solid var(--b2);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 20px calc(24px + var(--safe-bot));animation:slideUpM .25s ease both}
+@keyframes slideUpM{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-family:var(--fd);font-size:18px;font-weight:800;color:var(--t0);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.modal-body{font-size:14px;color:var(--t1);line-height:1.6;margin-bottom:20px}
+
+/* UTIL */
+.ta{color:var(--amber)} .tc{color:var(--cyan)} .tg{color:var(--green)} .tr{color:var(--red)} .to{color:var(--orange)} .tp{color:var(--t0)} .ts{color:var(--t1)}
+.mt4{margin-top:4px} .mt8{margin-top:8px} .mt12{margin-top:12px} .mt16{margin-top:16px}
+.mb8{margin-bottom:8px} .mb12{margin-bottom:12px} .mb0{margin-bottom:0}
+.fw8{font-weight:800} .fw7{font-weight:700}
+.fd{font-family:var(--fd)} .fm{font-family:var(--fm)}
+.row{display:flex;align-items:center} .flex1{flex:1} .jb{justify-content:space-between} .gap8{gap:8px} .gap12{gap:12px}
+
+/* ANIMATIONS */
+@keyframes loadBar{0%{width:0}65%{width:100%}100%{width:100%}}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes splashPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.screen.active .ac{animation:slideUp .24s ease both}
+.screen.active .ac:nth-child(2){animation-delay:.05s}
+.screen.active .ac:nth-child(3){animation-delay:.10s}
+.screen.active .ac:nth-child(4){animation-delay:.15s}
+.screen.active .ac:nth-child(5){animation-delay:.20s}
+
+/* RESPONSIVE */
+@media(min-width:600px){.sg{grid-template-columns:1fr 1fr 1fr 1fr}.scroll{padding-left:24px;padding-right:24px}.nav-hdr{padding:8px 24px 16px}#menuDrawer{width:min(55vw,360px)}}
+@media(min-width:900px){#app{max-width:430px;margin:0 auto;box-shadow:0 0 120px rgba(0,0,0,.8)}html,body{display:flex;justify-content:center;align-items:stretch}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══ TOAST ══ -->
+<div id="toast"></div>
+
+<!-- ══ MODAL ══ -->
+<div id="modal">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title">Confirmação</div>
+    <div class="modal-body" id="modal-body">Deseja continuar?</div>
+    <button class="btn bp mb0" id="modal-confirm">Confirmar</button>
+    <button class="btn bs" onclick="closeModal()" style="margin-top:8px;">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══ MENU DRAWER ══ -->
+<div id="menuOverlay">
+  <div id="menuDrawer">
+    <div class="drawer-hdr">
+      <div class="drawer-logo">ERGO<span>SENSE</span></div>
+      <div class="drawer-sub">AI · Ergonomia Industrial</div>
+    </div>
+    <div class="drawer-profile">
+      <div class="dp-av">👤</div>
+      <div>
+        <div class="dp-name">Lucas Andrade</div>
+        <div class="dp-role">Ergonomista Sênior · Vale S.A.</div>
+        <div class="badge bm mt4" style="font-size:9px;">ERGONOMIST</div>
+      </div>
+    </div>
+    <div class="di-wrap">
+      <div class="di on" data-menu="dashboard" onclick="menuGo('dashboard')"><div class="di-ico">🏠</div><div class="di-txt"><div class="di-lbl">Dashboard</div><div class="di-sub">Visão geral</div></div></div>
+      <div class="di" data-menu="new-analysis" onclick="menuGo('new-analysis')"><div class="di-ico">📷</div><div class="di-txt"><div class="di-lbl">Nova Análise</div><div class="di-sub">Capturar com câmera</div></div><div class="di-badge ta">●</div></div>
+      <div class="di" data-menu="collabs" onclick="menuGo('collabs')"><div class="di-ico">👥</div><div class="di-txt"><div class="di-lbl">Colaboradores</div><div class="di-sub">89 avaliados</div></div></div>
+      <div class="di" data-menu="sectors" onclick="menuGo('sectors')"><div class="di-ico">🏭</div><div class="di-txt"><div class="di-lbl">Setores</div><div class="di-sub">12 auditados</div></div></div>
+      <div class="di-sep"></div>
+      <div class="di" data-menu="history" onclick="menuGo('history')"><div class="di-ico">📋</div><div class="di-txt"><div class="di-lbl">Histórico</div><div class="di-sub">147 análises</div></div></div>
+      <div class="di" data-menu="reports" onclick="menuGo('reports')"><div class="di-ico">📊</div><div class="di-txt"><div class="di-lbl">Relatórios</div><div class="di-sub">NR17 · PDF</div></div></div>
+      <div class="di" data-menu="sync" onclick="menuGo('sync')"><div class="di-ico">🔄</div><div class="di-txt"><div class="di-lbl">Sincronização</div><div class="di-sub">12 pendentes</div></div><div class="di-badge ta fw8">12</div></div>
+      <div class="di-sep"></div>
+      <div class="di" data-menu="settings" onclick="menuGo('settings')"><div class="di-ico">⚙️</div><div class="di-txt"><div class="di-lbl">Configurações</div><div class="di-sub">Motor IA · Câmera</div></div></div>
+      <div class="di" onclick="confirmLogout()" style="margin-top:4px;"><div class="di-ico">🚪</div><div class="di-txt"><div class="di-lbl" style="color:var(--red);">Sair</div><div class="di-sub">Encerrar sessão</div></div></div>
+    </div>
+    <div class="drawer-ft">
+      <div class="drawer-co" onclick="menuGo('company')">
+        <span style="font-size:20px;">⚙️</span>
+        <div style="flex:1;"><div style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.5px;">Vale S.A.</div><div style="font-size:10px;color:var(--t1);">Carajás · Trocar empresa</div></div>
+        <span style="font-size:16px;color:var(--amber);">›</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ STATUS BAR ══ -->
+<div id="statusBar">
+  <span class="sb-time" id="clock">09:41</span>
+  <div class="sb-icons"><div class="dot-g"></div><div class="sb-wifi"></div><div class="sb-bat"></div></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREENS
+══════════════════════════════════════════════════ -->
+
+<!-- 01 SPLASH -->
+<div class="screen active" id="s-splash" style="background:var(--bg);justify-content:center;align-items:center;">
+  <div style="position:absolute;top:12%;left:7%;width:24px;height:24px;border-top:2px solid rgba(255,168,0,.2);border-left:2px solid rgba(255,168,0,.2);border-radius:2px;"></div>
+  <div style="position:absolute;top:12%;right:7%;width:24px;height:24px;border-top:2px solid rgba(255,168,0,.2);border-right:2px solid rgba(255,168,0,.2);border-radius:2px;"></div>
+  <div style="position:absolute;bottom:12%;left:7%;width:24px;height:24px;border-bottom:2px solid rgba(255,168,0,.2);border-left:2px solid rgba(255,168,0,.2);border-radius:2px;"></div>
+  <div style="position:absolute;bottom:12%;right:7%;width:24px;height:24px;border-bottom:2px solid rgba(255,168,0,.2);border-right:2px solid rgba(255,168,0,.2);border-radius:2px;"></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:26px;z-index:2;">
+    <div style="position:relative;">
+      <div style="width:100px;height:100px;background:linear-gradient(140deg,#FFA800,#d96500);border-radius:30px;display:flex;align-items:center;justify-content:center;font-size:48px;box-shadow:0 0 0 14px rgba(255,168,0,.07),0 0 60px rgba(255,168,0,.3);animation:splashPulse 3s ease infinite;">🦾</div>
+      <div style="position:absolute;inset:-16px;border:1px solid rgba(255,168,0,.14);border-radius:46px;pointer-events:none;"></div>
+      <div style="position:absolute;inset:-30px;border:1px solid rgba(255,168,0,.06);border-radius:60px;pointer-events:none;"></div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-family:var(--fd);font-size:44px;font-weight:900;letter-spacing:6px;color:var(--t0);line-height:1;">ERGO<span style="color:var(--amber)">SENSE</span></div>
+      <div style="font-family:var(--fd);font-size:12px;font-weight:600;letter-spacing:4px;color:var(--t1);text-transform:uppercase;margin-top:5px;">AI · ERGONOMIA INDUSTRIAL</div>
+    </div>
+    <div style="width:min(200px,60vw);">
+      <div style="height:2px;background:rgba(255,255,255,.05);border-radius:1px;overflow:hidden;"><div style="height:100%;background:linear-gradient(90deg,var(--amber),#d96500);animation:loadBar 2.5s ease infinite;"></div></div>
+      <div style="font-family:var(--fm);font-size:9px;color:var(--t2);letter-spacing:1.5px;text-align:center;margin-top:10px;text-transform:uppercase;">Inicializando módulos IA...</div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:20px;text-align:center;z-index:2;">
+    <div style="font-size:9px;font-family:var(--fd);letter-spacing:2px;color:var(--t2);text-transform:uppercase;">v1.0.0 MVP · ANDROID · iOS · TABLET</div>
+  </div>
+</div>
+
+<!-- 02 LOGIN -->
+<div class="screen" id="s-login" style="justify-content:flex-end;">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 20px 0;">
+    <div style="margin-bottom:28px;">
+      <div style="font-family:var(--fd);font-size:40px;font-weight:900;color:var(--t0);letter-spacing:4px;line-height:1;">ERGO<span style="color:var(--amber)">SENSE</span></div>
+      <div style="font-family:var(--fd);font-size:11px;font-weight:600;letter-spacing:3px;color:var(--t1);text-transform:uppercase;margin-top:5px;">Análise Ergonômica com IA</div>
+    </div>
+  </div>
+  <div class="scroll" style="flex:none;padding-bottom:calc(30px + var(--safe-bot));">
+    <div class="hl">
+      <div style="font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:18px;">Acesso à Plataforma</div>
+      <label class="lbl">E-mail corporativo</label>
+      <input class="inp" placeholder="usuario@empresa.com.br" type="email" autocomplete="email">
+      <label class="lbl">Senha</label>
+      <input class="inp" placeholder="••••••••" type="password" autocomplete="current-password">
+      <div style="text-align:right;margin:4px 0 18px;"><span style="font-size:12px;color:var(--amber);font-family:var(--fd);font-weight:700;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;" onclick="toast('Link enviado para seu e-mail','success')">Esqueci a senha</span></div>
+      <button class="btn bp" onclick="go('company')">Acessar Sistema →</button>
+      <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--t1);">Primeiro acesso? <span style="color:var(--amber);cursor:pointer;font-weight:600;" onclick="toast('Solicite ao administrador do sistema','info')">Solicitar acesso</span></div>
+    </div>
+    <div style="text-align:center;padding:12px 0;"><div style="font-size:9px;font-family:var(--fd);letter-spacing:1.5px;color:var(--t2);text-transform:uppercase;">🔒 JWT · TLS 1.3 · SECURE STORAGE · LGPD</div></div>
+  </div>
+</div>
+
+<!-- 03 COMPANY -->
+<div class="screen" id="s-company">
+  <div class="nav-hdr" style="padding-top:8px;">
+    <div style="font-family:var(--fd);font-size:22px;font-weight:800;color:var(--t0);letter-spacing:2px;text-transform:uppercase;flex:1;">Selecionar Empresa</div>
+  </div>
+  <div class="scroll">
+    <div style="font-size:13px;color:var(--t1);margin-bottom:16px;">Olá, Lucas. Selecione o tenant para acessar:</div>
+    <input class="inp" placeholder="🔍  Buscar empresa..." style="font-size:16px;">
+    <div style="font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t1);margin-bottom:10px;display:flex;align-items:center;gap:6px;"><span style="width:10px;height:2px;background:var(--amber);display:inline-block;"></span>EMPRESAS VINCULADAS</div>
+    <div class="cch sel" onclick="go('dashboard');toast('Vale S.A. selecionada','success')">
+      <div class="ci" style="background:var(--a10);border:1px solid var(--a35);">⚙️</div>
+      <div style="flex:1;"><div style="font-family:var(--fd);font-size:16px;font-weight:700;color:var(--t0);">Vale S.A.</div><div style="font-size:12px;color:var(--t1);">Mineração · Schema: vale_sa</div><div class="badge bi mt4" style="font-size:9px;">ATIVO</div></div>
+      <span style="font-size:22px;color:var(--amber);">✓</span>
+    </div>
+    <div class="cch" onclick="go('dashboard');toast('Gerdau Aços selecionada','success')">
+      <div class="ci" style="background:var(--c10);border:1px solid var(--c25);">🏭</div>
+      <div style="flex:1;"><div style="font-family:var(--fd);font-size:16px;font-weight:700;color:var(--t0);">Gerdau Aços</div><div style="font-size:12px;color:var(--t1);">Siderurgia · 820 colab.</div></div>
+      <span style="color:var(--t2);font-size:18px;">›</span>
+    </div>
+    <div class="cch" onclick="go('dashboard');toast('Porto do Açu selecionada','success')">
+      <div class="ci" style="background:var(--g10);border:1px solid var(--g25);">🚢</div>
+      <div style="flex:1;"><div style="font-family:var(--fd);font-size:16px;font-weight:700;color:var(--t0);">Porto do Açu</div><div style="font-size:12px;color:var(--t1);">Portuário · 450 colab.</div></div>
+      <span style="color:var(--t2);font-size:18px;">›</span>
+    </div>
+    <div class="cch" onclick="go('dashboard');toast('Usiminas selecionada','success')">
+      <div class="ci" style="background:var(--bg3);">🏗️</div>
+      <div style="flex:1;"><div style="font-family:var(--fd);font-size:16px;font-weight:700;color:var(--t0);">Usiminas</div><div style="font-size:12px;color:var(--t1);">Siderurgia · 1.100 colab.</div></div>
+      <span style="color:var(--t2);font-size:18px;">›</span>
+    </div>
+    <div style="margin-top:8px;padding:14px;border:1px dashed rgba(255,255,255,.07);border-radius:14px;text-align:center;cursor:pointer;" onclick="toast('Solicitação enviada ao admin','info')">
+      <span style="font-size:13px;font-family:var(--fd);font-weight:700;color:var(--t2);letter-spacing:1px;text-transform:uppercase;">+ Solicitar acesso a nova empresa</span>
+    </div>
+  </div>
+</div>
+
+<!-- 04 DASHBOARD -->
+<div class="screen" id="s-dashboard">
+  <div class="nav-hdr" style="padding-top:6px;">
+    <div>
+      <div style="font-size:11px;font-family:var(--fd);font-weight:600;letter-spacing:2px;color:var(--t1);text-transform:uppercase;">Vale S.A. · Carajás</div>
+      <div style="font-family:var(--fd);font-size:24px;font-weight:800;color:var(--t0);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px;">Dashboard</div>
+    </div>
+    <div style="width:40px;height:40px;background:linear-gradient(135deg,var(--amber),#d96500);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0;" onclick="openMenu()">☰</div>
+  </div>
+  <div class="scroll">
+    <div style="background:var(--r10);border:1px solid var(--r25);border-radius:14px;padding:12px 14px;margin-bottom:13px;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="go('history')">
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--red);animation:pr 1.6s infinite;flex-shrink:0;"></div>
+      <div style="flex:1;"><div style="font-family:var(--fd);font-size:13px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.5px;">3 Análises Risco Crítico</div><div style="font-size:11px;color:var(--t1);margin-top:2px;">Beneficiamento — toque para ver</div></div>
+      <span style="font-size:20px;color:var(--red);">›</span>
+    </div>
+    <div class="sg">
+      <div class="sc" style="border-color:rgba(255,168,0,.18);cursor:pointer;" onclick="go('history')"><div class="sv ta">147</div><div class="sl">Análises<br>Este mês</div><div class="pb"><div class="pf" style="width:73%;background:var(--amber);"></div></div></div>
+      <div class="sc" style="border-color:rgba(0,230,118,.14);cursor:pointer;" onclick="go('collabs')"><div class="sv tg">89</div><div class="sl">Colaboradores<br>Avaliados</div><div class="pb"><div class="pf" style="width:60%;background:var(--green);"></div></div></div>
+      <div class="sc" style="border-color:rgba(255,61,61,.14);cursor:pointer;" onclick="go('history')"><div class="sv tr">3</div><div class="sl">Risco<br>Crítico</div></div>
+      <div class="sc" style="border-color:rgba(0,212,255,.14);cursor:pointer;" onclick="go('sectors')"><div class="sv tc">12</div><div class="sl">Setores<br>Auditados</div></div>
+    </div>
+    <div class="card ca">
+      <div style="font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t1);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px;"><span style="width:10px;height:2px;background:var(--amber);display:inline-block;"></span>DISTRIBUIÇÃO DE RISCO</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div onclick="go('history')" style="cursor:pointer;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;font-family:var(--fd);font-weight:700;color:var(--t1);letter-spacing:.5px;text-transform:uppercase;">Crítico</span><span style="font-family:var(--fm);font-size:11px;color:var(--red);">3 · 2%</span></div><div class="pb"><div class="pf" style="width:2%;background:var(--red);"></div></div></div>
+        <div onclick="go('history')" style="cursor:pointer;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;font-family:var(--fd);font-weight:700;color:var(--t1);letter-spacing:.5px;text-transform:uppercase;">Alto</span><span style="font-family:var(--fm);font-size:11px;color:var(--orange);">18 · 12%</span></div><div class="pb"><div class="pf" style="width:12%;background:var(--orange);"></div></div></div>
+        <div onclick="go('history')" style="cursor:pointer;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;font-family:var(--fd);font-weight:700;color:var(--t1);letter-spacing:.5px;text-transform:uppercase;">Médio</span><span style="font-family:var(--fm);font-size:11px;color:var(--amber);">42 · 29%</span></div><div class="pb"><div class="pf" style="width:29%;background:var(--amber);"></div></div></div>
+        <div onclick="go('history')" style="cursor:pointer;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;font-family:var(--fd);font-weight:700;color:var(--t1);letter-spacing:.5px;text-transform:uppercase;">Baixo</span><span style="font-family:var(--fm);font-size:11px;color:var(--green);">84 · 57%</span></div><div class="pb"><div class="pf" style="width:57%;background:var(--green);"></div></div></div>
+      </div>
+    </div>
+    <div class="sec"><span class="stl">Análises Recentes</span><span class="sa" onclick="go('history')">Ver todas →</span></div>
+    <div class="ac" onclick="go('result')"><div class="av" style="background:var(--r10);">🦺</div><div style="flex:1;"><div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t0);">Carlos Ferreira</div><div style="font-size:11px;color:var(--t1);">Beneficiamento · Britagem · 09:32</div></div><div style="text-align:right;"><div class="badge bc">87</div></div></div>
+    <div class="ac" onclick="go('result')"><div class="av" style="background:var(--a10);">⚙️</div><div style="flex:1;"><div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t0);">Ana Paula Silva</div><div style="font-size:11px;color:var(--t1);">Manutenção · Campo · 08:15</div></div><div style="text-align:right;"><div class="badge bm">54</div></div></div>
+    <div class="ac" onclick="go('result')"><div class="av" style="background:var(--g10);">👷</div><div style="flex:1;"><div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t0);">Roberto Nascimento</div><div style="font-size:11px;color:var(--t1);">Logística · Empilhadeira · ontem</div></div><div style="text-align:right;"><div class="badge bl">22</div></div></div>
+  </div>
+  <div class="fab" onclick="go('new-analysis')">＋</div>
+</div>
+
+<!-- 05 COLLABORATORS -->
+<div class="screen" id="s-collabs">
+  <div class="nav-hdr">
+    <div class="btn-back" onclick="go('dashboard')" title="Voltar">←</div>
+    <div class="hdr-title">Colaboradores</div>
+    <div class="btn-act" onclick="go('new-collab')">＋</div>
+  </div>
+  <div class="scroll">
+    <input class="inp" placeholder="🔍  Buscar colaborador..." style="font-size:16px;">
+    <div class="tagrow">
+      <div class="tag on" onclick="filterTag(this)">Todos</div>
+      <div class="tag" onclick="filterTag(this)">Beneficiamento</div>
+      <div class="tag" onclick="filterTag(this)">Manutenção</div>
+      <div class="tag" onclick="filterTag(this)">Logística</div>
+    </div>
+    <div class="ac" onclick="go('new-collab')"><div class="av" style="background:var(--r10);">🦺</div><div style="flex:1;"><div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t0);">Carlos Ferreira</div><div style="font-size:11px;color:var(--t1);">Mat. 00142 · Beneficiamento</div></div><div class="badge bc">Crítico</div></div>
+    <div class="ac" onclick="go('new-collab')"><div class="av" style="background:var(--a10);">⚙️</div><div style="flex:1;"><div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t0);">Ana Paula Silva</div><div style="font-size:11px;color:var(--t1);">Mat. 00098 · Manutenção</div></div><div class="badge bm">Médio</div></div>
+    <div class="ac" onclick="go('new-collab')"><div class="av" style="background:var(--g10);">👷</div><div style="flex:1;"><div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t0);">Roberto Nascimento</div><div style="font-size:11px;color:var(--t1);">Mat. 00215 · Logística</div></div><div class="badge bl">Baixo</div></div>
+    <div class="ac" onclick="go('new-collab')"><div class="av" style="background:var(--c10);">👨‍🔧</div><div style="flex:1;"><div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t0);">Marcos Oliveira</div><div style="font-size:11px;color:var(--t1);">Mat. 00334 · Elétrica</div></div><div class="badge bl">Baixo</div></div>
+    <div class="ac" onclick="go('new-collab')"><div class="av" style="background:var(--o10);">🔧</div><div style="flex:1;"><div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t0);">Fernanda Costa</div><div style="font-size:11px;color:var(--t1);">Mat. 00287 · Soldagem</div></div><div class="badge bh">Alto</div></div>
+    <button class="btn bp mt8" onclick="go('new-collab')">＋ Novo Colaborador</button>
+  </div>
+</div>
+
+<!-- 06 NEW COLLABORATOR -->
+<div class="screen" id="s-new-collab">
+  <div class="nav-hdr">
+    <div class="btn-back" onclick="go('collabs')" title="Voltar">←</div>
+    <div class="hdr-title">Novo Colaborador</div>
+    <div class="btn-home" onclick="go('dashboard')" title="Início">🏠</div>
+  </div>
+  <div class="scroll">
+    <label class="lbl">Nome completo *</label><input class="inp" value="Carlos Ferreira" autocomplete="name">
+    <label class="lbl">Matrícula *</label><input class="inp" value="00142">
+    <label class="lbl">Cargo / Função</label><input class="inp" value="Operador de Britagem">
+    <label class="lbl">Setor *</label><select class="inp"><option>Beneficiamento</option><option>Manutenção</option><option>Logística</option></select>
+    <label class="lbl">Turno</label><select class="inp"><option>Manhã 06h–14h</option><option>Tarde 14h–22h</option><option>Noite 22h–06h</option></select>
+    <label class="lbl">Data de nascimento</label><input class="inp" type="date">
+    <label class="lbl">Observações</label><input class="inp" placeholder="Restrições médicas, EPI especial...">
+    <div class="hl-c mt8">
+      <div style="font-family:var(--fd);font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">🔒 CONSENTIMENTO LGPD</div>
+      <div style="font-size:13px;color:var(--t1);line-height:1.55;margin-bottom:12px;">O colaborador autoriza coleta de dados biométricos para análise ergonômica (Lei 13.709/2018 — LGPD).</div>
+      <div style="display:flex;align-items:center;gap:10px;" onclick="toggleConsent(this)" style="cursor:pointer;">
+        <div id="consentBox" style="width:24px;height:24px;background:var(--g10);border:1.5px solid var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--green);cursor:pointer;">✓</div>
+        <span style="font-size:13px;color:var(--t0);font-weight:500;cursor:pointer;">Consentimento digital registrado</span>
+      </div>
+      <div style="font-size:10px;color:var(--t2);margin-top:5px;font-family:var(--fm);">26/05/2026 09:38</div>
+    </div>
+    <button class="btn bp mt12" onclick="saveCollab()">Salvar Colaborador</button>
+    <button class="btn bs" onclick="go('collabs')">Cancelar</button>
+    <button class="btn" style="background:transparent;color:var(--t1);border:none;font-size:13px;" onclick="go('dashboard')">🏠 Voltar ao Início</button>
+  </div>
+</div>
+
+<!-- 07 SECTORS -->
+<div class="screen" id="s-sectors">
+  <div class="nav-hdr">
+    <div class="btn-back" onclick="go('dashboard')" title="Voltar">←</div>
+    <div class="hdr-title">Setores</div>
+    <div class="btn-act" onclick="showAddSector()">＋</div>
+  </div>
+  <div class="scroll">
+    <div class="card cr" style="cursor:pointer;" onclick="toast('Setor Beneficiamento selecionado','info')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-family:var(--fd);font-size:18px;font-weight:800;color:var(--t0);text-transform:uppercase;">Beneficiamento</div><div style="font-size:12px;color:var(--t1);margin-top:2px;">28 colaboradores</div></div><div class="badge bc">Crítico</div></div>
+      <div class="sep" style="margin:10px 0;"></div>
+      <div style="display:flex;gap:22px;">
+        <div><div style="font-family:var(--fd);font-size:22px;font-weight:800;color:var(--red);">14</div><div style="font-size:9px;color:var(--t1);font-family:var(--fd);letter-spacing:1px;text-transform:uppercase;">Análises</div></div>
+        <div><div style="font-family:var(--fd);font-size:22px;font-weight:800;color:var(--amber);">3</div><div style="font-size:9px;color:var(--t1);font-family:var(--fd);letter-spacing:1px;text-transform:uppercase;">Alertas</div></div>
+        <div><div style="font-family:var(--fd);font-size:22px;font-weight:800;color:var(--t1);">78</div><div style="font-size:9px;color:var(--t1);font-family:var(--fd);letter-spacing:1px;text-transform:uppercase;">Score méd.</div></div>
+      </div>
+      <button class="btn bp mt12 mb0" style="font-size:13px;padding:12px;" onclick="event.stopPropagation();go('new-analysis')">📷 Iniciar Análise</button>
+    </div>
+    <div class="card ca" style="cursor:pointer;" onclick="toast('Setor Manutenção selecionado','info')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-family:var(--fd);font-size:18px;font-weight:800;color:var(--t0);text-transform:uppercase;">Manutenção</div><div style="font-size:12px;color:var(--t1);margin-top:2px;">16 colaboradores</div></div><div class="badge bm">Médio</div></div>
+      <div class="sep" style="margin:10px 0;"></div>
+      <div style="display:flex;gap:22px;">
+        <div><div style="font-family:var(--fd);font-size:22px;font-weight:800;color:var(--amber);">9</div><div style="font-size:9px;color:var(--t1);font-family:var(--fd);letter-spacing:1px;text-transform:uppercase;">Análises</div></div>
+        <div><div style="font-family:var(--fd);font-size:22px;font-weight:800;color:var(--amber);">1</div><div style="font-size:9px;color:var(--t1);font-family:var(--fd);letter-spacing:1px;text-transform:uppercase;">Alertas</div></div>
+        <div><div style="font-family:var(--fd);font-size:22px;font-weight:800;color:var(--t1);">54</div><div style="font-size:9px;color:var(--t1);font-family:var(--fd);letter-spacing:1px;text-transform:uppercase;">Score méd.</div></div>
+      </div>
+      <button class="btn bp mt12 mb0" style="font-size:13px;padding:12px;" onclick="event.stopPropagation();go('new-analysis')">📷 Iniciar Análise</button>
+    </div>
+    <div class="card cg" style="cursor:pointer;" onclick="toast('Setor Logística selecionado','info')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-family:var(--fd);font-size:18px;font-weight:800;color:var(--t0);text-transform:uppercase;">Logística</div><div style="font-size:12px;color:var(--t1);margin-top:2px;">22 colaboradores</div></div><div class="badge bl">Baixo</div></div>
+      <div class="sep" style="margin:10px 0;"></div>
+      <div style="display:flex;gap:22px;">
+        <div><div style="font-family:var(--fd);font-size:22px;font-weight:800;color:var(--green);">11</div><div style="font-size:9px;color:var(--t1);font-family:var(--fd);letter-spacing:1px;text-transform:uppercase;">Análises</div></div>
+        <div><div style="font-family:var(--fd);font-size:22px;font-weight:800;color:var(--green);">0</div><div style="font-size:9px;color:var(--t1);font-family:var(--fd);letter-spacing:1px;text-transform:uppercase;">Alertas</div></div>
+        <div><div style="font-family:var(--fd);font-size:22px;font-weight:800;color:var(--t1);">28</div><div style="font-size:9px;color:var(--t1);font-family:var(--fd);letter-spacing:1px;text-transform:uppercase;">Score méd.</div></div>
+      </div>
+      <button class="btn bp mt12 mb0" style="font-size:13px;padding:12px;" onclick="event.stopPropagation();go('new-analysis')">📷 Iniciar Análise</button>
+    </div>
+    <button class="btn" style="background:transparent;color:var(--t1);border:none;font-size:13px;margin-top:4px;" onclick="go('dashboard')">🏠 Voltar ao Início</button>
+  </div>
+</div>
+
+<!-- 08 NEW ANALYSIS -->
+<div class="screen" id="s-new-analysis">
+  <div class="nav-hdr">
+    <div class="btn-back" onclick="go('dashboard')" title="Voltar">←</div>
+    <div class="hdr-title">Nova Análise</div>
+    <div class="btn-home" onclick="go('dashboard')" title="Início">🏠</div>
+  </div>
+  <div class="scroll">
+    <div style="background:var(--a10);border:1px solid var(--a35);border-radius:14px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:20px;">📍</span>
+      <div><div style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--amber);letter-spacing:.5px;text-transform:uppercase;">Mina Carajás · Beneficiamento</div><div style="font-size:11px;color:var(--t1);">26/05/2026 · 09:41</div></div>
+    </div>
+    <label class="lbl">Colaborador *</label>
+    <select class="inp"><option>Carlos Ferreira — Mat. 00142</option><option>Ana Paula Silva — Mat. 00098</option><option>Roberto Nascimento — Mat. 00215</option></select>
+    <label class="lbl">Setor *</label>
+    <select class="inp"><option>Beneficiamento</option><option>Manutenção</option><option>Logística</option></select>
+    <label class="lbl">Atividade analisada *</label>
+    <select class="inp"><option>Operação de britagem</option><option>Movimentação de material</option><option>Inspeção de equipamentos</option></select>
+    <label class="lbl">Observações</label>
+    <input class="inp" placeholder="Condições especiais, EPI em uso...">
+    <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:14px;margin-bottom:14px;">
+      <div style="font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--t1);text-transform:uppercase;margin-bottom:11px;">Modo de Análise</div>
+      <div style="display:flex;flex-direction:column;gap:9px;">
+        <div id="modeComplete" style="display:flex;align-items:center;gap:11px;padding:12px;background:var(--a10);border:1px solid var(--a35);border-radius:11px;cursor:pointer;" onclick="selectMode('complete')">
+          <div style="width:20px;height:20px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;color:#09090d;font-weight:800;">✓</div>
+          <div><div style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--amber);text-transform:uppercase;">Análise Completa</div><div style="font-size:11px;color:var(--t1);">Câmera + MediaPipe Servidor</div></div>
+        </div>
+        <div id="modeOffline" style="display:flex;align-items:center;gap:11px;padding:12px;background:var(--bg1);border:1px solid var(--b1);border-radius:11px;cursor:pointer;" onclick="selectMode('offline')">
+          <div id="modeOfflineCircle" style="width:20px;height:20px;border-radius:50%;background:var(--bg3);border:1.5px solid var(--b2);flex-shrink:0;"></div>
+          <div><div style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--t1);text-transform:uppercase;">Análise Offline</div><div style="font-size:11px;color:var(--t2);">TFLite local · sem internet</div></div>
+        </div>
+      </div>
+    </div>
+    <button class="btn bp" onclick="go('camera')">📷  Iniciar Câmera</button>
+    <button class="btn bs" onclick="go('dashboard')">🏠 Voltar ao Início</button>
+  </div>
+</div>
+
+<!-- 09 CAMERA -->
+<div class="screen" id="s-camera" style="background:#000;">
+  <div style="position:absolute;top:calc(var(--safe-top) + 8px);left:0;right:0;z-index:30;padding:0 18px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.6);padding:6px 12px;border-radius:999px;">
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--red);animation:pr 1.6s infinite;"></div>
+      <span style="font-family:var(--fm);font-size:11px;color:white;letter-spacing:1px;" id="recTimer">REC 00:00</span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div style="background:rgba(0,0,0,.6);padding:6px 12px;border-radius:999px;font-family:var(--fd);font-size:14px;font-weight:700;color:white;" id="camClock">09:41</div>
+    </div>
+  </div>
+  <div style="position:relative;flex:1;background:radial-gradient(ellipse at 50% 25%,#1c2538 0%,#050608 100%);">
+    <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.04) 1px,transparent 1px);background-size:38px 38px;"></div>
+    <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 375 560" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="188" cy="78" r="22" fill="none" stroke="#00D4FF" stroke-width="1.5" opacity=".9"/>
+      <line x1="188" y1="100" x2="188" y2="128" stroke="#00D4FF" stroke-width="2.2"/>
+      <line x1="188" y1="128" x2="124" y2="152" stroke="#00D4FF" stroke-width="2.2"/>
+      <line x1="188" y1="128" x2="252" y2="152" stroke="#00D4FF" stroke-width="2.2"/>
+      <line x1="188" y1="128" x2="188" y2="240" stroke="#FFA800" stroke-width="2.5" stroke-dasharray="5,2"/>
+      <line x1="124" y1="152" x2="100" y2="208" stroke="#00D4FF" stroke-width="2"/>
+      <line x1="100" y1="208" x2="88" y2="260" stroke="#00D4FF" stroke-width="2"/>
+      <line x1="252" y1="152" x2="274" y2="208" stroke="#00D4FF" stroke-width="2"/>
+      <line x1="274" y1="208" x2="282" y2="260" stroke="#00D4FF" stroke-width="2"/>
+      <line x1="188" y1="240" x2="158" y2="262" stroke="#00D4FF" stroke-width="2"/>
+      <line x1="188" y1="240" x2="218" y2="262" stroke="#00D4FF" stroke-width="2"/>
+      <line x1="158" y1="262" x2="150" y2="350" stroke="#00D4FF" stroke-width="2"/>
+      <line x1="150" y1="350" x2="145" y2="428" stroke="#00D4FF" stroke-width="2"/>
+      <line x1="218" y1="262" x2="226" y2="350" stroke="#00D4FF" stroke-width="2"/>
+      <line x1="226" y1="350" x2="230" y2="428" stroke="#00D4FF" stroke-width="2"/>
+      <circle cx="188" cy="128" r="5" fill="#FFA800"/>
+      <circle cx="124" cy="152" r="4" fill="#00D4FF"/>
+      <circle cx="252" cy="152" r="4" fill="#00D4FF"/>
+      <circle cx="100" cy="208" r="4" fill="#00D4FF"/>
+      <circle cx="274" cy="208" r="4" fill="#00D4FF"/>
+      <circle cx="88" cy="260" r="4" fill="#00D4FF"/>
+      <circle cx="282" cy="260" r="4" fill="#00D4FF"/>
+      <circle cx="188" cy="240" r="5.5" fill="#FFA800"/>
+      <path d="M 174 155 Q 165 197 174 240" fill="none" stroke="#FF3D3D" stroke-width="2" stroke-dasharray="3,2" opacity=".85"/>
+      <rect x="136" y="192" width="42" height="19" rx="5" fill="rgba(255,61,61,0.85)"/>
+      <text x="157" y="205" fill="white" font-size="11" font-family="JetBrains Mono" font-weight="600" text-anchor="middle">127°</text>
+      <rect x="190" y="192" width="40" height="19" rx="5" fill="rgba(255,168,0,0.85)"/>
+      <text x="210" y="205" fill="#09090d" font-size="11" font-family="JetBrains Mono" font-weight="700" text-anchor="middle">34°</text>
+    </svg>
+    <div style="position:absolute;top:calc(var(--safe-top) + 50px);left:14px;background:rgba(255,61,61,.92);border-radius:9px;padding:7px 12px;display:flex;align-items:center;gap:7px;">
+      <div style="width:7px;height:7px;border-radius:50%;background:white;"></div>
+      <span style="font-family:var(--fd);font-size:12px;font-weight:700;color:white;letter-spacing:.5px;text-transform:uppercase;">Inclinação Lombar Crítica</span>
+    </div>
+    <div style="position:absolute;top:calc(var(--safe-top) + 50px);right:14px;background:rgba(9,12,17,.9);border:1px solid rgba(255,168,0,.32);border-radius:12px;padding:8px 13px;text-align:center;">
+      <div style="font-family:var(--fd);font-size:28px;font-weight:800;color:var(--amber);line-height:1;" id="liveScore">82</div>
+      <div style="font-size:9px;font-family:var(--fd);color:var(--t1);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Score</div>
+      <div style="width:100%;height:2px;background:rgba(255,255,255,.08);border-radius:1px;overflow:hidden;"><div style="width:82%;height:100%;background:linear-gradient(90deg,var(--amber),var(--red));"></div></div>
+    </div>
+    <div style="position:absolute;top:14px;left:14px;width:24px;height:24px;border-top:2.5px solid var(--cyan);border-left:2.5px solid var(--cyan);border-radius:2px;"></div>
+    <div style="position:absolute;top:14px;right:14px;width:24px;height:24px;border-top:2.5px solid var(--cyan);border-right:2.5px solid var(--cyan);border-radius:2px;"></div>
+    <div style="position:absolute;bottom:108px;left:14px;width:24px;height:24px;border-bottom:2.5px solid var(--cyan);border-left:2.5px solid var(--cyan);border-radius:2px;"></div>
+    <div style="position:absolute;bottom:108px;right:14px;width:24px;height:24px;border-bottom:2.5px solid var(--cyan);border-right:2.5px solid var(--cyan);border-radius:2px;"></div>
+    <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(9,12,17,.97));padding:22px 22px 24px;display:flex;align-items:center;justify-content:space-between;">
+      <div class="cam-btn" onclick="confirmCancelCamera()" title="Cancelar">✕</div>
+      <div class="shutter" onclick="captureAnalysis()" title="Capturar">⏺</div>
+      <div class="cam-btn" onclick="toast('Câmera frontal alternada','info')" title="Girar câmera">🔄</div>
+    </div>
+  </div>
+  <div class="cam-hud">
+    <div style="text-align:center;"><div style="font-family:var(--fm);font-size:17px;color:var(--amber);font-weight:500;">34°</div><div style="font-size:9px;font-family:var(--fd);letter-spacing:1.5px;color:var(--t1);text-transform:uppercase;">Lombar</div></div>
+    <div style="text-align:center;"><div style="font-family:var(--fm);font-size:17px;color:var(--red);font-weight:500;">127°</div><div style="font-size:9px;font-family:var(--fd);letter-spacing:1.5px;color:var(--t1);text-transform:uppercase;">Ombro D</div></div>
+    <div style="text-align:center;"><div style="font-family:var(--fm);font-size:17px;color:var(--cyan);font-weight:500;">88°</div><div style="font-size:9px;font-family:var(--fd);letter-spacing:1.5px;color:var(--t1);text-transform:uppercase;">Cotovelo</div></div>
+    <div style="text-align:center;"><div style="font-family:var(--fm);font-size:17px;color:var(--green);font-weight:500;">8/min</div><div style="font-size:9px;font-family:var(--fd);letter-spacing:1.5px;color:var(--t1);text-transform:uppercase;">Repetição</div></div>
+  </div>
+</div>
+
+<!-- 10 RESULT -->
+<div class="screen" id="s-result">
+  <div class="nav-hdr">
+    <div class="btn-back" onclick="go('history')" title="Voltar">←</div>
+    <div class="hdr-title">Resultado</div>
+    <div class="btn-act" onclick="shareResult()" title="Compartilhar">📤</div>
+  </div>
+  <div class="scroll">
+    <div class="hl-r" style="display:flex;flex-direction:column;align-items:center;">
+      <div class="rw" style="margin-bottom:13px;">
+        <svg width="128" height="128" viewBox="0 0 128 128">
+          <circle cx="64" cy="64" r="55" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="8"/>
+          <circle cx="64" cy="64" r="55" fill="none" stroke="#FF3D3D" stroke-width="8" stroke-dasharray="345 345" stroke-dashoffset="62" stroke-linecap="round" transform="rotate(-90 64 64)"/>
+          <circle cx="64" cy="64" r="46" fill="none" stroke="rgba(255,61,61,.07)" stroke-width="16"/>
+        </svg>
+        <div class="rc"><div class="rn tr">87</div><div class="rs">Score</div></div>
+      </div>
+      <div class="badge bc" style="font-size:12px;padding:6px 16px;">⚠️ Risco Crítico</div>
+      <div style="font-size:11px;color:var(--t1);margin-top:9px;text-align:center;">Carlos Ferreira · Britagem · 26/05/2026</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div style="background:var(--bg1);border:1px solid rgba(255,61,61,.18);border-radius:14px;padding:14px;text-align:center;"><div style="font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t1);text-transform:uppercase;margin-bottom:7px;">RULA</div><div style="font-family:var(--fd);font-size:40px;font-weight:800;color:var(--red);line-height:1;">7</div><div style="font-size:9px;color:var(--red);font-family:var(--fd);letter-spacing:.5px;text-transform:uppercase;margin-top:2px;">Ação imediata</div></div>
+      <div style="background:var(--bg1);border:1px solid rgba(255,107,53,.18);border-radius:14px;padding:14px;text-align:center;"><div style="font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t1);text-transform:uppercase;margin-bottom:7px;">REBA</div><div style="font-family:var(--fd);font-size:40px;font-weight:800;color:var(--orange);line-height:1;">11</div><div style="font-size:9px;color:var(--orange);font-family:var(--fd);letter-spacing:.5px;text-transform:uppercase;margin-top:2px;">Alto risco</div></div>
+    </div>
+    <div class="card">
+      <div style="font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:2.5px;color:var(--t1);text-transform:uppercase;margin-bottom:13px;display:flex;align-items:center;gap:6px;"><span style="width:10px;height:2px;background:var(--amber);display:inline-block;"></span>ÂNGULOS ARTICULARES</div>
+      <div class="ar"><div class="ah"><span class="an">Inclinação Lombar</span><span class="av2 tr">34° ⚠️</span></div><div class="pb"><div class="pf" style="width:85%;background:var(--red);"></div></div></div>
+      <div class="ar"><div class="ah"><span class="an">Ombro Direito</span><span class="av2 to">127°</span></div><div class="pb"><div class="pf" style="width:70%;background:var(--orange);"></div></div></div>
+      <div class="ar"><div class="ah"><span class="an">Pescoço</span><span class="av2 ta">22°</span></div><div class="pb"><div class="pf" style="width:55%;background:var(--amber);"></div></div></div>
+      <div class="ar"><div class="ah"><span class="an">Cotovelo</span><span class="av2 tg">88°</span></div><div class="pb"><div class="pf" style="width:30%;background:var(--green);"></div></div></div>
+    </div>
+    <div class="card cc">
+      <div style="font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:2.5px;color:var(--t1);text-transform:uppercase;margin-bottom:13px;display:flex;align-items:center;gap:6px;"><span style="width:10px;height:2px;background:var(--cyan);display:inline-block;"></span>RECOMENDAÇÕES IA</div>
+      <div style="display:flex;gap:11px;padding:10px 0;border-bottom:1px solid var(--b0);"><div style="width:34px;height:34px;border-radius:9px;background:var(--r10);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">⚠️</div><div><div style="font-size:13px;color:var(--t0);font-weight:500;margin-bottom:2px;">Reduzir flexão lombar imediatamente</div><div style="font-size:11px;color:var(--t1);">Ajustar altura da superfície de trabalho</div></div></div>
+      <div style="display:flex;gap:11px;padding:10px 0;border-bottom:1px solid var(--b0);"><div style="width:34px;height:34px;border-radius:9px;background:var(--a10);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">💪</div><div><div style="font-size:13px;color:var(--t0);font-weight:500;margin-bottom:2px;">Pausas ergonômicas a cada 30min</div><div style="font-size:11px;color:var(--t1);">Alongamento de ombro e coluna</div></div></div>
+      <div style="display:flex;gap:11px;padding:10px 0;"><div style="width:34px;height:34px;border-radius:9px;background:var(--c10);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">🛠️</div><div><div style="font-size:13px;color:var(--t0);font-weight:500;margin-bottom:2px;">Redesign do posto de trabalho</div><div style="font-size:11px;color:var(--t1);">Consultar ergonomista sênior (NR17)</div></div></div>
+    </div>
+    <button class="btn bp" onclick="generatePDF()">📄 Gerar Relatório PDF</button>
+    <button class="btn bs" onclick="go('new-analysis')">📷 Nova Análise</button>
+    <button class="btn" style="background:transparent;color:var(--t1);border:none;font-size:13px;" onclick="go('dashboard')">🏠 Voltar ao Início</button>
+  </div>
+</div>
+
+<!-- 11 HISTORY -->
+<div class="screen" id="s-history">
+  <div class="nav-hdr">
+    <div class="btn-back" onclick="go('dashboard')" title="Voltar">←</div>
+    <div class="hdr-title">Histórico</div>
+    <div class="btn-home" onclick="go('dashboard')" title="Início">🏠</div>
+  </div>
+  <div class="scroll">
+    <input class="inp" placeholder="🔍  Buscar análise, colaborador..." style="font-size:16px;">
+    <div class="tagrow">
+      <div class="tag on" onclick="filterTag(this)">Todos</div>
+      <div class="tag" onclick="filterTag(this)">Crítico</div>
+      <div class="tag" onclick="filterTag(this)">Alto</div>
+      <div class="tag" onclick="filterTag(this)">Hoje</div>
+      <div class="tag" onclick="filterTag(this)">Esta semana</div>
+    </div>
+    <div style="font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t1);text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:6px;"><span style="width:10px;height:2px;background:var(--amber);display:inline-block;"></span>HOJE · 26 MAI 2026</div>
+    <div class="ac" onclick="go('result')"><div class="av" style="background:var(--r10);">🦺</div><div style="flex:1;"><div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t0);">Carlos Ferreira</div><div style="font-size:11px;color:var(--t1);">Beneficiamento · 09:32</div></div><div style="text-align:right;"><div class="badge bc">87</div><div style="font-size:10px;color:var(--t2);margin-top:3px;font-family:var(--fd);">Ver →</div></div></div>
+    <div class="ac" onclick="go('result')"><div class="av" style="background:var(--a10);">⚙️</div><div style="flex:1;"><div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t0);">Ana Paula Silva</div><div style="font-size:11px;color:var(--t1);">Manutenção · 08:15</div></div><div style="text-align:right;"><div class="badge bm">54</div><div style="font-size:10px;color:var(--t2);margin-top:3px;font-family:var(--fd);">Ver →</div></div></div>
+    <div style="font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t1);text-transform:uppercase;margin:15px 0 9px;display:flex;align-items:center;gap:6px;"><span style="width:10px;height:2px;background:var(--t2);display:inline-block;"></span>ONTEM · 25 MAI</div>
+    <div class="ac" onclick="go('result')"><div class="av" style="background:var(--g10);">👷</div><div style="flex:1;"><div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t0);">Roberto Nascimento</div><div style="font-size:11px;color:var(--t1);">Logística · 14:22</div></div><div style="text-align:right;"><div class="badge bl">22</div><div style="font-size:10px;color:var(--t2);margin-top:3px;font-family:var(--fd);">Ver →</div></div></div>
+    <div class="ac" onclick="go('result')"><div class="av" style="background:var(--o10);">🔧</div><div style="flex:1;"><div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t0);">Fernanda Costa</div><div style="font-size:11px;color:var(--t1);">Soldagem · 11:05</div></div><div style="text-align:right;"><div class="badge bh">68</div><div style="font-size:10px;color:var(--t2);margin-top:3px;font-family:var(--fd);">Ver →</div></div></div>
+    <div class="ac" onclick="go('result')"><div class="av" style="background:var(--c10);">👨‍🔧</div><div style="flex:1;"><div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t0);">Marcos Oliveira</div><div style="font-size:11px;color:var(--t1);">Elétrica · 09:48</div></div><div style="text-align:right;"><div class="badge bl">31</div><div style="font-size:10px;color:var(--t2);margin-top:3px;font-family:var(--fd);">Ver →</div></div></div>
+  </div>
+</div>
+
+<!-- 12 REPORTS -->
+<div class="screen" id="s-reports">
+  <div class="nav-hdr">
+    <div class="btn-back" onclick="go('dashboard')" title="Voltar">←</div>
+    <div class="hdr-title">Relatórios</div>
+    <div class="btn-home" onclick="go('dashboard')" title="Início">🏠</div>
+  </div>
+  <div class="scroll">
+    <div class="hl">
+      <div style="font-family:var(--fd);font-size:13px;font-weight:700;color:var(--amber);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">📄 Gerar Novo Relatório</div>
+      <div style="font-size:13px;color:var(--t1);margin-bottom:13px;">Selecione o tipo e período</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:13px;">
+        <div id="rNR17" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--a10);border:1px solid var(--a35);border-radius:12px;cursor:pointer;" onclick="selectReport('NR17')"><span style="font-size:18px;">📋</span><div><div style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--amber);text-transform:uppercase;">Relatório NR17</div><div style="font-size:11px;color:var(--t1);">Compliance ergonômico completo</div></div></div>
+        <div id="rColab" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg1);border:1px solid var(--b1);border-radius:12px;cursor:pointer;" onclick="selectReport('colab')"><span style="font-size:18px;">👤</span><div><div style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--t1);text-transform:uppercase;">Por Colaborador</div><div style="font-size:11px;color:var(--t2);">Histórico individual</div></div></div>
+        <div id="rSetor" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg1);border:1px solid var(--b1);border-radius:12px;cursor:pointer;" onclick="selectReport('setor')"><span style="font-size:18px;">🏭</span><div><div style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--t1);text-transform:uppercase;">Por Setor</div><div style="font-size:11px;color:var(--t2);">Ranking de exposição</div></div></div>
+      </div>
+      <button class="btn bp mb0" style="font-size:14px;padding:14px;" onclick="generatePDF()">Gerar Relatório PDF</button>
+    </div>
+    <div class="sec"><span class="stl">Relatórios Gerados</span></div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--t0);text-transform:uppercase;">NR17 · Mai 2026</div><div style="font-size:11px;color:var(--t1);">Gerado 25/05 · 4.2 MB</div></div>
+        <div style="display:flex;gap:9px;align-items:center;">
+          <div class="badge bl">✓ Pronto</div>
+          <span style="font-size:24px;cursor:pointer;color:var(--amber);" onclick="downloadReport('NR17')">⬇</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--t0);text-transform:uppercase;">Beneficiamento · Mai</div><div style="font-size:11px;color:var(--t1);">Gerado 20/05 · 1.8 MB</div></div>
+        <div style="display:flex;gap:9px;align-items:center;">
+          <div class="badge bl">✓ Pronto</div>
+          <span style="font-size:24px;cursor:pointer;color:var(--amber);" onclick="downloadReport('Beneficiamento')">⬇</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--t0);text-transform:uppercase;">Carlos Ferreira</div><div style="font-size:11px;color:var(--t1);">Gerando... 67%</div></div>
+        <div class="badge bm">⏳ Gerando</div>
+      </div>
+      <div class="pb mt8"><div class="pf" style="width:67%;background:var(--amber);animation:loadBar 3s ease infinite;"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 SETTINGS -->
+<div class="screen" id="s-settings">
+  <div class="nav-hdr">
+    <div class="btn-back" onclick="go('dashboard')" title="Voltar">←</div>
+    <div class="hdr-title">Configurações</div>
+    <div class="btn-home" onclick="go('dashboard')" title="Início">🏠</div>
+  </div>
+  <div class="scroll">
+    <div style="background:linear-gradient(135deg,var(--a10),transparent);border:1px solid var(--a35);border-radius:18px;padding:16px;margin-bottom:15px;display:flex;align-items:center;gap:13px;">
+      <div style="width:54px;height:54px;background:linear-gradient(135deg,var(--amber),#d96500);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;">👤</div>
+      <div style="flex:1;"><div style="font-family:var(--fd);font-size:19px;font-weight:800;color:var(--t0);">Lucas Andrade</div><div style="font-size:12px;color:var(--t1);">Ergonomista Sênior · Vale S.A.</div><div class="badge bm mt4" style="font-size:9px;">ERGONOMIST</div></div>
+      <div style="font-size:20px;cursor:pointer;color:var(--amber);" onclick="toast('Edição de perfil em breve','info')">✏️</div>
+    </div>
+    <div style="font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t1);text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:5px;"><span style="width:10px;height:2px;background:var(--amber);display:inline-block;"></span>CÂMERA E IA</div>
+    <div class="card" style="padding:0;margin-bottom:14px;">
+      <div style="padding:14px 15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--b0);cursor:pointer;" onclick="toast('Qualidade: HD 1080p selecionado','info')"><div><div style="font-size:15px;color:var(--t0);">Qualidade de captura</div><div style="font-size:11px;color:var(--t1);">HD 1080p</div></div><span style="color:var(--amber);font-size:18px;">›</span></div>
+      <div style="padding:14px 15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--b0);cursor:pointer;" onclick="toast('Motor: Híbrido ativo','info')"><div><div style="font-size:15px;color:var(--t0);">Motor de IA</div><div style="font-size:11px;color:var(--t1);">Híbrido (Local + Servidor)</div></div><span style="color:var(--amber);font-size:18px;">›</span></div>
+      <div style="padding:14px 15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--b0);" onclick="toggleSetting(this)"><div style="font-size:15px;color:var(--t0);">Overlay de esqueleto</div><div class="tog on" onclick="event.stopPropagation();toggleTog(this)"><div class="tok"></div></div></div>
+      <div style="padding:14px 15px;display:flex;justify-content:space-between;align-items:center;" onclick="toggleSetting(this)"><div style="font-size:15px;color:var(--t0);">Alertas sonoros</div><div class="tog on" onclick="event.stopPropagation();toggleTog(this)"><div class="tok"></div></div></div>
+    </div>
+    <div style="font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t1);text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:5px;"><span style="width:10px;height:2px;background:var(--amber);display:inline-block;"></span>SISTEMA</div>
+    <div class="card" style="padding:0;margin-bottom:14px;">
+      <div style="padding:14px 15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--b0);">
+        <div><div style="font-size:15px;color:var(--t0);">Servidor API</div><div style="font-size:11px;color:var(--t1);font-family:var(--fm);">api.ergosense.io</div></div>
+        <div style="display:flex;align-items:center;gap:6px;"><div class="dot-g"></div><span style="font-size:11px;color:var(--green);font-family:var(--fd);">Online</span></div>
+      </div>
+      <div style="padding:14px 15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--b0);cursor:pointer;" onclick="go('sync')">
+        <div><div style="font-size:15px;color:var(--t0);">Modo offline</div><div style="font-size:11px;color:var(--t1);">12 análises em fila</div></div>
+        <div style="display:flex;align-items:center;gap:6px;"><div class="badge bm" style="font-size:9px;">12</div><span style="color:var(--amber);font-size:18px;">›</span></div>
+      </div>
+      <div style="padding:14px 15px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="go('company')">
+        <div><div style="font-size:15px;color:var(--t0);">Trocar empresa</div><div style="font-size:11px;color:var(--t1);">Atualmente: Vale S.A.</div></div>
+        <span style="color:var(--amber);font-size:18px;">›</span>
+      </div>
+    </div>
+    <div style="font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t1);text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:5px;"><span style="width:10px;height:2px;background:var(--amber);display:inline-block;"></span>SOBRE</div>
+    <div class="card" style="padding:0;margin-bottom:14px;">
+      <div style="padding:14px 15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--b0);"><div style="font-size:15px;color:var(--t0);">Versão do app</div><span style="font-size:13px;color:var(--t1);font-family:var(--fm);">v1.0.0-mvp</span></div>
+      <div style="padding:14px 15px;display:flex;justify-content:space-between;align-items:center;"><div style="font-size:15px;color:var(--t0);">Tecnologia</div><span style="font-size:13px;color:var(--t1);">Flutter 3.x</span></div>
+    </div>
+    <button class="btn bd" onclick="confirmLogout()">🚪 Sair da Conta</button>
+    <button class="btn" style="background:transparent;color:var(--t1);border:none;font-size:13px;" onclick="go('dashboard')">🏠 Voltar ao Início</button>
+  </div>
+</div>
+
+<!-- 14 SYNC -->
+<div class="screen" id="s-sync">
+  <div class="nav-hdr">
+    <div class="btn-back" onclick="go('settings')" title="Voltar">←</div>
+    <div class="hdr-title">Sincronização</div>
+    <div class="btn-home" onclick="go('dashboard')" title="Início">🏠</div>
+  </div>
+  <div class="scroll">
+    <div class="hl-g">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div class="dot-g"></div>
+        <div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--green);letter-spacing:1px;text-transform:uppercase;">Conectado · Wi-Fi</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <div style="text-align:center;"><div style="font-family:var(--fd);font-size:28px;font-weight:800;color:var(--green);">12</div><div style="font-size:9px;color:var(--t1);font-family:var(--fd);letter-spacing:1px;text-transform:uppercase;">Pendentes</div></div>
+        <div style="text-align:center;"><div style="font-family:var(--fd);font-size:28px;font-weight:800;color:var(--t0);">147</div><div style="font-size:9px;color:var(--t1);font-family:var(--fd);letter-spacing:1px;text-transform:uppercase;">Sincronizadas</div></div>
+        <div style="text-align:center;"><div style="font-family:var(--fd);font-size:28px;font-weight:800;color:var(--red);">0</div><div style="font-size:9px;color:var(--t1);font-family:var(--fd);letter-spacing:1px;text-transform:uppercase;">Com erro</div></div>
+      </div>
+    </div>
+    <button class="btn bp" onclick="startSync()">🔄 Sincronizar Agora (12)</button>
+    <div class="sec"><span class="stl">Fila de Sincronização</span></div>
+    <div class="card" style="padding:0;">
+      <div style="padding:13px 15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--b0);"><div style="display:flex;gap:11px;align-items:center;"><span style="font-size:18px;">🦺</span><div><div style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--t0);">Carlos Ferreira</div><div style="font-size:11px;color:var(--t1);">Análise · Agora</div></div></div><div style="font-size:10px;font-family:var(--fd);font-weight:700;color:var(--amber);letter-spacing:1px;text-transform:uppercase;animation:pa 1s infinite;">Enviando...</div></div>
+      <div style="padding:13px 15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--b0);"><div style="display:flex;gap:11px;align-items:center;"><span style="font-size:18px;">⚙️</span><div><div style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--t0);">Ana Paula Silva</div><div style="font-size:11px;color:var(--t1);">Análise · 08:12</div></div></div><div style="font-size:10px;font-family:var(--fd);font-weight:700;color:var(--t1);letter-spacing:1px;text-transform:uppercase;">Na fila</div></div>
+      <div style="padding:13px 15px;display:flex;justify-content:space-between;align-items:center;"><div style="display:flex;gap:11px;align-items:center;"><span style="font-size:18px;">✅</span><div><div style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--t1);">Roberto Nascimento</div><div style="font-size:11px;color:var(--t2);">Análise · 25/05</div></div></div><div class="badge bl" style="font-size:9px;">✓ Enviado</div></div>
+    </div>
+    <div class="card mt8">
+      <div style="font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:2px;color:var(--t1);text-transform:uppercase;margin-bottom:11px;">Config de Sync</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;"><div style="font-size:14px;color:var(--t0);">Sync automático (Wi-Fi)</div><div class="tog on" onclick="toggleTog(this)"><div class="tok"></div></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-size:14px;color:var(--t0);">Somente Wi-Fi</div><div class="tog off" onclick="toggleTog(this)"><div class="tok"></div></div></div>
+    </div>
+    <button class="btn" style="background:transparent;color:var(--t1);border:none;font-size:13px;margin-top:4px;" onclick="go('dashboard')">🏠 Voltar ao Início</button>
+  </div>
+</div>
+
+<!-- SHARED BOTTOM NAV (single instance, shown in main screens) -->
+<div id="bnav">
+  <div class="bn-item on" id="bn-dashboard" onclick="go('dashboard')"><div class="ico">🏠</div><div class="lbl">Início</div></div>
+  <div class="bn-item" id="bn-history" onclick="go('history')"><div class="ico">📋</div><div class="lbl">Análises</div></div>
+  <div class="bn-item" id="bn-collabs" onclick="go('collabs')"><div class="ico">👥</div><div class="lbl">Equipe</div></div>
+  <div class="bn-item" id="bn-reports" onclick="go('reports')"><div class="ico">📊</div><div class="lbl">Relatórios</div></div>
+  <div class="bn-item" id="bn-menu" onclick="openMenu()"><div class="ico">☰</div><div class="lbl">Menu</div></div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════════════
+//  ErgoSense AI — ROUTER & INTERACTIONS
+// ══════════════════════════════════════════
+
+// Screens that HIDE the bottom nav
+const FULLSCREEN = ['splash','login','company','camera'];
+// Screens where a specific bnav item should be active
+const BNAV_MAP = {
+  dashboard:'bn-dashboard', history:'bn-history', result:'bn-history',
+  collabs:'bn-collabs', 'new-collab':'bn-collabs',
+  reports:'bn-reports',
+  settings:'bn-menu', sync:'bn-menu', sectors:'bn-menu', 'new-analysis':'bn-menu'
+};
+
+function go(id) {
+  const cur = document.querySelector('.screen.active');
+  const next = document.getElementById('s-' + id);
+  if (!next) return;
+  if (cur === next) return;
+  if (cur) cur.classList.remove('active');
+  next.classList.add('active');
+  // Scroll target to top
+  const sc = next.querySelector('.scroll');
+  if (sc) sc.scrollTop = 0;
+  // Bottom nav
+  const bnav = document.getElementById('bnav');
+  if (FULLSCREEN.includes(id)) {
+    bnav.style.display = 'none';
+  } else {
+    bnav.style.display = 'flex';
+    document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('on'));
+    const active = BNAV_MAP[id];
+    if (active) document.getElementById(active)?.classList.add('on');
+  }
+  // Status bar
+  const sb = document.getElementById('statusBar');
+  sb.style.display = (id === 'camera') ? 'none' : 'flex';
+  // Update drawer active item
+  document.querySelectorAll('.di').forEach(d => d.classList.remove('on'));
+  const drawerMap = {dashboard:'dashboard',collabs:'collabs',sectors:'sectors','new-analysis':'new-analysis',history:'history',reports:'reports',sync:'sync',settings:'settings'};
+  if (drawerMap[id]) {
+    document.querySelector(`.di[data-menu="${drawerMap[id]}"]`)?.classList.add('on');
+  }
+  // Camera: start timer
+  if (id === 'camera') startCameraTimer();
+  else stopCameraTimer();
+}
+
+// ── MENU DRAWER ──────────────────────────
+function openMenu() {
+  document.getElementById('menuOverlay').classList.add('open');
+}
+function menuGo(id) {
+  document.getElementById('menuOverlay').classList.remove('open');
+  setTimeout(() => go(id), 80); // slight delay for smooth close
+}
+// Close by clicking overlay background
+document.getElementById('menuOverlay').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('open');
+});
+// Swipe left on drawer to close
+let _tsx = 0;
+document.getElementById('menuDrawer').addEventListener('touchstart', e => { _tsx = e.touches[0].clientX; }, {passive:true});
+document.getElementById('menuDrawer').addEventListener('touchend', e => {
+  if (e.changedTouches[0].clientX - _tsx < -55) document.getElementById('menuOverlay').classList.remove('open');
+}, {passive:true});
+
+// ── TOAST ────────────────────────────────
+let _toastTimer;
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + (type || '');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { t.className = ''; }, 2800);
+}
+
+// ── MODAL ────────────────────────────────
+function showModal(title, body, confirmLabel, onConfirm) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').textContent = body;
+  const btn = document.getElementById('modal-confirm');
+  btn.textContent = confirmLabel || 'Confirmar';
+  btn.onclick = () => { closeModal(); onConfirm && onConfirm(); };
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ── LOGOUT ───────────────────────────────
+function confirmLogout() {
+  document.getElementById('menuOverlay').classList.remove('open');
+  showModal('Sair da Conta','Tem certeza que deseja encerrar a sessão?','Sim, Sair', () => go('login'));
+}
+
+// ── CAMERA TIMER ─────────────────────────
+let _camSecs = 0, _camInterval;
+function startCameraTimer() {
+  _camSecs = 0;
+  clearInterval(_camInterval);
+  _camInterval = setInterval(() => {
+    _camSecs++;
+    const m = String(Math.floor(_camSecs/60)).padStart(2,'0');
+    const s = String(_camSecs%60).padStart(2,'0');
+    const el = document.getElementById('recTimer');
+    if (el) el.textContent = `REC ${m}:${s}`;
+    // Simulate live score fluctuation
+    const score = 79 + Math.floor(Math.random() * 8);
+    const ls = document.getElementById('liveScore');
+    if (ls) ls.textContent = score;
+  }, 1000);
+}
+function stopCameraTimer() { clearInterval(_camInterval); }
+
+function captureAnalysis() {
+  stopCameraTimer();
+  toast('Captura processada · Analisando postura...','info');
+  setTimeout(() => go('result'), 800);
+}
+function confirmCancelCamera() {
+  showModal('Cancelar Análise','Deseja cancelar a análise em andamento?','Cancelar Análise', () => { stopCameraTimer(); go('new-analysis'); });
+}
+
+// ── SAVE COLLABORATOR ─────────────────────
+function saveCollab() {
+  toast('Colaborador salvo com sucesso!','success');
+  setTimeout(() => go('collabs'), 800);
+}
+
+// ── PDF GENERATE ──────────────────────────
+function generatePDF() {
+  showModal('Gerar Relatório PDF','O relatório será gerado e enviado para seu e-mail e estará disponível na lista de relatórios.','Gerar Agora', () => {
+    toast('Gerando PDF... Aguarde','info');
+    setTimeout(() => { toast('Relatório gerado com sucesso!','success'); }, 2000);
+  });
+}
+function downloadReport(name) {
+  showModal('Download do Relatório', `Baixar "${name}" (PDF)?`, 'Baixar', () => {
+    toast(`Download iniciado: ${name}.pdf`,'success');
+  });
+}
+function shareResult() {
+  showModal('Compartilhar Resultado','Compartilhar o resultado desta análise via e-mail ou WhatsApp?','Compartilhar', () => {
+    toast('Resultado compartilhado!','success');
+  });
+}
+
+// ── REPORT TYPE SELECTOR ──────────────────
+let _reportType = 'NR17';
+function selectReport(type) {
+  _reportType = type;
+  ['NR17','colab','setor'].forEach(t => {
+    const el = document.getElementById('r'+t.charAt(0).toUpperCase()+t.slice(1)) || document.getElementById('r'+t);
+    if (!el) return;
+    if (t === type) {
+      el.style.background = 'var(--a10)'; el.style.borderColor = 'var(--a35)';
+      el.querySelector('div div').style.color = 'var(--amber)';
+    } else {
+      el.style.background = 'var(--bg1)'; el.style.borderColor = 'var(--b1)';
+      el.querySelector('div div').style.color = 'var(--t1)';
+    }
+  });
+}
+
+// ── TAG FILTER ────────────────────────────
+function filterTag(el) {
+  el.closest('.tagrow').querySelectorAll('.tag').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  toast(`Filtro: ${el.textContent}`,'');
+}
+
+// ── ANALYSIS MODE SELECTOR ────────────────
+function selectMode(mode) {
+  const complete = document.getElementById('modeComplete');
+  const offline  = document.getElementById('modeOffline');
+  const circle   = document.getElementById('modeOfflineCircle');
+  if (mode === 'complete') {
+    complete.style.background='var(--a10)'; complete.style.borderColor='var(--a35)';
+    complete.querySelector('div').style.background='var(--amber)';
+    complete.querySelector('div').textContent='✓';
+    offline.style.background='var(--bg1)'; offline.style.borderColor='var(--b1)';
+    circle.style.background='var(--bg3)'; circle.style.border='1.5px solid var(--b2)'; circle.textContent='';
+    toast('Modo: Análise Completa (Servidor)','info');
+  } else {
+    offline.style.background='var(--a10)'; offline.style.borderColor='var(--a35)';
+    circle.style.background='var(--amber)'; circle.style.border='none'; circle.textContent='✓';
+    complete.style.background='var(--bg1)'; complete.style.borderColor='var(--b1)';
+    complete.querySelector('div').style.background='var(--bg3)'; complete.querySelector('div').textContent='';
+    toast('Modo: Análise Offline (Local TFLite)','info');
+  }
+}
+
+// ── TOGGLE ────────────────────────────────
+function toggleTog(el) {
+  const isOn = el.classList.contains('on');
+  el.classList.toggle('on', !isOn);
+  el.classList.toggle('off', isOn);
+  const label = el.closest('[style*="display:flex"]')?.querySelector('div')?.textContent || '';
+  toast(`${label.trim()}: ${!isOn ? 'Ativado' : 'Desativado'}`, !isOn ? 'success' : '');
+}
+
+// ── SECTOR ADD ────────────────────────────
+function showAddSector() {
+  showModal('Novo Setor','Em breve: formulário para adicionar setor. Disponível na Etapa 3.','OK', null);
+}
+
+// ── SYNC ─────────────────────────────────
+function startSync() {
+  toast('Sincronizando 12 análises...','info');
+  setTimeout(() => toast('Sincronização concluída!','success'), 3000);
+}
+
+// ── CLOCK ────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const t = h+':'+m;
+  document.getElementById('clock').textContent = t;
+  const cc = document.getElementById('camClock');
+  if (cc) cc.textContent = t;
+}
+updateClock();
+setInterval(updateClock, 15000);
+
+// ── HAPTIC ───────────────────────────────
+document.addEventListener('touchstart', e => {
+  if (e.target.matches('.btn,.ac,.fab,.bn-item,.di,.cch,.cam-btn,.shutter,.btn-back,.btn-act,.btn-home,.tag')) {
+    if (navigator.vibrate) navigator.vibrate(6);
+  }
+}, {passive:true});
+
+// ── INIT ─────────────────────────────────
+// Start on splash, auto-go to login
+document.getElementById('bnav').style.display = 'none';
+setTimeout(() => go('login'), 2800);
+</script>
+</body>
+</html>

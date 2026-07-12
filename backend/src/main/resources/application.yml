@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: ergosense-api
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ergosense
+    username: ergosense
+    password: ${DB_PASSWORD:@joaoC1975}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
+ergosense:
+  jwt:
+    secret: ${JWT_SECRET:change-me-in-production-min-256-bits}
+    access-token-ttl-minutes: 15
+    refresh-token-ttl-days: 7
+  storage:
+    bucket: ergosense-fotos
+    endpoint: http://localhost:9000
+  sync:
+    max-batch-size: 100
+    retry-max: 10
+
+logging:
+  level:
+    io.ergosense: DEBUG

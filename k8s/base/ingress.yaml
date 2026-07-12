@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ergosense-ingress
+  namespace: ergosense
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - app.ergosense.example
+        - api.ergosense.example
+      secretName: ergosense-tls
+  rules:
+    - host: app.ergosense.example
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ergosense-web
+                port:
+                  number: 80
+    - host: api.ergosense.example
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ergosense-api
+                port:
+                  number: 3001

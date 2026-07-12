@@ -1,0 +1,2084 @@
+{
+  "generatedAt": "2026-07-01T16:05:13.427Z",
+  "totals": {
+    "routes": 255,
+    "openapiOperations": 255,
+    "public": 15,
+    "protected": 240,
+    "adminGlobal": 14,
+    "undocumented": 0,
+    "orphanOpenapi": 0
+  },
+  "byTag": {
+    "access-requests": 1,
+    "Admin": 14,
+    "AET": 35,
+    "IA Expert": 19,
+    "Core": 7,
+    "Autenticação": 10,
+    "Compliance": 21,
+    "Denúncias": 12,
+    "Sistema": 2,
+    "eSocial": 17,
+    "GRO": 17,
+    "openapi.json": 1,
+    "Organização": 11,
+    "PGR": 12,
+    "Psicossocial": 21,
+    "Público": 2,
+    "reports": 1,
+    "risk-criteria": 10,
+    "risk-inventory": 8,
+    "sectors": 2,
+    "SST": 25,
+    "Suporte": 4,
+    "system": 1,
+    "tenants": 2
+  },
+  "routes": [
+    {
+      "method": "POST",
+      "path": "/api/access-requests",
+      "sourceFile": "routes/coreRoutes.js",
+      "tag": "access-requests",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/support/active",
+      "sourceFile": "index.js",
+      "tag": "Admin",
+      "auth": "bearer",
+      "adminGlobal": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/tenant-requests",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Admin",
+      "auth": "bearer",
+      "adminGlobal": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/tenant-requests/:id",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Admin",
+      "auth": "bearer",
+      "adminGlobal": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/tenant-requests/:id/approve",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Admin",
+      "auth": "bearer",
+      "adminGlobal": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/tenant-requests/:id/block",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Admin",
+      "auth": "bearer",
+      "adminGlobal": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/tenant-requests/:id/reject",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Admin",
+      "auth": "bearer",
+      "adminGlobal": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/tenant-requests/:id/request-adjustment",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Admin",
+      "auth": "bearer",
+      "adminGlobal": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/tenants",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Admin",
+      "auth": "bearer",
+      "adminGlobal": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/tenants/:id",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Admin",
+      "auth": "bearer",
+      "adminGlobal": true
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/tenants/:id",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Admin",
+      "auth": "bearer",
+      "adminGlobal": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/tenants/:id/block",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Admin",
+      "auth": "bearer",
+      "adminGlobal": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/tenants/:id/reactivate",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Admin",
+      "auth": "bearer",
+      "adminGlobal": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/tenants/:id/suspend",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Admin",
+      "auth": "bearer",
+      "adminGlobal": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/tenants/metadata",
+      "sourceFile": "routes/tenantRoutes.js",
+      "tag": "Admin",
+      "auth": "bearer",
+      "adminGlobal": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/aet/dashboard",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/aet/equipamentos",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/equipamentos",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/aet/equipamentos/:id",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/aet/equipamentos/:id",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/aet/historico",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/aet/mobiliario",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/mobiliario",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/aet/mobiliario/:id",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/aet/mobiliario/:id",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/aet/processos",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/processos",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/aet/processos/:id",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/aet/processos/:id",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/processos/:id/advance",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/processos/:id/assinar",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/processos/:id/gerar-relatorio",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/aet/processos/:id/integracoes",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/aet/processos/:id/metodos",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/aet/processos/:id/organizacao",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/aet/processos/:id/responsavel-tecnico",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/processos/:id/retreat",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/aet/processos/:id/teleatendimento",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/aet/processos/:id/versoes",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/processos/:id/versoes",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/aet/processos/:id/vibracao-corpo",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/aet/processos/:id/vibracao-maos",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/aet/versoes/:id",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/versoes/:id/approve",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/versoes/:id/atualizar-snapshot",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/versoes/:id/gerar-relatorio",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/versoes/:id/reject",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/versoes/:id/revision",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/versoes/:id/sign",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/aet/versoes/:id/submit-approval",
+      "sourceFile": "routes/aetRoutes.js",
+      "tag": "AET",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/engine/queue/:jobType",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/engine/run",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/engine/specialists",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/aet",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/analyze-ergonomics",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/control-measures",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/expert/history",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/pgr",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/psicossocial",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/query",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/recommendations",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/audit",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/compliance",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/executive",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/reports/technical",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/risk-analysis",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/risk-inventory",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/virtual-audit",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/expert/work-instruction",
+      "sourceFile": "routes/aiExpertRoutes.js",
+      "tag": "IA Expert",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/analyses",
+      "sourceFile": "routes/coreRoutes.js",
+      "tag": "Core",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/analyses",
+      "sourceFile": "routes/coreRoutes.js",
+      "tag": "Core",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/analyses/:id",
+      "sourceFile": "routes/coreRoutes.js",
+      "tag": "Core",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/analyses/:id/video",
+      "sourceFile": "routes/coreRoutes.js",
+      "tag": "Core",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/activate-account",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Autenticação",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/activate-account/preview",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Autenticação",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "sourceFile": "routes/authRoutes.js",
+      "tag": "Autenticação",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "sourceFile": "routes/authRoutes.js",
+      "tag": "Autenticação",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/mfa/disable",
+      "sourceFile": "routes/mfaRoutes.js",
+      "tag": "Autenticação",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/mfa/enable",
+      "sourceFile": "routes/mfaRoutes.js",
+      "tag": "Autenticação",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/mfa/setup",
+      "sourceFile": "routes/mfaRoutes.js",
+      "tag": "Autenticação",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/mfa/status",
+      "sourceFile": "routes/mfaRoutes.js",
+      "tag": "Autenticação",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/mfa/verify",
+      "sourceFile": "routes/mfaRoutes.js",
+      "tag": "Autenticação",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/refresh",
+      "sourceFile": "routes/authRoutes.js",
+      "tag": "Autenticação",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/collaborators",
+      "sourceFile": "routes/coreRoutes.js",
+      "tag": "Core",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/collaborators",
+      "sourceFile": "routes/coreRoutes.js",
+      "tag": "Core",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/collaborators/:id",
+      "sourceFile": "routes/coreRoutes.js",
+      "tag": "Core",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/agendamento",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/compliance/agendamento",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/alertas",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/compliance/alertas/:id/lida",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/dashboard",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/deteccoes",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/deteccoes/:id/impactos",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/compliance/deteccoes/:id/validar",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/fontes",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/compliance/fontes/:code",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/historico",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/normas",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/normas/:id/versoes",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/normas/:id/versoes/compare",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/relatorios",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/compliance/relatorios/gerar",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/compliance/scan",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/tarefas",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/compliance/tarefas/:id",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/validacoes",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/compliance/varreduras",
+      "sourceFile": "routes/complianceRoutes.js",
+      "tag": "Compliance",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/denuncias",
+      "sourceFile": "routes/denunciaRoutes.js",
+      "tag": "Denúncias",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/denuncias",
+      "sourceFile": "routes/denunciaRoutes.js",
+      "tag": "Denúncias",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/denuncias/:id",
+      "sourceFile": "routes/denunciaRoutes.js",
+      "tag": "Denúncias",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/denuncias/:id/conclusao",
+      "sourceFile": "routes/denunciaRoutes.js",
+      "tag": "Denúncias",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/denuncias/:id/evidencias",
+      "sourceFile": "routes/denunciaRoutes.js",
+      "tag": "Denúncias",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/denuncias/:id/integrar",
+      "sourceFile": "routes/denunciaRoutes.js",
+      "tag": "Denúncias",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/denuncias/:id/status",
+      "sourceFile": "routes/denunciaRoutes.js",
+      "tag": "Denúncias",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/denuncias/:id/tratativas",
+      "sourceFile": "routes/denunciaRoutes.js",
+      "tag": "Denúncias",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/denuncias/:id/tratativas/:tid",
+      "sourceFile": "routes/denunciaRoutes.js",
+      "tag": "Denúncias",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/denuncias/dashboard",
+      "sourceFile": "routes/denunciaRoutes.js",
+      "tag": "Denúncias",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/denuncias/public",
+      "sourceFile": "routes/denunciaRoutes.js",
+      "tag": "Denúncias",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/denuncias/public/status",
+      "sourceFile": "routes/denunciaRoutes.js",
+      "tag": "Denúncias",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/docs",
+      "sourceFile": "routes/openapiRoutes.js",
+      "tag": "Sistema",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/esocial/config",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/esocial/config",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/esocial/dashboard",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/esocial/eventos",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/esocial/eventos",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/esocial/eventos/:id",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/esocial/eventos/:id",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/esocial/eventos/:id/assinar",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/esocial/eventos/:id/consultar-status",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/esocial/eventos/:id/enviar",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/esocial/eventos/:id/preparar-envio",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/esocial/eventos/:id/reenviar",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/esocial/eventos/:id/transmissoes",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/esocial/eventos/:id/validacoes",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/esocial/eventos/:id/validar",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/esocial/eventos/:id/xml",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/esocial/historico",
+      "sourceFile": "routes/esocialRoutes.js",
+      "tag": "eSocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/gro/action-plans",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/gro/action-plans",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/gro/action-plans/:id",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/gro/action-plans/:id",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/gro/dashboard",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/gro/history",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/gro/indicators",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/gro/indicators",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/gro/indicators/:id",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/gro/indicators/:id",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/gro/reports",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/gro/reports/:id",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/gro/reports/generate",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/gro/workflow",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/gro/workflow/:riskId/advance",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/gro/workflow/:riskId/complete-review",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/gro/workflow/:riskId/revert",
+      "sourceFile": "routes/groRoutes.js",
+      "tag": "GRO",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "sourceFile": "index.js",
+      "tag": "Sistema",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/openapi.json",
+      "sourceFile": "routes/openapiRoutes.js",
+      "tag": "openapi.json",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/org/empresa",
+      "sourceFile": "routes/orgRoutes.js",
+      "tag": "Organização",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/org/empresa",
+      "sourceFile": "routes/orgRoutes.js",
+      "tag": "Organização",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/org/setores",
+      "sourceFile": "routes/orgRoutes.js",
+      "tag": "Organização",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/org/setores",
+      "sourceFile": "routes/orgRoutes.js",
+      "tag": "Organização",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/org/setores/:id",
+      "sourceFile": "routes/orgRoutes.js",
+      "tag": "Organização",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/org/setores/:id",
+      "sourceFile": "routes/orgRoutes.js",
+      "tag": "Organização",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/org/tree",
+      "sourceFile": "routes/orgRoutes.js",
+      "tag": "Organização",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/org/unidades",
+      "sourceFile": "routes/orgRoutes.js",
+      "tag": "Organização",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/org/unidades",
+      "sourceFile": "routes/orgRoutes.js",
+      "tag": "Organização",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/org/unidades/:id",
+      "sourceFile": "routes/orgRoutes.js",
+      "tag": "Organização",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/org/unidades/:id",
+      "sourceFile": "routes/orgRoutes.js",
+      "tag": "Organização",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/pgr/history",
+      "sourceFile": "routes/pgrRoutes.js",
+      "tag": "PGR",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/pgr/program",
+      "sourceFile": "routes/pgrRoutes.js",
+      "tag": "PGR",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/pgr/program",
+      "sourceFile": "routes/pgrRoutes.js",
+      "tag": "PGR",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/pgr/versions",
+      "sourceFile": "routes/pgrRoutes.js",
+      "tag": "PGR",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/pgr/versions/:id",
+      "sourceFile": "routes/pgrRoutes.js",
+      "tag": "PGR",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/pgr/versions/:id",
+      "sourceFile": "routes/pgrRoutes.js",
+      "tag": "PGR",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/pgr/versions/:id/approve",
+      "sourceFile": "routes/pgrRoutes.js",
+      "tag": "PGR",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/pgr/versions/:id/reject",
+      "sourceFile": "routes/pgrRoutes.js",
+      "tag": "PGR",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/pgr/versions/:id/revision",
+      "sourceFile": "routes/pgrRoutes.js",
+      "tag": "PGR",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/pgr/versions/:id/sign",
+      "sourceFile": "routes/pgrRoutes.js",
+      "tag": "PGR",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/pgr/versions/:id/submit-approval",
+      "sourceFile": "routes/pgrRoutes.js",
+      "tag": "PGR",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/pgr/versions/generate",
+      "sourceFile": "routes/pgrRoutes.js",
+      "tag": "PGR",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/psico/alertas",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/psico/alertas/:id/read",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/psico/campanhas",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/psico/campanhas",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/psico/campanhas/:id/link",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/psico/conformidade",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/psico/dashboard",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/psico/fatores",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/psico/fatores/:codigo",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/psico/historico",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/psico/indicadores",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/psico/lgpd",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/psico/matriz",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/psico/plano-acao",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/psico/plano-acao",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/psico/plano-acao/:id",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/psico/plano-acao/:id",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/psico/public/form/:token",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/psico/public/form/:token/respostas",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/psico/respostas",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/psico/tendencias",
+      "sourceFile": "routes/psicoRoutes.js",
+      "tag": "Psicossocial",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/public/plans",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Público",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/public/tenant-request",
+      "sourceFile": "routes/tenantOnboardingRoutes.js",
+      "tag": "Público",
+      "auth": "public",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports",
+      "sourceFile": "routes/coreRoutes.js",
+      "tag": "reports",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-criteria/active",
+      "sourceFile": "routes/riskCriteriaRoutes.js",
+      "tag": "risk-criteria",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-criteria/audit",
+      "sourceFile": "routes/riskCriteriaRoutes.js",
+      "tag": "risk-criteria",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-criteria/documentation",
+      "sourceFile": "routes/riskCriteriaRoutes.js",
+      "tag": "risk-criteria",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/risk-criteria/evaluate",
+      "sourceFile": "routes/riskCriteriaRoutes.js",
+      "tag": "risk-criteria",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-criteria/methodologies",
+      "sourceFile": "routes/riskCriteriaRoutes.js",
+      "tag": "risk-criteria",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/risk-criteria/methodologies",
+      "sourceFile": "routes/riskCriteriaRoutes.js",
+      "tag": "risk-criteria",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/risk-criteria/methodologies/:id/activate/:versionId",
+      "sourceFile": "routes/riskCriteriaRoutes.js",
+      "tag": "risk-criteria",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-criteria/methodologies/:id/versions",
+      "sourceFile": "routes/riskCriteriaRoutes.js",
+      "tag": "risk-criteria",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/risk-criteria/methodologies/:id/versions",
+      "sourceFile": "routes/riskCriteriaRoutes.js",
+      "tag": "risk-criteria",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-criteria/presets",
+      "sourceFile": "routes/riskCriteriaRoutes.js",
+      "tag": "risk-criteria",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-inventory",
+      "sourceFile": "routes/riskInventoryRoutes.js",
+      "tag": "risk-inventory",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/risk-inventory",
+      "sourceFile": "routes/riskInventoryRoutes.js",
+      "tag": "risk-inventory",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/risk-inventory/:id",
+      "sourceFile": "routes/riskInventoryRoutes.js",
+      "tag": "risk-inventory",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-inventory/:id",
+      "sourceFile": "routes/riskInventoryRoutes.js",
+      "tag": "risk-inventory",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/risk-inventory/:id",
+      "sourceFile": "routes/riskInventoryRoutes.js",
+      "tag": "risk-inventory",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-inventory/:id/compliance",
+      "sourceFile": "routes/riskInventoryRoutes.js",
+      "tag": "risk-inventory",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-inventory/:id/links",
+      "sourceFile": "routes/riskInventoryRoutes.js",
+      "tag": "risk-inventory",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk-inventory/summary",
+      "sourceFile": "routes/riskInventoryRoutes.js",
+      "tag": "risk-inventory",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/sectors",
+      "sourceFile": "routes/coreRoutes.js",
+      "tag": "sectors",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/sectors",
+      "sourceFile": "routes/coreRoutes.js",
+      "tag": "sectors",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/sst/apr",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/sst/apr",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/sst/apr/:id",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/sst/auditorias",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/sst/auditorias",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/sst/capa",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/sst/capa",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/sst/capa/:id",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/sst/dashboard",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/sst/epc",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/sst/epc",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/sst/epi",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/sst/epi",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/sst/epi/:id/entrega",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/sst/historico",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/sst/inspecoes",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/sst/inspecoes",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/sst/inspecoes/:id/realizar",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/sst/nc",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/sst/nc",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/sst/relatorios",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/sst/relatorios/gerar",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/sst/treinamentos",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/sst/treinamentos",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/sst/treinamentos/:id/realizar",
+      "sourceFile": "routes/sstRoutes.js",
+      "tag": "SST",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/support/audit",
+      "sourceFile": "index.js",
+      "tag": "Suporte",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/support/authorize",
+      "sourceFile": "index.js",
+      "tag": "Suporte",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/support/revoke",
+      "sourceFile": "index.js",
+      "tag": "Suporte",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/support/status",
+      "sourceFile": "index.js",
+      "tag": "Suporte",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/system/ai-status",
+      "sourceFile": "routes/systemRoutes.js",
+      "tag": "system",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/tenants",
+      "sourceFile": "routes/tenantRoutes.js",
+      "tag": "tenants",
+      "auth": "bearer",
+      "adminGlobal": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/tenants",
+      "sourceFile": "routes/tenantRoutes.js",
+      "tag": "tenants",
+      "auth": "bearer",
+      "adminGlobal": false
+    }
+  ],
+  "gaps": {
+    "undocumented": [],
+    "orphanOpenapi": []
+  }
+}

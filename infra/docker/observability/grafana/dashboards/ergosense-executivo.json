@@ -1,0 +1,49 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "title": "Empresas (tenants) ativos",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "targets": [{ "expr": "count(count by (tenant_id) (ergosense_http_requests_total))", "legendFormat": "tenants" }]
+    },
+    {
+      "title": "Requisições HTTP/min",
+      "type": "graph",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "targets": [{ "expr": "sum(rate(ergosense_http_requests_total[5m]))", "legendFormat": "rps" }]
+    },
+    {
+      "title": "Taxa de erro 5xx",
+      "type": "graph",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "targets": [{ "expr": "rate(ergosense_http_errors_total[5m])", "legendFormat": "errors" }]
+    },
+    {
+      "title": "Cache hit ratio",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 12 },
+      "targets": [{
+        "expr": "ergosense_cache_hits_total / (ergosense_cache_hits_total + ergosense_cache_misses_total + 0.001)",
+        "legendFormat": "hit%"
+      }]
+    },
+    {
+      "title": "Pool PostgreSQL",
+      "type": "graph",
+      "gridPos": { "h": 6, "w": 12, "x": 6, "y": 12 },
+      "targets": [
+        { "expr": "ergosense_db_pool_total", "legendFormat": "total" },
+        { "expr": "ergosense_db_pool_idle", "legendFormat": "idle" },
+        { "expr": "ergosense_db_pool_waiting", "legendFormat": "waiting" }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["ergosense", "executivo"],
+  "title": "ErgoSense — Executivo",
+  "uid": "ergosense-exec",
+  "version": 1
+}

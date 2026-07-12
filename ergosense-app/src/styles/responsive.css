@@ -1,0 +1,335 @@
+/* Impressão / PDF do navegador — A4 com margens 2 cm */
+@media print {
+  .report-doc {
+    padding-left: 2cm !important;
+    padding-right: 2cm !important;
+    max-width: none;
+  }
+  .report-doc .report-justify,
+  .report-doc .nr17-summary,
+  .report-doc .nr17-item-detail,
+  .report-doc .nr17-item-title {
+    text-align: justify !important;
+  }
+  .nr17-card,
+  .card {
+    break-inside: avoid;
+    box-shadow: none;
+  }
+}
+
+/* Mobile-first — app operacional responsivo */
+
+.app-page {
+  padding-bottom: calc(16px + var(--safe-bot));
+}
+
+@media (min-width: 480px) {
+  .sg {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  #root:not(.admin-desktop) {
+    max-width: min(960px, 100%);
+    margin: 0 auto;
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.45);
+  }
+
+  html:not(:has(#root.admin-desktop)),
+  body:not(:has(#root.admin-desktop)) {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  .sg {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  #toast {
+    bottom: calc(24px + var(--safe-bot));
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --page-gutter: 28px;
+  }
+}
+
+/* Suporte tenant */
+.support-status-card {
+  background: var(--bg2);
+  border: 1px solid var(--b1);
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+
+.support-status-kicker {
+  font-family: var(--fd);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--t1);
+  margin-bottom: 8px;
+}
+
+.support-status-line {
+  font-family: var(--fd);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.support-status-line--ok {
+  color: var(--green);
+}
+
+.support-status-line--off {
+  color: var(--red);
+}
+
+.support-status-detail {
+  font-size: 12px;
+  color: var(--t1);
+  margin-top: 6px;
+}
+
+.support-intro {
+  font-size: 13px;
+  color: var(--t1);
+  line-height: 1.55;
+  margin: 0 0 16px;
+}
+
+.support-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.support-info-card {
+  padding: 16px;
+}
+
+.support-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.support-info-grid span {
+  display: block;
+  font-size: 11px;
+  color: var(--t2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: var(--fd);
+}
+
+.support-info-grid strong {
+  display: block;
+  font-size: 14px;
+  color: var(--t0);
+  margin-top: 2px;
+}
+
+.support-audit-item {
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.support-audit-action {
+  font-family: var(--fd);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--t0);
+  margin-bottom: 4px;
+}
+
+.support-audit-meta {
+  font-size: 12px;
+  color: var(--t1);
+}
+
+.support-audit-sub {
+  font-size: 11px;
+  color: var(--t2);
+  margin-top: 4px;
+}
+
+.support-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 400;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+}
+
+.support-modal {
+  background: var(--bg2);
+  border: 1px solid var(--b2);
+  border-radius: 20px 20px 12px 12px;
+  padding: 22px 20px calc(20px + var(--safe-bot));
+  width: 100%;
+  max-width: 480px;
+  animation: slideUpM 0.25s ease both;
+}
+
+.support-modal-title {
+  font-family: var(--fd);
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0 0 8px;
+  color: var(--t0);
+}
+
+.support-modal-desc {
+  font-size: 13px;
+  color: var(--t1);
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+
+.support-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.support-modal-actions .btn {
+  flex: 1;
+}
+
+@media (min-width: 768px) {
+  .support-modal-overlay {
+    align-items: center;
+  }
+
+  .support-modal {
+    border-radius: 20px;
+  }
+
+  .support-info-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-tab {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--b1);
+  background: var(--bg2);
+  color: var(--t1);
+  font-family: var(--fd);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.admin-tab.on {
+  background: var(--c10);
+  border-color: var(--c25);
+  color: var(--cyan);
+}
+
+.admin-table-sub {
+  font-size: 11px;
+  color: var(--t2);
+  font-weight: 400;
+}
+
+.admin-table-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Barra modo suporte — Admin Global dentro do tenant */
+.support-mode-bar {
+  flex-shrink: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--c25);
+  padding: 6px var(--page-gutter);
+  min-height: 40px;
+}
+
+.support-mode-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  max-width: 100%;
+  flex: 1;
+}
+
+.support-mode-bar-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.support-mode-bar-kicker {
+  font-family: var(--fd);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  line-height: 1.2;
+}
+
+.support-mode-bar-tenant {
+  font-family: var(--fd);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.support-mode-camera-exit {
+  position: fixed;
+  top: calc(12px + var(--safe-top));
+  left: 12px;
+  z-index: 100;
+}
+
+@media (min-width: 768px) {
+  .support-mode-bar {
+    padding: 8px 20px;
+  }
+
+  .support-mode-bar-tenant {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 420px) {
+  .support-mode-bar .btn-inline:not(.btn-icon) {
+    display: none;
+  }
+}

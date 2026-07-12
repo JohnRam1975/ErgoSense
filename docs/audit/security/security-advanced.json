@@ -1,0 +1,89 @@
+{
+  "generatedAt": "2026-07-02T13:47:16.374Z",
+  "base": "http://localhost:3001",
+  "bySeverity": {
+    "CRÍTICO": 0,
+    "ALTO": 0,
+    "MÉDIO": 0,
+    "BAIXO": 11
+  },
+  "findings": [
+    {
+      "severity": "BAIXO",
+      "category": "IDOR",
+      "title": "Cross-tenant bloqueado",
+      "detail": "HTTP 403",
+      "fixed": false
+    },
+    {
+      "severity": "BAIXO",
+      "category": "SQLi",
+      "title": "Login rejeita payload SQLi",
+      "detail": "HTTP 400",
+      "fixed": false
+    },
+    {
+      "severity": "BAIXO",
+      "category": "XSS",
+      "title": "Criação colaborador XSS rejeitada",
+      "detail": "HTTP 403",
+      "fixed": false
+    },
+    {
+      "severity": "BAIXO",
+      "category": "CSRF",
+      "title": "API usa Bearer (não cookie-only)",
+      "detail": "GET autenticado HTTP 200",
+      "fixed": false
+    },
+    {
+      "severity": "BAIXO",
+      "category": "CORS",
+      "title": "CORS não reflete origem arbitrária",
+      "detail": "sem header",
+      "fixed": false
+    },
+    {
+      "severity": "BAIXO",
+      "category": "Rate limit",
+      "title": "Login bloqueia após tentativas",
+      "fixed": false
+    },
+    {
+      "severity": "BAIXO",
+      "category": "Auth",
+      "title": "Admin tenant-requests exige auth",
+      "detail": "HTTP 401",
+      "fixed": false
+    },
+    {
+      "severity": "BAIXO",
+      "category": "MFA",
+      "title": "MFA verify rejeita token inválido",
+      "detail": "HTTP 401",
+      "fixed": false
+    },
+    {
+      "severity": "BAIXO",
+      "category": "Headers",
+      "title": "Headers básicos presentes",
+      "detail": "x-content-type-options, x-frame-options",
+      "fixed": false
+    },
+    {
+      "severity": "BAIXO",
+      "category": "Auth",
+      "title": "Token inválido → 401",
+      "detail": "",
+      "fixed": false
+    },
+    {
+      "severity": "BAIXO",
+      "category": "Enumeração",
+      "title": "Mensagem login uniforme",
+      "detail": "Credenciais inválidas",
+      "fixed": false
+    }
+  ],
+  "pass": true
+}

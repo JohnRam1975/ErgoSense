@@ -1,0 +1,49 @@
+{
+  "generatedAt": "2026-07-01T22:37:20.182Z",
+  "version": "v2-contract",
+  "base": "http://localhost:3001",
+  "routes": {
+    "GET /api/system/ai-status": {
+      "method": "GET",
+      "path": "/api/system/ai-status",
+      "tag": "system",
+      "contractKind": "list",
+      "checks": {
+        "no_auth_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "invalid_token_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "success_auth": {
+          "ok": true,
+          "detail": "HTTP 200 11ms",
+          "classification": null
+        },
+        "schema_valid": {
+          "ok": true,
+          "detail": "HTTP 200",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    }
+  },
+  "classifications": {},
+  "summary": {
+    "total": 1,
+    "passed": 5,
+    "failed": 0,
+    "actionable": 5,
+    "skipped": 1,
+    "effectiveFailed": 0
+  }
+}

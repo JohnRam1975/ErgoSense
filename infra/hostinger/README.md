@@ -66,9 +66,11 @@ Isso publica:
 ## Observações
 
 - **Sem bind mounts** de arquivos do repo — tudo está dentro das imagens.
+- **Não use** `infra/docker/docker-compose.cloud.yml` no Docker Manager da Hostinger: o mount antigo de `01-schema.sql` vira diretório vazio na VPS e o Postgres sai com `Exited`.
 - RabbitMQ / MinIO / Grafana ficam de fora neste compose lean (podem ir depois).
 - `RUN_MIGRATIONS=true` aplica migrations no start da API.
 - Se a imagem `ergosense-postgres` ainda não existir no registry, faça o push primeiro; sem ela o compose falha no pull.
+- Validação no Docker Desktop (PC): `docker compose -f infra/hostinger/docker-compose.desktop.yml up -d` → http://localhost:8088
 
 ## Arquivos relacionados
 

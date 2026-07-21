@@ -206,7 +206,14 @@ CREATE INDEX IF NOT EXISTS idx_colaboradores_tenant ON colaboradores(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_solicitacoes_status ON solicitacoes_acesso(status, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_relatorios_tenant ON relatorios(tenant_id, created_at DESC);
 
-GRANT ALL ON ALL TABLES IN SCHEMA public TO ergosense;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO ergosense;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ergosense;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ergosense;
+-- Role "ergosense" é opcional (só existe se POSTGRES_USER=ergosense).
+-- Em Docker com POSTGRES_USER=postgres o GRANT antigo quebrava o initdb.
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ergosense') THEN
+    GRANT ALL ON ALL TABLES IN SCHEMA public TO ergosense;
+    GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO ergosense;
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ergosense;
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ergosense;
+  END IF;
+END $$;

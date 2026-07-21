@@ -1,0 +1,113 @@
+# Validação local no Docker Desktop (imagens já buildadas com tag :test)
+# NÃO usa bind mount de SQL — mesma regra do compose Hostinger.
+#
+# Uso (na raiz do repo):
+#   docker compose -f infra/hostinger/docker-compose.desktop.yml up -d
+#   docker compose -f infra/hostinger/docker-compose.desktop.yml ps
+#   docker compose -f infra/hostinger/docker-compose.desktop.yml down -v
+
+name: ergosense-desktop
+
+services:
+  postgres:
+    image: ergosense-postgres:test
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ergosense
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: desktop_ergo_pg_2026
+    ports:
+      - "5435:5432"
+    volumes:
+      - ergosense_desktop_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ergosense"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    networks: [ergosense]
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - ergosense_desktop_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks: [ergosense]
+
+  api:
+    image: ergosense-api:test
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      RUN_MIGRATIONS: "true"
+      PGHOST: postgres
+      PGPORT: 5432
+      PGDATABASE: ergosense
+      PGUSER: postgres
+      PGPASSWORD: desktop_ergo_pg_2026
+      REDIS_ENABLED: "true"
+      REDIS_URL: redis://redis:6379
+      CACHE_ENABLED: "true"
+      SESSION_REDIS_ENABLED: "true"
+      RABBITMQ_ENABLED: "false"
+      STORAGE_DRIVER: database
+      TRUST_PROXY: "true"
+      CSRF_ENABLED: "false"
+      MFA_ENABLED: "false"
+      CORS_ORIGINS: http://localhost:8088
+      APP_PUBLIC_URL: http://localhost:8088
+      JWT_ACCESS_SECRET: desktop-access-secret-min-32-chars-ok
+      JWT_REFRESH_SECRET: desktop-refresh-secret-min-32-chars-ok
+      RATE_LIMIT_SKIP_DEV: "true"
+      SEED_GLOBAL_ADMIN_EMAIL: ergosense@dejohn.com.br
+      SEED_GLOBAL_ADMIN_PASSWORD: "@Ergo!2026/Adm"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+    networks: [ergosense]
+
+  web:
+    image: ergosense-web:test
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "8088:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks: [ergosense]
+
+volumes:
+  ergosense_desktop_pgdata:
+  ergosense_desktop_redis:
+
+networks:
+  ergosense:
+    driver: bridge

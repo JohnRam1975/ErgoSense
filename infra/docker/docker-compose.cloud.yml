@@ -8,8 +8,13 @@
 name: ergosense-cloud
 
 services:
+  # Schema embutido na imagem (Dockerfile.postgres). NÃO use bind mount de .sql —
+  # em Hostinger/VPS o caminho relativo vira diretório vazio e o initdb falha.
   postgres:
-    image: postgres:16-alpine
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile.postgres
+    image: ergosense-postgres:local
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-ergosense}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -18,7 +23,6 @@ services:
       - "${POSTGRES_PUBLISH_PORT:-5434}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ../../docs/database/postgresql-schema-full.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-ergosense}"]
       interval: 10s

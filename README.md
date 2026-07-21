@@ -7,9 +7,8 @@ Sistema mobile-first de **análise ergonômica industrial com IA**, offline-firs
 | Camada | Pasta | Stack | Status |
 |--------|-------|-------|--------|
 | **Protótipo UI** | [`index.html`](index.html) | HTML/CSS/JS | Referência visual |
-| **Web MVP** | [`ergosense-app/`](ergosense-app/) | React + Vite | Funcional (demo) |
-| **Mobile** | [`mobile/`](mobile/) | Flutter + SQLite + TFLite | Scaffold |
-| **Backend** | [`backend/`](backend/) | Spring Boot + PostgreSQL | Scaffold |
+| **App + API** | [`ergosense-app/`](ergosense-app/) | React + Vite + Node/Express | Runtime principal |
+| **Deploy Hostinger** | [`infra/hostinger/`](infra/hostinger/) | Docker Compose (imagens) | Produção lean |
 | **Documentação** | [`docs/`](docs/) | Arquitetura completa | ✅ |
 
 ## Documentação principal

@@ -7,7 +7,7 @@ node_modules
 **/.cursor
 **/agent-transcripts
 **/*.md
-!docs/database/postgresql-schema-full.sql
+!docs/database/**
 ergosense-app/e2e
 ergosense-app/playwright-report
 ergosense-app/test-results

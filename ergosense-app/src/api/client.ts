@@ -158,15 +158,27 @@ export async function apiLogout(): Promise<void> {
 }
 
 export async function apiSubmitTenantRequest(data: {
+  tipoCadastro?: 'EMPRESA' | 'AUTONOMO';
   razaoSocial: string;
   nomeFantasia?: string;
-  cnpj: string;
+  cnpj?: string;
+  cpf?: string;
   segmento: string;
   quantidadeFuncionarios?: number;
   responsavelNome: string;
   email: string;
   telefone: string;
   plano?: string;
+  logradouro?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
+  cep?: string;
+  endereco?: string;
+  password?: string;
+  confirmPassword?: string;
 }) {
   return request<{ protocolo: string; id: string; status: string }>('/api/public/tenant-request', {
     method: 'POST',
@@ -177,14 +189,24 @@ export async function apiSubmitTenantRequest(data: {
 export interface TenantRequestItem {
   id: string;
   protocolo: string;
+  tipoCadastro?: 'EMPRESA' | 'AUTONOMO';
   razaoSocial: string;
   nomeFantasia?: string;
-  cnpj: string;
+  cnpj?: string | null;
+  cpf?: string | null;
   segmento?: string;
   quantidadeFuncionarios?: number;
   responsavelNome: string;
   email: string;
   telefone?: string;
+  logradouro?: string | null;
+  numero?: string | null;
+  complemento?: string | null;
+  bairro?: string | null;
+  cidade?: string | null;
+  estado?: string | null;
+  cep?: string | null;
+  endereco?: string | null;
   plano: string;
   status: string;
   dataSolicitacao: string;
@@ -223,16 +245,112 @@ export async function apiRequestTenantAdjustment(id: string, message: string) {
   });
 }
 
-export async function apiListAdminTenants(filter: 'active' | 'blocked' | 'expired' | 'all' = 'all') {
-  return request<Array<{ id: string; name: string; plan: string; statusConta: string; userCount: number }>>(
-    `/api/admin/tenants?filter=${filter}`,
-  );
+export async function apiListAdminTenants(
+  filter: 'active' | 'blocked' | 'expired' | 'pending' | 'inactive' | 'all' = 'all',
+) {
+  return request<
+    Array<{
+      id: string;
+      name: string;
+      industry?: string;
+      plan: string;
+      statusConta: string;
+      userCount: number;
+      blockedReason?: string | null;
+      expiresAt?: string | null;
+      cnpj?: string | null;
+      razaoSocial?: string;
+    }>
+  >(`/api/admin/tenants?filter=${filter}`);
+}
+
+export type AdminTenantDetail = {
+  id: string;
+  name: string;
+  industry: string;
+  icon: string;
+  color: string;
+  plan: string;
+  statusConta: string;
+  active: boolean;
+  blocked: boolean;
+  blockedAt?: string | null;
+  blockedReason?: string | null;
+  expiresAt?: string | null;
+  userCount: number;
+  createdAt?: string;
+  updatedAt?: string;
+  razaoSocial?: string;
+  nomeFantasia?: string | null;
+  cnpj?: string | null;
+  inscricaoEstadual?: string | null;
+  supportAuthorized?: boolean;
+  supportExpiresAt?: string | null;
+  admins?: Array<{
+    id: number;
+    email: string;
+    name: string;
+    role: string;
+    title?: string;
+    active: boolean;
+    createdAt?: string;
+  }>;
+};
+
+export async function apiGetAdminTenant(id: string) {
+  return request<AdminTenantDetail>(`/api/admin/tenants/${encodeURIComponent(id)}`);
+}
+
+export async function apiUpdateAdminTenant(
+  id: string,
+  data: {
+    name?: string;
+    industry?: string;
+    plan?: 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE';
+    expiresAt?: string | null;
+    icon?: string;
+    color?: 'amber' | 'cyan' | 'green' | 'neutral';
+    razaoSocial?: string;
+    nomeFantasia?: string | null;
+    cnpj?: string | null;
+    inscricaoEstadual?: string | null;
+  },
+) {
+  return request<AdminTenantDetail>(`/api/admin/tenants/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
 }
 
 export async function apiBlockAdminTenant(id: string, reason?: string) {
   return request(`/api/admin/tenants/${id}/block`, {
     method: 'POST',
     body: JSON.stringify({ reason }),
+  });
+}
+
+export async function apiSuspendAdminTenant(id: string, reason: string) {
+  return request(`/api/admin/tenants/${id}/suspend`, {
+    method: 'POST',
+    body: JSON.stringify({ reason }),
+  });
+}
+
+export async function apiDeactivateAdminTenant(id: string, reason: string) {
+  return request(`/api/admin/tenants/${id}/deactivate`, {
+    method: 'POST',
+    body: JSON.stringify({ reason }),
+  });
+}
+
+/** Libera acesso após pagamento confirmado (admin global) */
+export async function apiGrantAdminTenantAccess(
+  id: string,
+  opts?: { paymentNote?: string; plan?: 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE'; expiresAt?: string | null },
+) {
+  return request(`/api/admin/tenants/${id}/grant-access`, {
+    method: 'POST',
+    body: JSON.stringify({ confirm: true, ...opts }),
   });
 }
 
@@ -244,15 +362,19 @@ export async function apiReactivateAdminTenant(id: string) {
 }
 
 export async function apiActivateAccountPreview(token: string) {
-  return request<{ email: string; companyName: string; qrDataUrl: string; otpauthUrl?: string }>(
-    `/api/auth/activate-account/preview?token=${encodeURIComponent(token)}`,
-  );
+  return request<{
+    email: string;
+    companyName: string;
+    qrDataUrl: string;
+    otpauthUrl?: string;
+    passwordPreset?: boolean;
+  }>(`/api/auth/activate-account/preview?token=${encodeURIComponent(token)}`);
 }
 
 export async function apiActivateAccount(data: {
   token: string;
-  password: string;
-  confirmPassword: string;
+  password?: string;
+  confirmPassword?: string;
   mfaCode: string;
 }) {
   return request('/api/auth/activate-account', { method: 'POST', body: JSON.stringify(data) });
@@ -269,6 +391,34 @@ export async function apiSubmitAccessRequest(data: {
     method: 'POST',
     body: JSON.stringify(data),
   });
+}
+
+export async function apiUpdateProfile(data: { nome: string; localizacao?: string }) {
+  return request<{
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    roleCode: string;
+    location: string;
+    tenantId: string;
+  }>('/api/auth/profile', {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function apiGetMe() {
+  return request<{
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    roleCode: string;
+    location: string;
+    company: string;
+    tenantId: string;
+  }>('/api/auth/me');
 }
 
 export async function apiRegisterCompany(data: {

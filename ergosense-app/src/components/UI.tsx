@@ -4,14 +4,13 @@ import { useClock } from '../hooks/useClock';
 
 export function StatusBar({ hidden }: { hidden?: boolean }) {
   const time = useClock();
+  const { dbConnected } = useApp();
   if (hidden) return null;
   return (
     <div id="statusBar">
       <span className="sb-time">{time}</span>
-      <div className="sb-icons">
-        <div className="dot-g" />
-        <div className="sb-wifi" />
-        <div className="sb-bat" />
+      <div className="sb-icons" aria-hidden="true">
+        <div className={dbConnected ? 'dot-g' : 'dot-r'} title={dbConnected ? 'API online' : 'API offline'} />
       </div>
     </div>
   );
@@ -46,7 +45,7 @@ export function Modal() {
         >
           {modal.confirmLabel}
         </button>
-        <button className="btn bp" style={{ marginTop: 8, opacity: 0.85 }} onClick={closeModal}>
+        <button className="btn bs" style={{ marginTop: 8 }} onClick={closeModal}>
           Cancelar
         </button>
       </div>
@@ -178,5 +177,26 @@ export function AnalysisCard({
         <div className={`badge ${badgeClass ?? 'bm'}`}>{badge}</div>
       </div>
     </button>
+  );
+}
+
+/** Placeholder de funcionalidade futura (eSocial, IA, SMTP, etc.) */
+export function ComingSoonPanel({
+  title,
+  subtitle,
+  badge = 'Em breve',
+}: {
+  title: string;
+  subtitle: string;
+  badge?: string;
+}) {
+  return (
+    <div className="hl" style={{ marginTop: 8 }}>
+      <div className="row gap8 jb" style={{ marginBottom: 10 }}>
+        <div style={{ fontFamily: 'var(--fd)', fontSize: 16, fontWeight: 800, color: 'var(--t0)' }}>{title}</div>
+        <span className="badge bm">{badge}</span>
+      </div>
+      <p style={{ fontSize: 13, color: 'var(--t1)', margin: 0, lineHeight: 1.55 }}>{subtitle}</p>
+    </div>
   );
 }

@@ -6,6 +6,7 @@ import { LoginScreen } from '../MainScreens';
 const mockLogin = vi.fn();
 const mockVerifyMfaLogin = vi.fn();
 const mockShowToast = vi.fn();
+const mockShowModal = vi.fn();
 const mockGo = vi.fn();
 
 vi.mock('../../context/AppContext', async (importOriginal) => {
@@ -16,6 +17,7 @@ vi.mock('../../context/AppContext', async (importOriginal) => {
       login: mockLogin,
       verifyMfaLogin: mockVerifyMfaLogin,
       showToast: mockShowToast,
+      showModal: mockShowModal,
       go: mockGo,
     }),
   };
@@ -30,7 +32,7 @@ describe('LoginScreen', () => {
 
   it('render inicial com campos de login', () => {
     render(<LoginScreen />);
-    expect(screen.getByText(/Acesso à Plataforma/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Entrar/i })).toBeInTheDocument();
     expect(screen.getByPlaceholderText('usuario@empresa.com.br')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('••••••••')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Entrar/i })).toBeInTheDocument();
@@ -93,7 +95,7 @@ describe('LoginScreen', () => {
     await user.click(screen.getByRole('button', { name: /Entrar/i }));
     await waitFor(() => screen.getByRole('button', { name: /Voltar ao login/i }));
     await user.click(screen.getByRole('button', { name: /Voltar ao login/i }));
-    expect(screen.getByText(/Acesso à Plataforma/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Entrar/i })).toBeInTheDocument();
   });
 
   it('botão voltar navega para splash', async () => {
@@ -103,11 +105,12 @@ describe('LoginScreen', () => {
     expect(mockGo).toHaveBeenCalledWith('splash');
   });
 
-  it('esqueci senha exibe toast', async () => {
+  it('esqueci senha abre orientação', async () => {
     const user = userEvent.setup();
     render(<LoginScreen />);
     await user.click(screen.getByText(/Esqueci a senha/i));
-    expect(mockShowToast).toHaveBeenCalledWith('Link enviado para seu e-mail', 'success');
+    expect(mockShowModal).toHaveBeenCalled();
+    expect(mockShowModal.mock.calls[0][1]).toMatch(/SMTP|atualização futura/i);
   });
 
   it('login falha não navega', async () => {

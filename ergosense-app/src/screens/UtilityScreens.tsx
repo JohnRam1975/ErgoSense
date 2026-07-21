@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { NavHeader, Toggle, OptionSheet } from '../components/UI';
-import { CAPTURE_QUALITY_OPTIONS, AI_ENGINE_OPTIONS } from '../data/constants';
+import { CAPTURE_QUALITY_OPTIONS, AI_ENGINE_OPTIONS, REPORT_PERIOD_OPTIONS } from '../data/constants';
 import type { Analysis } from '../types';
 import { riskLabel } from '../utils/ergonomics';
 import { UpgradeBanner } from '../components/UpgradeBanner';
 import { canUseAdvancedHistory, planLimits } from '../plan/planFeatures';
+import { usePwaInstall } from '../hooks/usePwaInstall';
 
 function analysisTimestamp(a: Analysis) {
   const [d, m, y] = a.date.split('/').map(Number);
@@ -193,12 +194,15 @@ export function HistoryScreen() {
 
 export function ReportsScreen() {
   const { reports, reportType, setReportType, generateReport, exportReportPdf, canExportPdf } = useApp();
+  const [periodId, setPeriodId] = useState<(typeof REPORT_PERIOD_OPTIONS)[number]['id']>('30');
 
   const types = [
-    { id: 'NR17' as const, elId: 'rNR17', icon: '📋', title: 'Relatório NR17', sub: 'Compliance ergonômico completo' },
-    { id: 'colab' as const, elId: 'rColab', icon: '👤', title: 'Por Colaborador', sub: 'Histórico individual' },
-    { id: 'setor' as const, elId: 'rSetor', icon: '🏭', title: 'Por Setor', sub: 'Ranking de exposição' },
+    { id: 'NR17' as const, elId: 'rNR17', icon: '📋', title: 'Relatório NR17', sub: 'Consolidado das análises no período' },
+    { id: 'colab' as const, elId: 'rColab', icon: '👤', title: 'Por Colaborador', sub: 'Histórico individual agrupado' },
+    { id: 'setor' as const, elId: 'rSetor', icon: '🏭', title: 'Por Setor', sub: 'Ranking de exposição por setor' },
   ];
+
+  const period = REPORT_PERIOD_OPTIONS.find((p) => p.id === periodId) ?? REPORT_PERIOD_OPTIONS[1];
 
   return (
     <>
@@ -207,7 +211,7 @@ export function ReportsScreen() {
           <div style={{ fontFamily: 'var(--fd)', fontSize: 13, fontWeight: 700, color: 'var(--amber)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>
             📄 Gerar Novo Relatório
           </div>
-          <div style={{ fontSize: 13, color: 'var(--t1)', marginBottom: 13 }}>Selecione o tipo e período</div>
+          <div style={{ fontSize: 13, color: 'var(--t1)', marginBottom: 13 }}>Selecione o tipo e o período</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 13 }}>
             {types.map((t) => (
               <div
@@ -234,8 +238,28 @@ export function ReportsScreen() {
               </div>
             ))}
           </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 13 }}>
+            {REPORT_PERIOD_OPTIONS.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                className={`btn ${periodId === p.id ? 'bp' : 'bs'} btn-sm mb0`}
+                onClick={() => setPeriodId(p.id)}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
           {canExportPdf ? (
-            <button className="btn bp btn-sm mb0" onClick={generateReport}>
+            <button
+              className="btn bp btn-sm mb0"
+              onClick={() =>
+                generateReport({
+                  periodDays: period.days,
+                  periodLabel: period.label,
+                })
+              }
+            >
               Exportar Relatório PDF
             </button>
           ) : (
@@ -245,6 +269,11 @@ export function ReportsScreen() {
         <div className="sec">
           <span className="stl">Relatórios Gerados</span>
         </div>
+        {reports.length === 0 && (
+          <div className="card">
+            <div style={{ fontSize: 13, color: 'var(--t1)' }}>Nenhum relatório gerado ainda.</div>
+          </div>
+        )}
         {reports.map((r) => (
           <div key={r.id} className="card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -291,7 +320,9 @@ export function SettingsScreen() {
     logout,
     pendingSync,
     isTenantAdmin,
+    dbConnected,
   } = useApp();
+  const { canInstall, installed: pwaInstalled, downloadApp, openGuide } = usePwaInstall();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [qualityOpen, setQualityOpen] = useState(false);
@@ -333,7 +364,7 @@ export function SettingsScreen() {
   };
 
   const selectedEngineId = useMemo(
-    () => AI_ENGINE_OPTIONS.find((o) => o.label === settings.aiEngine)?.id ?? 'hybrid',
+    () => AI_ENGINE_OPTIONS.find((o) => o.label === settings.aiEngine)?.id ?? 'complete',
     [settings.aiEngine],
   );
 
@@ -423,13 +454,50 @@ export function SettingsScreen() {
           <div style={{ padding: '14px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--b0)' }}>
             <div>
               <div style={{ fontSize: 15, color: 'var(--t0)' }}>Servidor API</div>
-              <div style={{ fontSize: 11, color: 'var(--t1)', fontFamily: 'var(--fm)' }}>api.ergosense.io</div>
+              <div style={{ fontSize: 11, color: 'var(--t1)', fontFamily: 'var(--fm)' }}>localhost:3001</div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div className="dot-g" />
-              <span style={{ fontSize: 11, color: 'var(--green)', fontFamily: 'var(--fd)' }}>Online</span>
+              <div className={dbConnected ? 'dot-g' : 'dot-r'} />
+              <span style={{ fontSize: 11, color: dbConnected ? 'var(--green)' : 'var(--red)', fontFamily: 'var(--fd)' }}>
+                {dbConnected ? 'Online' : 'Offline'}
+              </span>
             </div>
           </div>
+          {pwaInstalled ? (
+            <div style={{ padding: '14px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--b0)' }}>
+              <div>
+                <div className="settings-row-title">App instalado</div>
+                <div className="settings-row-sub">Rodando como PWA (tela cheia)</div>
+              </div>
+              <span style={{ fontSize: 11, color: 'var(--green)', fontFamily: 'var(--fd)' }}>OK</span>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="settings-row"
+                onClick={async () => {
+                  const result = await downloadApp();
+                  if (result === 'installed') showToast('App instalado', 'success');
+                }}
+              >
+                <div>
+                  <div className="settings-row-title">⬇ Baixar app</div>
+                  <div className="settings-row-sub">PC e celular · atalho na tela inicial</div>
+                </div>
+                <span className="settings-row-chevron">›</span>
+              </button>
+              <button type="button" className="settings-row" onClick={openGuide}>
+                <div>
+                  <div className="settings-row-title">Como instalar (PC / celular)</div>
+                  <div className="settings-row-sub">
+                    {canInstall ? 'Instalação nativa disponível neste navegador' : 'Chrome, Edge, Android e Safari iOS'}
+                  </div>
+                </div>
+                <span className="settings-row-chevron">›</span>
+              </button>
+            </>
+          )}
           <button type="button" className="settings-row" onClick={() => go('sync')}>
             <div>
               <div className="settings-row-title">Modo offline</div>
@@ -463,7 +531,7 @@ export function SettingsScreen() {
           </div>
           <div style={{ padding: '14px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ fontSize: 15, color: 'var(--t0)' }}>Tecnologia</div>
-            <span style={{ fontSize: 13, color: 'var(--t1)' }}>React + Vite</span>
+            <span style={{ fontSize: 13, color: 'var(--t1)' }}>React · Vite · PWA</span>
           </div>
         </div>
         <button className="btn bp" onClick={() => showModal('Sair da Conta', 'Tem certeza que deseja encerrar a sessão?', 'Sim, Sair', logout)}>
@@ -518,19 +586,20 @@ export function SettingsScreen() {
 }
 
 export function SyncScreen() {
-  const { go, analyses, pendingSync, startSync, settings, updateSettings, showToast } = useApp();
+  const { go, analyses, pendingSync, startSync, settings, updateSettings, showToast, dbConnected } = useApp();
   const pending = analyses.filter((a) => !a.synced);
   const synced = analyses.filter((a) => a.synced);
+  const online = typeof navigator !== 'undefined' ? navigator.onLine && dbConnected : dbConnected;
 
   return (
     <>
       <NavHeader back={() => go('settings')} title="Sincronização" home={() => go('dashboard')} />
       <div className="scroll">
-        <div className="hl-g">
+        <div className={online ? 'hl-g' : 'hl'}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-            <div className="dot-g" />
-            <div style={{ fontFamily: 'var(--fd)', fontSize: 15, fontWeight: 700, color: 'var(--green)', letterSpacing: 1, textTransform: 'uppercase' }}>
-              Conectado · Wi-Fi
+            <div className={online ? 'dot-g' : 'dot-r'} />
+            <div style={{ fontFamily: 'var(--fd)', fontSize: 15, fontWeight: 700, color: online ? 'var(--green)' : 'var(--amber)', letterSpacing: 1, textTransform: 'uppercase' }}>
+              {online ? 'Conectado · API' : 'Offline / API indisponível'}
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -543,8 +612,8 @@ export function SyncScreen() {
               <div style={{ fontSize: 9, color: 'var(--t1)', fontFamily: 'var(--fd)', letterSpacing: 1, textTransform: 'uppercase' }}>Sincronizadas</div>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'var(--fd)', fontSize: 28, fontWeight: 800, color: 'var(--red)' }}>0</div>
-              <div style={{ fontSize: 9, color: 'var(--t1)', fontFamily: 'var(--fd)', letterSpacing: 1, textTransform: 'uppercase' }}>Com erro</div>
+              <div style={{ fontFamily: 'var(--fd)', fontSize: 28, fontWeight: 800, color: 'var(--red)' }}>{pending.length}</div>
+              <div style={{ fontSize: 9, color: 'var(--t1)', fontFamily: 'var(--fd)', letterSpacing: 1, textTransform: 'uppercase' }}>Na fila</div>
             </div>
           </div>
         </div>
@@ -555,7 +624,10 @@ export function SyncScreen() {
           <span className="stl">Fila de Sincronização</span>
         </div>
         <div className="card" style={{ padding: 0 }}>
-          {pending.slice(0, 2).map((a, i) => (
+          {pending.length === 0 && (
+            <div style={{ padding: '13px 15px', fontSize: 13, color: 'var(--t1)' }}>Nenhuma análise pendente.</div>
+          )}
+          {pending.slice(0, 5).map((a) => (
             <div key={a.id} style={{ padding: '13px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--b0)' }}>
               <div style={{ display: 'flex', gap: 11, alignItems: 'center' }}>
                 <span style={{ fontSize: 18 }}>{a.icon}</span>
@@ -564,12 +636,12 @@ export function SyncScreen() {
                   <div style={{ fontSize: 11, color: 'var(--t1)' }}>Análise · {a.time}</div>
                 </div>
               </div>
-              <div style={{ fontSize: 10, fontFamily: 'var(--fd)', fontWeight: 700, color: i === 0 ? 'var(--amber)' : 'var(--t1)', letterSpacing: 1, textTransform: 'uppercase', animation: i === 0 ? 'pa 1s infinite' : undefined }}>
-                {i === 0 ? 'Enviando...' : 'Na fila'}
+              <div style={{ fontSize: 10, fontFamily: 'var(--fd)', fontWeight: 700, color: 'var(--amber)', letterSpacing: 1, textTransform: 'uppercase' }}>
+                Pendente
               </div>
             </div>
           ))}
-          {synced.slice(0, 1).map((a) => (
+          {synced.slice(0, 2).map((a) => (
             <div key={a.id} style={{ padding: '13px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', gap: 11, alignItems: 'center' }}>
                 <span style={{ fontSize: 18 }}>✅</span>
@@ -589,7 +661,7 @@ export function SyncScreen() {
             Config de Sync
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 13 }}>
-            <div style={{ fontSize: 14, color: 'var(--t0)' }}>Sync automático (Wi-Fi)</div>
+            <div style={{ fontSize: 14, color: 'var(--t0)' }}>Sync automático ao reconectar</div>
             <Toggle
               on={settings.autoSync}
               onToggle={() => {
@@ -599,7 +671,7 @@ export function SyncScreen() {
             />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontSize: 14, color: 'var(--t0)' }}>Somente Wi-Fi</div>
+            <div style={{ fontSize: 14, color: 'var(--t0)' }}>Somente Wi-Fi / cabo</div>
             <Toggle
               on={settings.wifiOnly}
               onToggle={() => {

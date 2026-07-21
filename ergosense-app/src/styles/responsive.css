@@ -18,10 +18,18 @@
   }
 }
 
-/* Mobile-first — app operacional responsivo */
+/* Mobile-first — app operacional responsivo
+   Base = smartphone; breakpoints só ampliam layout. */
 
 .app-page {
   padding-bottom: calc(16px + var(--safe-bot));
+}
+
+/* Touch / scroll confortável no celular */
+.scroll,
+.scroll--form {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 @media (min-width: 480px) {
@@ -201,12 +209,13 @@
 
 .support-modal-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   margin-top: 16px;
+  flex-wrap: wrap;
 }
 
 .support-modal-actions .btn {
-  flex: 1;
+  flex: 0 1 auto !important;
 }
 
 @media (min-width: 768px) {
@@ -231,13 +240,13 @@
 }
 
 .admin-tab {
-  padding: 10px 16px;
-  border-radius: 999px;
+  padding: 7px 14px;
+  border-radius: 10px;
   border: 1px solid var(--b1);
   background: var(--bg2);
   color: var(--t1);
   font-family: var(--fd);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;

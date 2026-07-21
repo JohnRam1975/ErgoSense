@@ -71,6 +71,7 @@ const mocks = vi.hoisted(() => ({
   apiGetGroWorkflow: vi.fn(),
   apiSaveAnalysis: vi.fn(),
   apiDeleteAnalysis: vi.fn(),
+  apiSaveCollaborator: vi.fn(),
   apiConsultEsocialStatus: vi.fn(),
   apiSavePsicoFator: vi.fn(),
   apiSubmitPsicoResposta: vi.fn(),
@@ -247,7 +248,7 @@ vi.mock('../../api/client', () => ({
   apiCreateOrgActivity: vi.fn(),
   apiCreateOrgWorkPost: vi.fn(),
   apiDeleteOrgEntity: vi.fn(),
-  apiSaveCollaborator: vi.fn(),
+  apiSaveCollaborator: mocks.apiSaveCollaborator,
   apiUpdateCollaborator: vi.fn(),
 }));
 
@@ -557,14 +558,26 @@ describe('AppContext — captureAnalysis e GRO', () => {
     vi.useRealTimers();
   });
 
-  it('captureAnalysis sem colaborador exibe aviso', async () => {
+  it('captureAnalysis sem colaborador cria avaliação própria', async () => {
     mocks.fetchBundle.mockResolvedValue(createMinimalTenantBundle());
+    mocks.apiSaveCollaborator.mockResolvedValue({
+      id: 'c-self',
+      name: 'Avaliação própria',
+      matricula: 'ESP-SELF',
+      cargo: 'Autônomo',
+      setor: 'Geral',
+      turno: 'Manhã 06h–14h',
+      consent: true,
+      risk: 'baixo',
+      icon: '👤',
+      iconBg: 'var(--a10)',
+    });
     const { result } = renderHook(() => useApp(), { wrapper });
     await loginAsErgonomist(result);
-    act(() => {
-      result.current.captureAnalysis(baseAngles);
+    await act(async () => {
+      await result.current.captureAnalysis(baseAngles);
     });
-    expect(result.current.toast?.msg).toMatch(/colaborador/i);
+    expect(result.current.analyses.length).toBeGreaterThan(0);
   });
 
   it('captureAnalysis com colaborador persiste análise', async () => {

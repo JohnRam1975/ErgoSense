@@ -21,10 +21,11 @@ function generateTempPassword() {
   return crypto.randomBytes(9).toString('base64url').slice(0, 12);
 }
 
-export async function createActivationToken(userId, tenantId, client = null) {
+export async function createActivationToken(userId, tenantId, client = null, options = {}) {
   const q = client?.query.bind(client) ?? query;
   const token = generateToken();
-  const tempPassword = generateTempPassword();
+  const passwordPreset = Boolean(options.passwordPreset);
+  const tempPassword = passwordPreset ? null : generateTempPassword();
   const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
 
   await q(
@@ -33,7 +34,7 @@ export async function createActivationToken(userId, tenantId, client = null) {
     [userId, tenantId, hashToken(token), tempPassword, expiresAt],
   );
 
-  return { token, tempPassword, expiresAt };
+  return { token, tempPassword, expiresAt, passwordPreset };
 }
 
 async function loadActivationToken(rawToken) {
@@ -61,6 +62,7 @@ export async function getActivationPreview(rawToken) {
     qrDataUrl: mfa.qrDataUrl,
     otpauthUrl: mfa.otpauthUrl,
     expiresAt: row.expires_at,
+    passwordPreset: row.temp_password == null,
   };
 }
 
@@ -72,17 +74,35 @@ export async function activateAccount({ token, password, confirmPassword, mfaCod
     throw err;
   }
 
-  if (password !== confirmPassword) {
-    const err = new Error('Senhas não conferem');
-    err.status = 400;
-    throw err;
-  }
+  const passwordPreset = row.temp_password == null;
+  let nextPassword = password;
 
-  const pwdCheck = validatePassword(password);
-  if (!pwdCheck.ok) {
-    const err = new Error(pwdCheck.error);
-    err.status = 400;
-    throw err;
+  if (!passwordPreset) {
+    if (password !== confirmPassword) {
+      const err = new Error('Senhas não conferem');
+      err.status = 400;
+      throw err;
+    }
+    const pwdCheck = validatePassword(password);
+    if (!pwdCheck.ok) {
+      const err = new Error(pwdCheck.error);
+      err.status = 400;
+      throw err;
+    }
+  } else if (password || confirmPassword) {
+    if (password !== confirmPassword) {
+      const err = new Error('Senhas não conferem');
+      err.status = 400;
+      throw err;
+    }
+    if (password) {
+      const pwdCheck = validatePassword(password);
+      if (!pwdCheck.ok) {
+        const err = new Error(pwdCheck.error);
+        err.status = 400;
+        throw err;
+      }
+    }
   }
 
   const enableResult = await enableMfa(row.user_id, mfaCode, req);
@@ -96,23 +116,33 @@ export async function activateAccount({ token, password, confirmPassword, mfaCod
   try {
     await client.query('BEGIN');
 
-    await client.query(
-      `UPDATE usuarios SET
-         senha_hash = crypt($2, gen_salt('bf', 10)),
-         pendente_ativacao = FALSE,
-         ativado_em = NOW(),
-         mfa_enabled = TRUE,
-         ativo = TRUE,
-         updated_at = NOW()
-       WHERE id = $1`,
-      [row.user_id, password],
-    );
+    if (passwordPreset && !nextPassword) {
+      await client.query(
+        `UPDATE usuarios SET
+           pendente_ativacao = FALSE,
+           ativado_em = NOW(),
+           mfa_enabled = TRUE,
+           ativo = TRUE,
+           updated_at = NOW()
+         WHERE id = $1`,
+        [row.user_id],
+      );
+    } else {
+      await client.query(
+        `UPDATE usuarios SET
+           senha_hash = crypt($2, gen_salt('bf', 10)),
+           pendente_ativacao = FALSE,
+           ativado_em = NOW(),
+           mfa_enabled = TRUE,
+           ativo = TRUE,
+           updated_at = NOW()
+         WHERE id = $1`,
+        [row.user_id, nextPassword],
+      );
+    }
 
-    await client.query(
-      `UPDATE tenants SET status_conta = 'ATIVO', ativo = TRUE, bloqueado = FALSE, updated_at = NOW()
-       WHERE tenant_id = $1`,
-      [row.tenant_id],
-    );
+    // Ativa apenas o usuário (senha + MFA). O status da empresa permanece
+    // PENDENTE_ATIVACAO até o admin global liberar o acesso pós-pagamento.
 
     await client.query(`UPDATE activation_tokens SET used_at = NOW() WHERE id = $1`, [row.id]);
 

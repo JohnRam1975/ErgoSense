@@ -4,7 +4,6 @@ import { buildExecutiveDashboard } from '../services/executiveDashboard';
 import { getAuditLogs } from '../services/auditLog';
 import { evaluateEnvironmental, type EnvironmentalInput } from '../services/environmental';
 import { FUTURE_MODULES } from '../services/futureRoadmap';
-import { createEsocialExport, downloadEsocialXml } from '../services/esocialExport';
 import { exportV2MethodsPdf } from '../utils/exportV2Pdf';
 import type { Analysis } from '../types';
 import { VideoErgonomicScreen } from './VideoErgonomicScreen';
@@ -94,7 +93,7 @@ export function V2ExecutiveDashboardScreen() {
 }
 
 export function V2MethodsScreen() {
-  const { analyses, currentAnalysisId, selectedCompany, selectedCompanyId, showToast, go } = useApp();
+  const { analyses, currentAnalysisId, selectedCompany, showToast, go } = useApp();
   const a = currentAnalysis(analyses, currentAnalysisId);
 
   if (!a?.v2Report) {
@@ -139,23 +138,15 @@ export function V2MethodsScreen() {
       >
         Exportar PDF V2
       </button>
-      <button
-        type="button"
-        className="btn bs"
-        style={{ marginTop: 8 }}
-        onClick={() => {
-          const ex = createEsocialExport('S-2240', {
-            tenantId: selectedCompanyId,
-            analysisId: a.id,
-            setor: a.setor,
-            agente: `Risco ${a.risk} — análise ergonômica`,
-          });
-          downloadEsocialXml(ex);
-          showToast('XML eSocial S-2240', 'success');
-        }}
-      >
-        Exportar eSocial S-2240
-      </button>
+      <div className="card mt8">
+        <div className="row gap8 jb">
+          <div style={{ fontWeight: 600, fontSize: 13 }}>eSocial S-2240</div>
+          <span className="badge bm">Em breve</span>
+        </div>
+        <p style={{ fontSize: 12, color: 'var(--t1)', margin: '8px 0 0' }}>
+          Exportação e transmissão eSocial serão liberadas em atualização futura.
+        </p>
+      </div>
     </div>
   );
 }
@@ -165,7 +156,6 @@ export function V2VideoAnalysisScreen() {
 }
 
 export function V2EnvironmentalScreen() {
-  const { showToast } = useApp();
   const [env, setEnv] = useState<EnvironmentalInput>({
     noiseDbA: 82,
     noiseHours: 8,
@@ -179,15 +169,15 @@ export function V2EnvironmentalScreen() {
   return (
     <div className="scroll pad">
       <h2>Riscos ambientais</h2>
+      <p className="t2" style={{ marginBottom: 12 }}>
+        Os resultados abaixo atualizam automaticamente ao alterar os valores.
+      </p>
       <label className="lbl">Ruído dB(A)</label>
       <input className="inp" type="number" value={env.noiseDbA} onChange={(e) => setEnv({ ...env, noiseDbA: Number(e.target.value) })} />
       <label className="lbl">IBUTG °C</label>
       <input className="inp" type="number" value={env.ibutgCelsius} onChange={(e) => setEnv({ ...env, ibutgCelsius: Number(e.target.value) })} />
       <label className="lbl">Lux</label>
       <input className="inp" type="number" value={env.lux} onChange={(e) => setEnv({ ...env, lux: Number(e.target.value) })} />
-      <button type="button" className="btn bp" onClick={() => showToast(`${results.length} medições avaliadas`, 'success')}>
-        Calcular NR-15 / NHO-06 / NHO-11
-      </button>
       {results.map((r) => (
         <div key={r.methodId} className="card" style={{ marginTop: 8 }}>
           <div className="card-t">{r.methodName}</div>
@@ -202,6 +192,9 @@ export function V2RoadmapScreen() {
   return (
     <div className="scroll pad">
       <h2>Roadmap futuro</h2>
+      <p className="t2" style={{ marginBottom: 12 }}>
+        Backlog de produto — itens abaixo ainda não estão implementados como funções ativas.
+      </p>
       {FUTURE_MODULES.map((m) => (
         <div key={m.id} className="list-row card" style={{ marginBottom: 8 }}>
           <span>{m.title}</span>

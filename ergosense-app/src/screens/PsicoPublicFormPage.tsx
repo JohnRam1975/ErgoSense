@@ -158,7 +158,7 @@ export default function PsicoPublicFormPage({ token }: Props) {
 
         <button
           className="btn bp"
-          style={{ width: '100%', marginBottom: 24 }}
+          style={{ marginBottom: 24 }}
           disabled={!consent || enviando}
           onClick={() => void enviar()}
         >

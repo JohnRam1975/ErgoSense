@@ -1,6 +1,6 @@
 import { useApp } from '../context/AppContext';
 
-const HIDDEN_ON = new Set(['global-admin', 'camera', 'splash', 'login', 'register-company', 'request-access']);
+const HIDDEN_ON = new Set(['global-admin', 'camera', 'splash', 'login', 'register-company', 'request-access', 'request-access-autonomo']);
 
 /** Barra compacta — só no modo suporte do Admin Global (dentro do tenant). */
 export function SupportModeBar() {

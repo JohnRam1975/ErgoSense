@@ -1,0 +1,25 @@
+# Build context = repo root
+node_modules
+**/node_modules
+**/dist
+**/coverage
+**/.git
+**/.cursor
+**/agent-transcripts
+**/*.md
+!docs/database/postgresql-schema-full.sql
+ergosense-app/e2e
+ergosense-app/playwright-report
+ergosense-app/test-results
+ergosense-app/server/coverage
+**/.env
+**/.env.*
+!**/.env.example
+**/__tests__
+**/*.test.ts
+**/*.test.tsx
+**/*.test.js
+**/canvases
+infra/docker/observability
+k8s
+backend

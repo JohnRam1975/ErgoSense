@@ -42,29 +42,81 @@ export const accessRequestSchema = z.object({
   tenantId: z.string().optional().nullable(),
 });
 
-export const tenantRequestPublicSchema = z.object({
-  razaoSocial: z.string().trim().min(2, 'Razão social obrigatória'),
-  nomeFantasia: z.string().trim().optional(),
-  cnpj: z.string().trim().min(14, 'CNPJ obrigatório'),
-  segmento: z.string().trim().min(1, 'Segmento obrigatório'),
-  quantidadeFuncionarios: z.coerce.number().int().positive().optional(),
-  responsavelNome: z.string().trim().min(2, 'Nome do responsável obrigatório'),
-  email: z.string().email('E-mail inválido'),
-  telefone: z.string().trim().min(8, 'Telefone obrigatório'),
-  responsavelEmail: z.string().email().optional(),
-  responsavelTelefone: z.string().trim().optional(),
-  plano: z.enum(['STARTER', 'PROFESSIONAL', 'ENTERPRISE']).optional(),
-  industria: z.string().trim().optional(),
-  endereco: z.string().trim().optional(),
-  cidade: z.string().trim().optional(),
-  estado: z.string().trim().max(2).optional(),
-  cep: z.string().trim().optional(),
-});
+export const tenantRequestPublicSchema = z
+  .object({
+    tipoCadastro: z.enum(['EMPRESA', 'AUTONOMO']).default('EMPRESA'),
+    razaoSocial: z.string().trim().min(2, 'Nome / razão social obrigatório'),
+    nomeFantasia: z.string().trim().optional(),
+    cnpj: z.string().trim().optional(),
+    cpf: z.string().trim().optional(),
+    segmento: z.string().trim().min(1, 'Segmento / área de atuação obrigatório'),
+    quantidadeFuncionarios: z.coerce.number().int().positive().optional(),
+    responsavelNome: z.string().trim().min(2, 'Nome do responsável obrigatório'),
+    email: z.string().email('E-mail inválido'),
+    telefone: z.string().trim().min(8, 'Telefone obrigatório'),
+    responsavelEmail: z.string().email().optional(),
+    responsavelTelefone: z.string().trim().optional(),
+    responsavelCargo: z.string().trim().optional(),
+    plano: z.enum(['STARTER', 'PROFESSIONAL', 'ENTERPRISE']).optional(),
+    industria: z.string().trim().optional(),
+    endereco: z.string().trim().optional(),
+    logradouro: z.string().trim().optional(),
+    numero: z.string().trim().optional(),
+    complemento: z.string().trim().optional(),
+    bairro: z.string().trim().optional(),
+    cidade: z.string().trim().optional(),
+    estado: z.string().trim().max(2).optional(),
+    cep: z.string().trim().optional(),
+    observacoes: z.string().trim().max(2000).optional(),
+    password: z.string().optional(),
+    confirmPassword: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.tipoCadastro === 'AUTONOMO') {
+      const cpfDigits = String(data.cpf ?? '').replace(/\D/g, '');
+      if (cpfDigits.length !== 11) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'CPF obrigatório', path: ['cpf'] });
+      }
+      if (!data.logradouro?.trim()) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Logradouro obrigatório', path: ['logradouro'] });
+      }
+      if (!data.numero?.trim()) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Número obrigatório', path: ['numero'] });
+      }
+      if (!data.bairro?.trim()) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Bairro obrigatório', path: ['bairro'] });
+      }
+      if (!data.cidade?.trim()) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Cidade obrigatória', path: ['cidade'] });
+      }
+      if (!data.estado?.trim() || data.estado.trim().length !== 2) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'UF obrigatória', path: ['estado'] });
+      }
+      const cepDigits = String(data.cep ?? '').replace(/\D/g, '');
+      if (cepDigits.length !== 8) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'CEP inválido', path: ['cep'] });
+      }
+      if (!data.password || data.password.length < 8) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Senha obrigatória (mín. 8 caracteres)',
+          path: ['password'],
+        });
+      } else if (data.password !== data.confirmPassword) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Senhas não conferem', path: ['confirmPassword'] });
+      }
+    } else {
+      const cnpjDigits = String(data.cnpj ?? '').replace(/\D/g, '');
+      if (cnpjDigits.length < 14) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'CNPJ obrigatório', path: ['cnpj'] });
+      }
+    }
+  });
 
 export const activateAccountSchema = z.object({
   token: z.string().min(16),
-  password: z.string().min(8),
-  confirmPassword: z.string().min(8),
+  password: z.string().min(8).optional(),
+  confirmPassword: z.string().min(8).optional(),
   mfaCode: z.string().trim().min(6).max(8),
 });
 
@@ -84,11 +136,29 @@ export const tenantReactivateSchema = z.object({
   confirm: z.literal(true, { errorMap: () => ({ message: 'Confirmação obrigatória' }) }),
 });
 
-export const tenantUpdateSchema = z.object({
-  name: z.string().trim().min(2).optional(),
-  industry: z.string().trim().optional(),
+/** Liberação comercial após pagamento confirmado */
+export const tenantGrantAccessSchema = z.object({
+  confirm: z.literal(true, { errorMap: () => ({ message: 'Confirmação obrigatória' }) }),
+  paymentNote: z.string().trim().max(500).optional(),
   plan: z.enum(['STARTER', 'PROFESSIONAL', 'ENTERPRISE']).optional(),
   expiresAt: z.string().datetime().optional().nullable(),
+});
+
+export const tenantDeactivateSchema = z.object({
+  reason: z.string().trim().min(3, 'Motivo obrigatório').max(500),
+});
+
+export const tenantUpdateSchema = z.object({
+  name: z.string().trim().min(2).max(255).optional(),
+  industry: z.string().trim().max(120).optional(),
+  plan: z.enum(['STARTER', 'PROFESSIONAL', 'ENTERPRISE']).optional(),
+  expiresAt: z.union([z.string().min(1), z.null()]).optional(),
+  icon: z.string().trim().max(16).optional(),
+  color: z.enum(['amber', 'cyan', 'green', 'neutral']).optional(),
+  razaoSocial: z.string().trim().max(255).optional(),
+  nomeFantasia: z.string().trim().max(255).optional().nullable(),
+  cnpj: z.string().trim().max(18).optional().nullable(),
+  inscricaoEstadual: z.string().trim().max(32).optional().nullable(),
 });
 
 export const analysisSchema = z.object({
@@ -104,4 +174,19 @@ export const analysisSchema = z.object({
   notes: z.string().optional().nullable(),
   angles: z.record(z.unknown()).optional(),
   synced: z.boolean().optional(),
+});
+
+/** Criação de processo AET — título obrigatório (evita POST {} silencioso). */
+export const createAetProcessoSchema = z.object({
+  title: z.string().trim().min(2, 'Título da AET obrigatório'),
+  collaboratorId: z.union([z.string(), z.number()]).optional().nullable(),
+  sectorId: z.union([z.string(), z.number()]).optional().nullable(),
+  analysisId: z.union([z.string(), z.number()]).optional().nullable(),
+  preparedBy: z.string().trim().max(255).optional().nullable(),
+  characterization: z.record(z.unknown()).optional(),
+});
+
+export const updateProfileSchema = z.object({
+  nome: z.string().trim().min(2, 'Informe um nome válido').max(200),
+  localizacao: z.string().trim().max(200).optional().default(''),
 });

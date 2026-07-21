@@ -11,8 +11,8 @@ import {
 } from '../helpers/onboardingApi';
 
 const API = process.env.E2E_API_URL ?? 'http://localhost:3001';
-const ADMIN_EMAIL = process.env.E2E_GLOBAL_EMAIL ?? 'admin@ergosense.com.br';
-const ADMIN_PASS = process.env.E2E_GLOBAL_PASSWORD ?? 'admin1234';
+const ADMIN_EMAIL = process.env.E2E_GLOBAL_EMAIL ?? 'ergosense@dejohn.com.br';
+const ADMIN_PASS = process.env.E2E_GLOBAL_PASSWORD ?? '@Ergo!2026/Adm';
 
 async function adminToken() {
   const r = await loginApi(ADMIN_EMAIL, ADMIN_PASS);

@@ -80,9 +80,11 @@ test.describe('Telas auth (não autenticado)', () => {
 
 test.describe('Onboarding público', () => {
 
-  test('employee-access-request e activate-account', async ({ page }) => {
+  test('request-access, autonomo e activate-account', async ({ page }) => {
 
-    await navigateToScreen(page, 'employee-access-request');
+    await navigateToScreen(page, 'request-access');
+
+    await navigateToScreen(page, 'request-access-autonomo');
 
     await navigateToScreen(page, 'activate-account');
 
@@ -174,9 +176,9 @@ test.describe('Abas inferiores', () => {
 
 test.describe('Inventário completo ScreenId', () => {
 
-  test('87 telas registradas', () => {
+  test('90 telas registradas', () => {
 
-    expect(ALL_SCREEN_IDS.length).toBe(87);
+    expect(ALL_SCREEN_IDS.length).toBe(90);
 
     expect(ONBOARDING_PUBLIC_SCREEN_IDS.length).toBe(2);
 

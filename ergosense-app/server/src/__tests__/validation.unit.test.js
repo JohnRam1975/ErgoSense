@@ -3,7 +3,7 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { collaboratorSchema, createTenantSchema, loginSchema } from '../validation/schemas.js';
+import { collaboratorSchema, createAetProcessoSchema, createTenantSchema, loginSchema, updateProfileSchema } from '../validation/schemas.js';
 import { validateBody } from '../validation/validateRequest.js';
 
 test('validateBody — retorna 400 para e-mail inválido', () => {
@@ -37,6 +37,18 @@ test('loginSchema — rejeita e-mail inválido', () => {
 test('loginSchema — aceita credenciais válidas', () => {
   const r = loginSchema.safeParse({ email: 'a@b.com', password: 'secret123' });
   assert.equal(r.success, true);
+});
+
+test('createAetProcessoSchema — exige título', () => {
+  assert.equal(createAetProcessoSchema.safeParse({}).success, false);
+  assert.equal(createAetProcessoSchema.safeParse({ title: 'A' }).success, false);
+  assert.equal(createAetProcessoSchema.safeParse({ title: 'Nova AET NR-17' }).success, true);
+});
+
+test('updateProfileSchema — exige nome válido', () => {
+  assert.equal(updateProfileSchema.safeParse({}).success, false);
+  assert.equal(updateProfileSchema.safeParse({ nome: 'L' }).success, false);
+  assert.equal(updateProfileSchema.safeParse({ nome: 'Lucas', localizacao: 'Carajás' }).success, true);
 });
 
 test('createTenantSchema — exige industria', () => {

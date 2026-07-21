@@ -59,6 +59,9 @@ const ACTION_POST = [
   /\/advance$/,
   /\/retreat$/,
   /\/gerar-relatorio$/,
+  /\/relatorios\/gerar$/,
+  /\/gerar$/,
+  /\/scan$/,
   /\/atualizar-snapshot$/,
   /\/revision$/,
   /\/reject$/,
@@ -72,6 +75,8 @@ const ACTION_POST = [
   /\/lida$/,
   /\/sync/,
   /\/recalcular/,
+  /\/assinar$/,
+  /\/sign$/,
 ];
 
 const IDEMPOTENT_DELETE = [

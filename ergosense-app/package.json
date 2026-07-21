@@ -4,15 +4,16 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5173 --strictPort",
     "dev:api": "npm --prefix server run dev",
     "dev:all": "npm run dev:api & npm run dev",
     "build": "tsc -b && vite build",
+    "build:docker": "vite build",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "lint": "eslint .",
-    "preview": "vite preview",
+    "preview": "vite preview --port 5173 --strictPort",
     "coverage": "npm run coverage:fe && npm run coverage:be && node server/scripts/coverage-report.js",
     "coverage:baseline": "node server/scripts/coverage-baseline-check.js",
     "coverage:fe": "vitest run --coverage",
@@ -61,6 +62,7 @@
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
     "vite": "^8.0.12",
+    "vite-plugin-pwa": "^1.3.0",
     "vitest": "^3.2.6"
   }
 }

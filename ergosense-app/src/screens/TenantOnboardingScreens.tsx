@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { ErgoSenseLogo } from '../components/ErgoSenseLogo';
+import { PasswordField } from '../components/PasswordField';
 import {
   apiActivateAccount,
   apiActivateAccountPreview,
@@ -8,61 +9,26 @@ import {
   apiAdminTenantRequestDetail,
   apiApproveTenantRequest,
   apiBlockAdminTenant,
+  apiDeactivateAdminTenant,
+  apiGrantAdminTenantAccess,
   apiListAdminTenants,
-  apiReactivateAdminTenant,
+  apiGetAdminTenant,
+  apiUpdateAdminTenant,
   apiRejectTenantRequest,
   apiRequestTenantAdjustment,
   apiSubmitTenantRequest,
   type TenantRequestItem,
+  type AdminTenantDetail,
 } from '../api/client';
-
-function formatCnpjInput(value: string) {
-  const d = value.replace(/\D/g, '').slice(0, 14);
-  if (d.length <= 2) return d;
-  if (d.length <= 5) return `${d.slice(0, 2)}.${d.slice(2)}`;
-  if (d.length <= 8) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5)}`;
-  if (d.length <= 12) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8)}`;
-  return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
-}
-
-export function EmployeeAccessRequestScreen() {
-  const { go, showToast, submitAccessRequest } = useApp();
-  const [form, setForm] = useState({ name: '', email: '', funcao: '', matricula: '' });
-  const set = (key: keyof typeof form, value: string) => setForm((f) => ({ ...f, [key]: value }));
-
-  const handleSubmit = () => {
-    if (!form.name.trim() || !form.email.includes('@') || !form.funcao.trim() || !form.matricula.trim()) {
-      showToast('Preencha todos os campos', 'warn');
-      return;
-    }
-    void (async () => {
-      const ok = await submitAccessRequest({
-        nome: form.name.trim(),
-        email: form.email.trim(),
-        funcao: form.funcao.trim(),
-        matricula: form.matricula.trim(),
-      });
-      if (ok) {
-        showToast('Solicitação enviada!', 'success');
-        go('login');
-      }
-    })();
-  };
-
-  return (
-    <PublicFormShell title="Solicitar acesso (colaborador)" onBack={() => go('login')}>
-      <label className="lbl">Nome completo *</label>
-      <input className="inp" value={form.name} onChange={(e) => set('name', e.target.value)} />
-      <label className="lbl">E-mail corporativo *</label>
-      <input className="inp" type="email" value={form.email} onChange={(e) => set('email', e.target.value)} />
-      <label className="lbl">Função *</label>
-      <input className="inp" value={form.funcao} onChange={(e) => set('funcao', e.target.value)} />
-      <label className="lbl">Matrícula *</label>
-      <input className="inp" value={form.matricula} onChange={(e) => set('matricula', e.target.value)} />
-      <button type="button" className="btn bp mt12" onClick={handleSubmit}>Enviar solicitação</button>
-    </PublicFormShell>
-  );
-}
+import {
+  formatCepInput,
+  formatCnpjInput,
+  formatCpfInput,
+  formatPhoneInput,
+  isValidCpfDigits,
+  lookupCep,
+  onlyDigits,
+} from '../utils/brMasks';
 
 export function TenantRequestAccessScreen() {
   const { go, showToast } = useApp();
@@ -145,9 +111,258 @@ export function TenantRequestAccessScreen() {
       <label className="lbl">E-mail *</label>
       <input className="inp" type="email" value={form.email} onChange={(e) => set('email', e.target.value)} />
       <label className="lbl">Telefone *</label>
-      <input className="inp" value={form.telefone} onChange={(e) => set('telefone', e.target.value)} />
+      <input className="inp" value={form.telefone} onChange={(e) => set('telefone', formatPhoneInput(e.target.value))} placeholder="(11) 99999-9999" />
       <button type="button" className="btn bp mt12" disabled={loading} onClick={handleSubmit}>
         {loading ? 'Enviando…' : 'Enviar solicitação'}
+      </button>
+    </PublicFormShell>
+  );
+}
+
+export function AutonomoRequestAccessScreen() {
+  const { go, showToast } = useApp();
+  const [form, setForm] = useState({
+    nomeCompleto: '',
+    cpf: '',
+    areaAtuacao: '',
+    email: '',
+    telefone: '',
+    password: '',
+    confirmPassword: '',
+    cep: '',
+    logradouro: '',
+    numero: '',
+    complemento: '',
+    bairro: '',
+    cidade: '',
+    estado: '',
+  });
+  const [protocolo, setProtocolo] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [cepLoading, setCepLoading] = useState(false);
+
+  const set = (key: keyof typeof form, value: string) => setForm((f) => ({ ...f, [key]: value }));
+
+  const handleCepBlur = () => {
+    const digits = onlyDigits(form.cep, 8);
+    if (digits.length !== 8) return;
+    void (async () => {
+      setCepLoading(true);
+      try {
+        const addr = await lookupCep(digits);
+        if (!addr) {
+          showToast('CEP não encontrado', 'warn');
+          return;
+        }
+        setForm((f) => ({
+          ...f,
+          logradouro: addr.logradouro || f.logradouro,
+          bairro: addr.bairro || f.bairro,
+          cidade: addr.cidade || f.cidade,
+          estado: addr.estado || f.estado,
+          complemento: addr.complemento && !f.complemento ? addr.complemento : f.complemento,
+        }));
+      } catch {
+        showToast('Não foi possível consultar o CEP', 'warn');
+      } finally {
+        setCepLoading(false);
+      }
+    })();
+  };
+
+  const handleSubmit = () => {
+    if (!form.nomeCompleto.trim() || !isValidCpfDigits(form.cpf)) {
+      showToast('Informe nome completo e CPF válido', 'warn');
+      return;
+    }
+    if (!form.email.includes('@') || onlyDigits(form.telefone).length < 10) {
+      showToast('Preencha e-mail e telefone válidos', 'warn');
+      return;
+    }
+    if (form.password.length < 8) {
+      showToast('Senha deve ter ao menos 8 caracteres', 'warn');
+      return;
+    }
+    if (!/[A-Z]/.test(form.password) || !/[a-z]/.test(form.password) || !/\d/.test(form.password)) {
+      showToast('Senha deve conter maiúscula, minúscula e número', 'warn');
+      return;
+    }
+    if (form.password !== form.confirmPassword) {
+      showToast('Senhas não conferem', 'warn');
+      return;
+    }
+    if (
+      onlyDigits(form.cep).length !== 8 ||
+      !form.logradouro.trim() ||
+      !form.numero.trim() ||
+      !form.bairro.trim() ||
+      !form.cidade.trim() ||
+      form.estado.trim().length !== 2
+    ) {
+      showToast('Preencha o endereço completo (CEP, logradouro, nº, bairro, cidade e UF)', 'warn');
+      return;
+    }
+    void (async () => {
+      setLoading(true);
+      try {
+        const res = await apiSubmitTenantRequest({
+          tipoCadastro: 'AUTONOMO',
+          razaoSocial: form.nomeCompleto.trim(),
+          nomeFantasia: form.nomeCompleto.trim(),
+          cpf: form.cpf,
+          segmento: form.areaAtuacao.trim() || 'Autônomo',
+          industria: form.areaAtuacao.trim() || 'Autônomo',
+          quantidadeFuncionarios: 1,
+          responsavelNome: form.nomeCompleto.trim(),
+          email: form.email.trim(),
+          telefone: form.telefone.trim(),
+          password: form.password,
+          confirmPassword: form.confirmPassword,
+          cep: form.cep,
+          logradouro: form.logradouro.trim(),
+          numero: form.numero.trim(),
+          complemento: form.complemento.trim() || undefined,
+          bairro: form.bairro.trim(),
+          cidade: form.cidade.trim(),
+          estado: form.estado.trim().toUpperCase(),
+        });
+        setProtocolo(res.protocolo);
+        showToast('Cadastro enviado!', 'success');
+      } catch (err) {
+        showToast(err instanceof Error ? err.message : 'Erro ao enviar', 'warn');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  };
+
+  if (protocolo) {
+    return (
+      <PublicFormShell title="Cadastro enviado" onBack={() => go('login')}>
+        <div className="hl" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
+          <p>Protocolo:</p>
+          <div style={{ fontFamily: 'var(--fm)', fontSize: 20, color: 'var(--amber)', margin: '12px 0' }}>{protocolo}</div>
+          <p className="access-form-intro">
+            Após a aprovação, use o e-mail e a senha cadastrados. Você receberá um link para ativar o MFA.
+          </p>
+          <button type="button" className="btn bp mt12" onClick={() => go('login')}>Voltar ao login</button>
+        </div>
+      </PublicFormShell>
+    );
+  }
+
+  return (
+    <PublicFormShell title="Cadastro de autônomo" onBack={() => go('login')}>
+      <p className="access-form-intro">
+        Cadastro com CPF. Análise em até 2 dias úteis.
+      </p>
+
+      <label className="lbl">Nome completo *</label>
+      <input className="inp" value={form.nomeCompleto} onChange={(e) => set('nomeCompleto', e.target.value)} />
+
+      <div className="form-row">
+        <div className="form-field">
+          <label className="lbl">CPF *</label>
+          <input
+            className="inp"
+            value={form.cpf}
+            onChange={(e) => set('cpf', formatCpfInput(e.target.value))}
+            placeholder="000.000.000-00"
+            inputMode="numeric"
+          />
+        </div>
+        <div className="form-field">
+          <label className="lbl">Telefone *</label>
+          <input
+            className="inp"
+            value={form.telefone}
+            onChange={(e) => set('telefone', formatPhoneInput(e.target.value))}
+            placeholder="(11) 99999-9999"
+            inputMode="tel"
+          />
+        </div>
+      </div>
+
+      <label className="lbl">Área de atuação *</label>
+      <input
+        className="inp"
+        value={form.areaAtuacao}
+        onChange={(e) => set('areaAtuacao', e.target.value)}
+        placeholder="Ex.: Ergonomia, Fisioterapia, SST"
+      />
+
+      <label className="lbl">E-mail *</label>
+      <input className="inp" type="email" value={form.email} onChange={(e) => set('email', e.target.value)} autoComplete="email" />
+
+      <label className="lbl">Senha de acesso *</label>
+      <PasswordField
+        value={form.password}
+        onChange={(e) => set('password', e.target.value)}
+        placeholder="Mín. 8 · maiúscula, minúscula e número"
+        autoComplete="new-password"
+      />
+
+      <label className="lbl">Confirmar senha *</label>
+      <PasswordField
+        value={form.confirmPassword}
+        onChange={(e) => set('confirmPassword', e.target.value)}
+        placeholder="Repita a senha"
+        autoComplete="new-password"
+      />
+
+      <div className="form-row form-row--cep">
+        <div className="form-field">
+          <label className="lbl">CEP *</label>
+          <input
+            className="inp"
+            value={form.cep}
+            onChange={(e) => set('cep', formatCepInput(e.target.value))}
+            onBlur={handleCepBlur}
+            placeholder="00000-000"
+            inputMode="numeric"
+          />
+        </div>
+        <div className="form-field">
+          <label className="lbl">UF *</label>
+          <input
+            className="inp"
+            value={form.estado}
+            onChange={(e) => set('estado', e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase())}
+            placeholder="SP"
+            maxLength={2}
+          />
+        </div>
+      </div>
+      {cepLoading && <p className="t2">Consultando CEP…</p>}
+
+      <label className="lbl">Logradouro *</label>
+      <input className="inp" value={form.logradouro} onChange={(e) => set('logradouro', e.target.value)} placeholder="Rua, avenida…" />
+
+      <div className="form-row form-row--num">
+        <div className="form-field">
+          <label className="lbl">Número *</label>
+          <input className="inp" value={form.numero} onChange={(e) => set('numero', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label className="lbl">Complemento</label>
+          <input className="inp" value={form.complemento} onChange={(e) => set('complemento', e.target.value)} placeholder="Apto, sala…" />
+        </div>
+      </div>
+
+      <div className="form-row">
+        <div className="form-field">
+          <label className="lbl">Bairro *</label>
+          <input className="inp" value={form.bairro} onChange={(e) => set('bairro', e.target.value)} />
+        </div>
+        <div className="form-field">
+          <label className="lbl">Cidade *</label>
+          <input className="inp" value={form.cidade} onChange={(e) => set('cidade', e.target.value)} />
+        </div>
+      </div>
+
+      <button type="button" className="btn bp mt12" disabled={loading} onClick={handleSubmit}>
+        {loading ? 'Enviando…' : 'Enviar cadastro'}
       </button>
     </PublicFormShell>
   );
@@ -156,7 +371,12 @@ export function TenantRequestAccessScreen() {
 export function ActivateAccountScreen() {
   const { go, showToast } = useApp();
   const token = useMemo(() => new URLSearchParams(window.location.search).get('token') ?? '', []);
-  const [preview, setPreview] = useState<{ email: string; companyName: string; qrDataUrl: string } | null>(null);
+  const [preview, setPreview] = useState<{
+    email: string;
+    companyName: string;
+    qrDataUrl: string;
+    passwordPreset?: boolean;
+  } | null>(null);
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [mfaCode, setMfaCode] = useState('');
@@ -170,13 +390,21 @@ export function ActivateAccountScreen() {
   }, [token, showToast]);
 
   const handleActivate = () => {
-    if (password.length < 8) {
-      showToast('Senha deve ter ao menos 8 caracteres', 'warn');
-      return;
-    }
-    if (password !== confirm) {
-      showToast('Senhas não conferem', 'warn');
-      return;
+    const passwordPreset = Boolean(preview?.passwordPreset);
+    if (!passwordPreset) {
+      if (password.length < 8) {
+        showToast('Senha deve ter ao menos 8 caracteres', 'warn');
+        return;
+      }
+      if (password !== confirm) {
+        showToast('Senhas não conferem', 'warn');
+        return;
+      }
+    } else if (password || confirm) {
+      if (password !== confirm) {
+        showToast('Senhas não conferem', 'warn');
+        return;
+      }
     }
     if (!mfaCode.trim()) {
       showToast('Informe o código MFA do autenticador', 'warn');
@@ -185,7 +413,11 @@ export function ActivateAccountScreen() {
     void (async () => {
       setLoading(true);
       try {
-        await apiActivateAccount({ token, password, confirmPassword: confirm, mfaCode: mfaCode.trim() });
+        await apiActivateAccount({
+          token,
+          ...(password ? { password, confirmPassword: confirm } : {}),
+          mfaCode: mfaCode.trim(),
+        });
         showToast('Conta ativada! Faça login.', 'success');
         window.history.replaceState({}, '', '/');
         go('login');
@@ -208,11 +440,25 @@ export function ActivateAccountScreen() {
           </p>
           <label className="lbl">1. Escaneie o QR Code no app autenticador (Google Authenticator, etc.)</label>
           {preview.qrDataUrl && <img src={preview.qrDataUrl} alt="QR MFA" style={{ maxWidth: 200, margin: '12px auto', display: 'block' }} />}
-          <label className="lbl">2. Nova senha *</label>
-          <input className="inp" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <label className="lbl">Confirmar senha *</label>
-          <input className="inp" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
-          <label className="lbl">3. Código MFA *</label>
+          {preview.passwordPreset ? (
+            <p className="access-form-intro">2. Sua senha já foi definida no cadastro. Continuar para o MFA.</p>
+          ) : (
+            <>
+              <label className="lbl">2. Nova senha *</label>
+              <PasswordField
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+              <label className="lbl">Confirmar senha *</label>
+              <PasswordField
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                autoComplete="new-password"
+              />
+            </>
+          )}
+          <label className="lbl">{preview.passwordPreset ? '2' : '3'}. Código MFA *</label>
           <input className="inp" inputMode="numeric" maxLength={8} value={mfaCode} onChange={(e) => setMfaCode(e.target.value)} placeholder="000000" />
           <button type="button" className="btn bp mt12" disabled={loading} onClick={handleActivate}>
             {loading ? 'Ativando…' : 'Ativar conta'}
@@ -225,22 +471,18 @@ export function ActivateAccountScreen() {
 
 function PublicFormShell({ title, onBack, children }: { title: string; onBack: () => void; children: React.ReactNode }) {
   return (
-    <>
-      <div className="login-top">
+    <div className="public-onboard">
+      <div className="public-onboard-top">
         <button type="button" className="btn bp login-back-btn" onClick={onBack}>Voltar</button>
+        <ErgoSenseLogo size="sm" showText className="ergo-logo--login" />
       </div>
-      <div className="login-hero login-hero--compact">
-        <ErgoSenseLogo size="md" showText className="ergo-logo--login" />
-      </div>
-      <div className="scroll" style={{ flex: 'none', paddingBottom: 'calc(30px + var(--safe-bot))' }}>
-        <div className="hl">
-          <div style={{ fontFamily: 'var(--fd)', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 8 }}>
-            {title}
-          </div>
+      <div className="scroll public-onboard-scroll">
+        <div className="hl public-onboard-card">
+          <div className="public-onboard-title">{title}</div>
           {children}
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -282,16 +524,34 @@ export function AdminTenantRequestsScreen() {
           <option value="REJEITADO">Rejeitado</option>
         </select>
         <input className="inp admin-search" placeholder="Buscar…" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && load()} />
-        <button type="button" className="btn bs" onClick={load}>Filtrar</button>
+        <button type="button" className="btn bs btn-sm btn-inline" onClick={load}>Filtrar</button>
       </div>
       <div className="admin-table">
         {items.map((item) => (
-          <div key={item.id} className="admin-row" onClick={() => { sessionStorage.setItem('ergosense_admin_request_id', item.id); go('admin-tenant-request-detail'); }}>
-            <div><strong>{item.protocolo}</strong><div className="t2">{item.razaoSocial}</div></div>
-            <div>{item.cnpj}</div>
+          <div key={item.id} className="admin-row">
+            <div>
+              <strong>{item.protocolo}</strong>
+              <div className="t2">
+                {item.tipoCadastro === 'AUTONOMO' ? 'Autônomo · ' : ''}
+                {item.razaoSocial}
+              </div>
+            </div>
+            <div>{item.tipoCadastro === 'AUTONOMO' ? (item.cpf || '—') : (item.cnpj || '—')}</div>
             <div>{item.responsavelNome}</div>
             <div>{new Date(item.dataSolicitacao).toLocaleDateString('pt-BR')}</div>
             <div><span className={`badge ${statusBadge(item.status)}`}>{item.status}</span></div>
+            <div className="admin-row-actions">
+              <button
+                type="button"
+                className="btn bs btn-sm btn-inline"
+                onClick={() => {
+                  sessionStorage.setItem('ergosense_admin_request_id', item.id);
+                  go('admin-tenant-request-detail');
+                }}
+              >
+                Exibir
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -317,11 +577,22 @@ export function AdminTenantRequestDetailScreen() {
     <AdminTenantShell active="requests" title={`Solicitação ${item.protocolo}`}>
       <div className="hl">
         {Object.entries({
-          'Razão Social': item.razaoSocial,
+          Tipo: item.tipoCadastro === 'AUTONOMO' ? 'Autônomo (PF)' : 'Empresa (PJ)',
+          'Razão Social / Nome': item.razaoSocial,
           'Nome Fantasia': item.nomeFantasia,
-          CNPJ: item.cnpj,
+          ...(item.tipoCadastro === 'AUTONOMO'
+            ? { CPF: item.cpf }
+            : { CNPJ: item.cnpj }),
           Segmento: item.segmento,
           Funcionários: item.quantidadeFuncionarios,
+          CEP: item.cep,
+          Logradouro: item.logradouro,
+          Número: item.numero,
+          Complemento: item.complemento,
+          Bairro: item.bairro,
+          Cidade: item.cidade,
+          UF: item.estado,
+          Endereço: item.endereco,
           Responsável: item.responsavelNome,
           'E-mail': item.email,
           Telefone: item.telefone,
@@ -333,14 +604,14 @@ export function AdminTenantRequestDetailScreen() {
       </div>
       {['PENDENTE', 'EM_ANALISE'].includes(item.status) && (
         <div className="admin-actions mt12">
-          <button type="button" className="btn bp" onClick={() => void apiApproveTenantRequest(item.id).then((r) => {
+          <button type="button" className="btn bp btn-sm btn-inline" onClick={() => void apiApproveTenantRequest(item.id).then((r) => {
             showToast(`Aprovado! Tenant: ${r.tenantId}`, 'success');
             go('admin-tenant-requests');
           }).catch((e) => showToast(e.message, 'warn'))}>Aprovar</button>
           <input className="inp mt8" placeholder="Motivo rejeição" value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} />
-          <button type="button" className="btn br mt8" onClick={() => void apiRejectTenantRequest(item.id, rejectReason).then(() => go('admin-tenant-requests'))}>Rejeitar</button>
+          <button type="button" className="btn br btn-sm btn-inline mt8" onClick={() => void apiRejectTenantRequest(item.id, rejectReason).then(() => go('admin-tenant-requests'))}>Rejeitar</button>
           <input className="inp mt8" placeholder="Mensagem de ajuste" value={adjustMsg} onChange={(e) => setAdjustMsg(e.target.value)} />
-          <button type="button" className="btn bs mt8" onClick={() => void apiRequestTenantAdjustment(item.id, adjustMsg).then(() => showToast('Ajuste solicitado', 'success'))}>Solicitar ajuste</button>
+          <button type="button" className="btn bs btn-sm btn-inline mt8" onClick={() => void apiRequestTenantAdjustment(item.id, adjustMsg).then(() => showToast('Ajuste solicitado', 'success'))}>Solicitar ajuste</button>
         </div>
       )}
     </AdminTenantShell>
@@ -348,13 +619,19 @@ export function AdminTenantRequestDetailScreen() {
 }
 
 export function AdminTenantsListScreen({ filter }: { filter: 'active' | 'blocked' | 'expired' }) {
-  const { showToast } = useApp();
-  const [items, setItems] = useState<Array<{ id: string; name: string; plan: string; statusConta: string; userCount: number }>>([]);
+  const { go, showToast, showModal } = useApp();
+  const [items, setItems] = useState<
+    Array<{ id: string; name: string; plan: string; statusConta: string; userCount: number }>
+  >([]);
   const titles = { active: 'Empresas Ativas', blocked: 'Empresas Bloqueadas', expired: 'Empresas Expiradas' };
   const nav = { active: 'active' as const, blocked: 'blocked' as const, expired: 'expired' as const };
 
-  useEffect(() => {
+  const reload = () => {
     void apiListAdminTenants(filter).then(setItems).catch(() => showToast('Erro ao carregar', 'warn'));
+  };
+
+  useEffect(() => {
+    reload();
   }, [filter, showToast]);
 
   return (
@@ -362,16 +639,71 @@ export function AdminTenantsListScreen({ filter }: { filter: 'active' | 'blocked
       <div className="admin-table">
         {items.map((t) => (
           <div key={t.id} className="admin-row">
-            <div><strong>{t.name}</strong><div className="t2">{t.id}</div></div>
+            <div>
+              <strong>{t.name}</strong>
+              <div className="t2">{t.id}</div>
+            </div>
             <div>{t.plan}</div>
             <div>{t.userCount} usuários</div>
-            <div><span className="badge bn">{t.statusConta}</span></div>
+            <div>
+              <span className="badge bn">{t.statusConta}</span>
+            </div>
             <div className="admin-row-actions">
+              <button
+                type="button"
+                className="btn bs btn-sm btn-inline"
+                onClick={() => {
+                  sessionStorage.setItem('ergosense_admin_tenant_id', t.id);
+                  go('admin-tenant-detail');
+                }}
+              >
+                Ver / Editar
+              </button>
               {filter !== 'active' && (
-                <button type="button" className="btn bs btn-sm" onClick={() => void apiReactivateAdminTenant(t.id).then(() => showToast('Reativada', 'success'))}>Reativar</button>
+                <button
+                  type="button"
+                  className="btn bs btn-sm btn-inline"
+                  onClick={() =>
+                    void apiGrantAdminTenantAccess(t.id, { paymentNote: 'Reativação admin' }).then(() => {
+                      showToast('Acesso liberado', 'success');
+                      reload();
+                    })
+                  }
+                >
+                  Liberar
+                </button>
               )}
               {filter === 'active' && (
-                <button type="button" className="btn br btn-sm" onClick={() => void apiBlockAdminTenant(t.id, 'Bloqueio admin').then(() => showToast('Bloqueada', 'success'))}>Bloquear</button>
+                <>
+                  <button
+                    type="button"
+                    className="btn bd btn-sm btn-inline"
+                    onClick={() => {
+                      const reason = window.prompt('Motivo da desativação:') ?? '';
+                      if (reason.trim().length < 3) return;
+                      void apiDeactivateAdminTenant(t.id, reason).then(() => {
+                        showToast('Acesso desativado', 'success');
+                        reload();
+                      });
+                    }}
+                  >
+                    Desativar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn br btn-sm btn-inline"
+                    onClick={() => {
+                      showModal('Bloquear empresa', `Bloquear ${t.name}? O login será impedido.`, 'Bloquear', () => {
+                        void apiBlockAdminTenant(t.id, 'Bloqueio admin').then(() => {
+                          showToast('Bloqueada', 'success');
+                          reload();
+                        });
+                      });
+                    }}
+                  >
+                    Bloquear
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -381,9 +713,167 @@ export function AdminTenantsListScreen({ filter }: { filter: 'active' | 'blocked
   );
 }
 
+/** Painel comercial: liberar após pagamento, desativar e bloquear */
+export function AdminAccessControlScreen() {
+  const { showToast, showModal } = useApp();
+  const [tab, setTab] = useState<'pending' | 'active' | 'blocked'>('pending');
+  const [items, setItems] = useState<
+    Array<{
+      id: string;
+      name: string;
+      plan: string;
+      statusConta: string;
+      userCount: number;
+      blockedReason?: string | null;
+    }>
+  >([]);
+  const [paymentNote, setPaymentNote] = useState('Pagamento confirmado');
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const reload = useCallback(() => {
+    void apiListAdminTenants(tab)
+      .then(setItems)
+      .catch(() => showToast('Erro ao carregar empresas', 'warn'));
+  }, [tab, showToast]);
+
+  useEffect(() => {
+    reload();
+  }, [reload]);
+
+  const run = async (id: string, action: () => Promise<unknown>, okMsg: string) => {
+    setBusyId(id);
+    try {
+      await action();
+      showToast(okMsg, 'success');
+      reload();
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Falha na operação', 'warn');
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  return (
+    <AdminTenantShell active="access" title="Controle de Acesso">
+      <p className="t2 mb16">
+        Fluxo comercial: cliente contrata e paga → admin global libera o acesso. Use Desativar para pausar o
+        contrato ou Bloquear em casos de inadimplência / violação.
+      </p>
+
+      <div className="admin-tabs mb16">
+        {(
+          [
+            ['pending', 'Aguardando liberação'],
+            ['active', 'Ativas'],
+            ['blocked', 'Bloqueadas / suspensas'],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            className={`admin-tab ${tab === id ? 'on' : ''}`}
+            onClick={() => setTab(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'pending' && (
+        <div className="mb16">
+          <label className="lbl">Nota do pagamento (ao liberar)</label>
+          <input
+            className="inp"
+            value={paymentNote}
+            onChange={(e) => setPaymentNote(e.target.value)}
+            placeholder="Ex.: PIX confirmado em 12/07 — plano Professional"
+          />
+        </div>
+      )}
+
+      {items.length === 0 ? (
+        <div className="admin-empty">
+          <p>Nenhuma empresa neste filtro.</p>
+        </div>
+      ) : (
+        <div className="admin-table">
+          {items.map((t) => (
+            <div key={t.id} className="admin-row">
+              <div>
+                <strong>{t.name}</strong>
+                <div className="t2">{t.id}</div>
+                {t.blockedReason && <div className="t2">Motivo: {t.blockedReason}</div>}
+              </div>
+              <div>{t.plan}</div>
+              <div>{t.userCount} usuários</div>
+              <div>
+                <span className={`badge ${t.statusConta === 'ATIVO' ? 'bg' : 'ba'}`}>{t.statusConta}</span>
+              </div>
+              <div className="admin-row-actions" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {(tab === 'pending' || tab === 'blocked') && (
+                  <button
+                    type="button"
+                    className="btn bp btn-sm btn-inline"
+                    disabled={busyId === t.id}
+                    onClick={() =>
+                      showModal(
+                        'Liberar acesso',
+                        `Confirmar liberação de ${t.name} após pagamento?`,
+                        'Liberar',
+                        () => {
+                          void run(
+                            t.id,
+                            () => apiGrantAdminTenantAccess(t.id, { paymentNote: paymentNote || undefined }),
+                            'Acesso liberado',
+                          );
+                        },
+                      )
+                    }
+                  >
+                    Liberar acesso
+                  </button>
+                )}
+                {tab === 'active' && (
+                  <>
+                    <button
+                      type="button"
+                      className="btn bd btn-sm btn-inline"
+                      disabled={busyId === t.id}
+                      onClick={() => {
+                        const reason = window.prompt('Motivo da desativação (mín. 3 caracteres):') ?? '';
+                        if (reason.trim().length < 3) return;
+                        void run(t.id, () => apiDeactivateAdminTenant(t.id, reason), 'Desativada');
+                      }}
+                    >
+                      Desativar
+                    </button>
+                    <button
+                      type="button"
+                      className="btn br btn-sm btn-inline"
+                      disabled={busyId === t.id}
+                      onClick={() => {
+                        const reason = window.prompt('Motivo do bloqueio:') ?? '';
+                        if (reason.trim().length < 3) return;
+                        void run(t.id, () => apiBlockAdminTenant(t.id, reason), 'Bloqueada');
+                      }}
+                    >
+                      Bloquear
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </AdminTenantShell>
+  );
+}
+
 function AdminTenantShell({ active, title, children }: { active: string; title: string; children: React.ReactNode }) {
   const { go, session, logout, showModal } = useApp();
   const nav = [
+    { id: 'access', label: 'Controle de Acesso', screen: 'admin-access-control' as const },
     { id: 'requests', label: 'Solicitações', screen: 'admin-tenant-requests' as const },
     { id: 'active', label: 'Empresas Ativas', screen: 'admin-tenants-active' as const },
     { id: 'blocked', label: 'Empresas Bloqueadas', screen: 'admin-tenants-blocked' as const },
@@ -393,24 +883,292 @@ function AdminTenantShell({ active, title, children }: { active: string; title: 
   return (
     <div className="admin-shell">
       <aside className="admin-sidebar">
-        <div className="admin-sidebar-brand"><ErgoSenseLogo size="md" showText showTagline className="ergo-logo--admin" /></div>
+        <div className="admin-sidebar-brand">
+          <ErgoSenseLogo size="md" showText showTagline className="ergo-logo--admin" />
+        </div>
         <nav className="admin-nav">
-          <button type="button" className="admin-nav-item" onClick={() => go('global-admin')}>← Painel global</button>
+          <button type="button" className="admin-nav-item" onClick={() => go('global-admin')}>
+            ← Painel global
+          </button>
           {nav.map((n) => (
-            <button key={n.id} type="button" className={`admin-nav-item ${active === n.id ? 'on' : ''}`} onClick={() => go(n.screen)}>
+            <button
+              key={n.id}
+              type="button"
+              className={`admin-nav-item ${active === n.id ? 'on' : ''}`}
+              onClick={() => go(n.screen)}
+            >
               {n.label}
             </button>
           ))}
         </nav>
         <div className="admin-sidebar-foot">
           <div className="admin-user-name">{session?.name}</div>
-          <button type="button" className="admin-nav-item admin-nav-item--danger" onClick={() => showModal('Sair', 'Encerrar sessão?', 'Sim', logout)}>Sair</button>
+          <button
+            type="button"
+            className="admin-nav-item admin-nav-item--danger"
+            onClick={() => showModal('Sair', 'Encerrar sessão?', 'Sim', logout)}
+          >
+            Sair
+          </button>
         </div>
       </aside>
       <div className="admin-main">
-        <header className="admin-topbar"><h1 className="admin-topbar-title">{title}</h1></header>
+        <header className="admin-topbar">
+          <h1 className="admin-topbar-title">{title}</h1>
+        </header>
         <div className="admin-content scroll">{children}</div>
       </div>
     </div>
+  );
+}
+
+function toDateInput(value?: string | null) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toISOString().slice(0, 10);
+}
+
+export function AdminTenantDetailScreen() {
+  const { go, showToast, refreshCompanies } = useApp();
+  const tenantId = sessionStorage.getItem('ergosense_admin_tenant_id') ?? '';
+  const [item, setItem] = useState<AdminTenantDetail | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    name: '',
+    industry: '',
+    plan: 'STARTER' as 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE',
+    expiresAt: '',
+    icon: '🏢',
+    color: 'amber' as 'amber' | 'cyan' | 'green' | 'neutral',
+    razaoSocial: '',
+    nomeFantasia: '',
+    cnpj: '',
+    inscricaoEstadual: '',
+  });
+
+  const load = useCallback(() => {
+    if (!tenantId) return;
+    void apiGetAdminTenant(tenantId)
+      .then((data) => {
+        setItem(data);
+        setForm({
+          name: data.name ?? '',
+          industry: data.industry ?? '',
+          plan: (data.plan as typeof form.plan) || 'STARTER',
+          expiresAt: toDateInput(data.expiresAt),
+          icon: data.icon || '🏢',
+          color: (data.color as typeof form.color) || 'amber',
+          razaoSocial: data.razaoSocial ?? data.name ?? '',
+          nomeFantasia: data.nomeFantasia ?? '',
+          cnpj: data.cnpj ?? '',
+          inscricaoEstadual: data.inscricaoEstadual ?? '',
+        });
+      })
+      .catch(() => showToast('Erro ao carregar empresa', 'warn'));
+  }, [showToast, tenantId]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
+    setForm((f) => ({ ...f, [key]: value }));
+
+  const save = async () => {
+    if (!tenantId) return;
+    if (form.name.trim().length < 2) {
+      showToast('Informe o nome da empresa', 'warn');
+      return;
+    }
+    setSaving(true);
+    try {
+      const updated = await apiUpdateAdminTenant(tenantId, {
+        name: form.name.trim(),
+        industry: form.industry.trim(),
+        plan: form.plan,
+        expiresAt: form.expiresAt ? new Date(`${form.expiresAt}T23:59:59.000Z`).toISOString() : null,
+        icon: form.icon.trim() || '🏢',
+        color: form.color,
+        razaoSocial: form.razaoSocial.trim() || form.name.trim(),
+        nomeFantasia: form.nomeFantasia.trim() || null,
+        cnpj: form.cnpj.trim() || null,
+        inscricaoEstadual: form.inscricaoEstadual.trim() || null,
+      });
+      setItem(updated);
+      setEditing(false);
+      showToast('Empresa atualizada', 'success');
+      void refreshCompanies();
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Erro ao salvar', 'warn');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!tenantId) {
+    return (
+      <AdminTenantShell active="empresas" title="Empresa">
+        <p>Nenhuma empresa selecionada.</p>
+        <button type="button" className="btn bs btn-sm btn-inline" onClick={() => go('global-admin')}>
+          Voltar
+        </button>
+      </AdminTenantShell>
+    );
+  }
+
+  if (!item) {
+    return (
+      <AdminTenantShell active="empresas" title="Empresa">
+        <p>Carregando…</p>
+      </AdminTenantShell>
+    );
+  }
+
+  return (
+    <AdminTenantShell active="empresas" title={item.name}>
+      <div className="admin-toolbar" style={{ marginBottom: 16 }}>
+        <button type="button" className="btn bs btn-sm btn-inline" onClick={() => go('global-admin')}>
+          ← Voltar
+        </button>
+        {!editing ? (
+          <button type="button" className="btn bp btn-sm btn-inline" onClick={() => setEditing(true)}>
+            Editar dados
+          </button>
+        ) : (
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button type="button" className="btn bp btn-sm btn-inline" disabled={saving} onClick={() => void save()}>
+              {saving ? 'Salvando…' : 'Salvar'}
+            </button>
+            <button
+              type="button"
+              className="btn bs btn-sm btn-inline"
+              disabled={saving}
+              onClick={() => {
+                setEditing(false);
+                load();
+              }}
+            >
+              Cancelar
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="hl mb12">
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 10 }}>
+          <span style={{ fontSize: 28 }}>{item.icon}</span>
+          <div>
+            <div style={{ fontFamily: 'var(--fd)', fontWeight: 800, fontSize: 18 }}>{item.name}</div>
+            <div className="t2">{item.id}</div>
+          </div>
+          <span
+            className={`badge ${item.statusConta === 'ATIVO' ? 'bl' : item.blocked ? 'br' : 'ba'}`}
+            style={{ marginLeft: 'auto' }}
+          >
+            {item.statusConta}
+          </span>
+        </div>
+      </div>
+
+      {!editing ? (
+        <>
+          <div className="card mb12">
+            <div className="stl mb8">Cadastro</div>
+            {[
+              ['Nome exibido', item.name],
+              ['Razão social', item.razaoSocial],
+              ['Nome fantasia', item.nomeFantasia || '—'],
+              ['CNPJ', item.cnpj || '—'],
+              ['Inscrição estadual', item.inscricaoEstadual || '—'],
+              ['Segmento / indústria', item.industry || '—'],
+              ['Plano', item.plan],
+              ['Ícone', item.icon],
+              ['Cor', item.color],
+              ['Usuários', String(item.userCount)],
+              ['Expira em', item.expiresAt ? new Date(item.expiresAt).toLocaleDateString('pt-BR') : '—'],
+              ['Criada em', item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '—'],
+              ['Atualizada em', item.updatedAt ? new Date(item.updatedAt).toLocaleString('pt-BR') : '—'],
+              ['Bloqueada', item.blocked ? `Sim — ${item.blockedReason || 'sem motivo'}` : 'Não'],
+              [
+                'Suporte',
+                item.supportAuthorized
+                  ? `Autorizado até ${item.supportExpiresAt ? new Date(item.supportExpiresAt).toLocaleString('pt-BR') : '—'}`
+                  : 'Não autorizado',
+              ],
+            ].map(([k, v]) => (
+              <div key={String(k)} style={{ marginBottom: 8 }}>
+                <span className="lbl">{k}</span>
+                <div>{v}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="card">
+            <div className="stl mb8">Usuários da empresa</div>
+            {!item.admins?.length ? (
+              <p className="t2">Nenhum usuário cadastrado.</p>
+            ) : (
+              item.admins.map((u) => (
+                <div key={u.id} className="admin-row" style={{ padding: '8px 0' }}>
+                  <div>
+                    <strong>{u.name}</strong>
+                    <div className="t2">{u.email}</div>
+                  </div>
+                  <div>{u.role}</div>
+                  <div>{u.title || '—'}</div>
+                  <div>
+                    <span className={`badge ${u.active ? 'bl' : 'br'}`}>{u.active ? 'ATIVO' : 'INATIVO'}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="card">
+          <div className="stl mb8">Editar cadastro</div>
+          <label className="lbl">Nome exibido *</label>
+          <input className="inp" value={form.name} onChange={(e) => set('name', e.target.value)} />
+          <label className="lbl">Razão social</label>
+          <input className="inp" value={form.razaoSocial} onChange={(e) => set('razaoSocial', e.target.value)} />
+          <label className="lbl">Nome fantasia</label>
+          <input className="inp" value={form.nomeFantasia} onChange={(e) => set('nomeFantasia', e.target.value)} />
+          <label className="lbl">CNPJ</label>
+          <input className="inp" value={form.cnpj} onChange={(e) => set('cnpj', formatCnpjInput(e.target.value))} />
+          <label className="lbl">Inscrição estadual</label>
+          <input
+            className="inp"
+            value={form.inscricaoEstadual}
+            onChange={(e) => set('inscricaoEstadual', e.target.value)}
+          />
+          <label className="lbl">Segmento / indústria</label>
+          <input className="inp" value={form.industry} onChange={(e) => set('industry', e.target.value)} />
+          <label className="lbl">Plano</label>
+          <select className="inp" value={form.plan} onChange={(e) => set('plan', e.target.value as typeof form.plan)}>
+            <option value="STARTER">STARTER</option>
+            <option value="PROFESSIONAL">PROFESSIONAL</option>
+            <option value="ENTERPRISE">ENTERPRISE</option>
+          </select>
+          <label className="lbl">Expira em</label>
+          <input
+            className="inp"
+            type="date"
+            value={form.expiresAt}
+            onChange={(e) => set('expiresAt', e.target.value)}
+          />
+          <label className="lbl">Ícone (emoji)</label>
+          <input className="inp" value={form.icon} onChange={(e) => set('icon', e.target.value)} maxLength={8} />
+          <label className="lbl">Cor</label>
+          <select className="inp" value={form.color} onChange={(e) => set('color', e.target.value as typeof form.color)}>
+            <option value="amber">amber</option>
+            <option value="cyan">cyan</option>
+            <option value="green">green</option>
+            <option value="neutral">neutral</option>
+          </select>
+        </div>
+      )}
+    </AdminTenantShell>
   );
 }

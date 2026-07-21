@@ -176,6 +176,8 @@ import {
   apiCreateOrgWorkPost,
   apiDeleteOrgEntity,
   apiSubmitAccessRequest,
+  apiSaveCollaborator,
+  apiUpdateProfile,
   isApiAvailable,
   type SupportAuditEntry,
   type SupportStatus,
@@ -284,12 +286,21 @@ import { exportPgrPdf } from '../utils/exportPgrPdf';
 import { buildNr17SessionReport } from '../utils/nr17';
 import { blobToVideoRecording, createLocalVideoUrl } from '../utils/videoRecording';
 import { exportAnalysisPdf, analysisWithNr17Report, exportCaptureImage } from '../utils/exportNr17Pdf';
+import { exportAnalysesSummaryPdf } from '../utils/exportSummaryReportPdf';
+import {
+  getOfflineQueue,
+  isAllowedNetworkForSync,
+  queueOfflineAnalysis,
+  removeOfflineQueueItem,
+} from '../services/offlineSync';
 import {
   COMPANIES,
   DEFAULT_ANALYSES,
   DEFAULT_COLLABORATORS,
   DEFAULT_REPORTS,
   DEFAULT_SETTINGS,
+  SELF_COLLABORATOR_MATRICULA,
+  TURNOS,
 } from '../data/constants';
 import { DEFAULT_ACTIVITY_CONTEXT } from '../data/activityProfiles';
 import {
@@ -393,6 +404,8 @@ interface AppContextValue {
   logout: () => void;
   selectCompany: (id: string) => void;
   saveCollaborator: (data: Omit<Collaborator, 'id' | 'risk' | 'icon' | 'iconBg'> & { id?: string }) => void;
+  /** Garante colaborador implícito "eu mesmo" (autônomo / sem equipe) */
+  ensureSelfCollaborator: () => Promise<Collaborator>;
   setAnalysisDraft: (patch: AnalysisDraftPatch) => void;
   setAnalysisMode: (mode: AnalysisMode) => void;
   setReportType: (type: ReportType) => void;
@@ -411,6 +424,7 @@ interface AppContextValue {
       sessionSampleCount?: number;
       autoGenerateReport?: boolean;
       measuredDistanceCm?: number;
+      notesOverride?: string;
     },
     videoBlob?: Blob | null,
   ) => void;
@@ -422,7 +436,7 @@ interface AppContextValue {
   ) => void;
   setLiveWorkstation: (m: WorkstationMetrics) => void;
   startSync: () => void;
-  generateReport: () => void;
+  generateReport: (opts?: { periodDays?: number | null; periodLabel?: string }) => void;
   exportCurrentAnalysisPdf: () => void;
   applyLoadEffortToCurrentAnalysis: (
     effort: import('../utils/calculateErgonomicLoadRisk').LoadEffortResult,
@@ -630,8 +644,8 @@ interface AppContextValue {
 }
 
 const defaultDraft: NewAnalysisDraft = {
-  collaboratorId: '1',
-  setor: 'Beneficiamento',
+  collaboratorId: '',
+  setor: 'Geral',
   activityContext: DEFAULT_ACTIVITY_CONTEXT,
   activity: 'Operação de britagem',
   notes: '',
@@ -938,7 +952,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [loadTenantData, stored.selectedCompanyId]);
 
   const refreshCompanies = useCallback(async () => {
-    if (!dbConnected) return;
+    if (!dbConnected) {
+      const tid = stored.session?.tenantId;
+      if (tid && stored.session?.roleCode !== 'ADMIN_GLOBAL') {
+        setCompanies(COMPANIES.filter((c) => c.id === tid));
+      }
+      return;
+    }
     try {
       if (stored.session?.roleCode === 'ADMIN_GLOBAL') {
         const meta = await apiGetTenantMetadata();
@@ -956,12 +976,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
         );
       } else {
         const tenants = await apiGetTenants();
-        if (tenants.length) setCompanies(tenants as Company[]);
+        const tid = stored.session?.tenantId;
+        const scoped = tid ? tenants.filter((t) => t.id === tid) : tenants;
+        setCompanies((scoped.length ? scoped : tenants) as Company[]);
       }
     } catch (err) {
       console.error('refreshCompanies', err);
+      const tid = stored.session?.tenantId;
+      if (tid && stored.session?.roleCode !== 'ADMIN_GLOBAL') {
+        setCompanies(COMPANIES.filter((c) => c.id === tid));
+      }
     }
-  }, [dbConnected, stored.session?.roleCode]);
+  }, [dbConnected, stored.session?.roleCode, stored.session?.tenantId]);
 
   const isGlobalAdmin = stored.session?.roleCode === 'ADMIN_GLOBAL';
   const isTenantAdmin = stored.session?.roleCode === 'ADMIN_EMPRESA';
@@ -1089,6 +1115,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshCompanies();
         go('global-admin');
       } else {
+        await refreshCompanies();
         await loadTenantData(user.tenantId);
         go('dashboard');
       }
@@ -1128,11 +1155,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
           email,
           name: name || 'Lucas Andrade',
           role: 'Ergonomista Sênior',
+          roleCode: 'ERGONOMISTA',
           company: 'Vale S.A.',
           location: 'Carajás',
+          tenantId: 'vale',
         },
+        selectedCompanyId: 'vale',
       }));
-      go('company');
+      setCompanies(COMPANIES.filter((c) => c.id === 'vale'));
+      go('dashboard');
       return true;
     },
     [dbConnected, finalizeApiLogin, go, showToast],
@@ -1230,10 +1261,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const accessTenantWithSupport = useCallback(
     async (id: string) => {
       if (!isGlobalAdmin) {
-        setStored((s) => ({ ...s, selectedCompanyId: id }));
-        const company = companies.find((c) => c.id === id) ?? COMPANIES.find((c) => c.id === id);
+        const allowedId = stored.session?.tenantId;
+        if (allowedId && id !== allowedId) {
+          showToast('Acesso restrito à sua empresa.', 'warn');
+          return false;
+        }
+        const targetId = allowedId ?? id;
+        setStored((s) => ({ ...s, selectedCompanyId: targetId }));
+        const company = companies.find((c) => c.id === targetId) ?? COMPANIES.find((c) => c.id === targetId);
         showToast(`${company?.name ?? 'Empresa'} selecionada`, 'success');
-        await loadTenantData(id);
+        await loadTenantData(targetId);
         go('dashboard');
         return true;
       }
@@ -1254,22 +1291,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return false;
       }
     },
-    [companies, go, isGlobalAdmin, loadTenantData, showToast, tenantMetadata],
+    [companies, go, isGlobalAdmin, loadTenantData, showToast, stored.session?.tenantId, tenantMetadata],
   );
 
   const selectCompany = useCallback(
     (id: string) => {
-      if (isGlobalAdmin) {
-        void accessTenantWithSupport(id);
-        return;
-      }
-      setStored((s) => ({ ...s, selectedCompanyId: id }));
-      const company = companies.find((c) => c.id === id) ?? COMPANIES.find((c) => c.id === id);
-      showToast(`${company?.name ?? 'Empresa'} selecionada`, 'success');
-      void loadTenantData(id);
-      go('dashboard');
+      void accessTenantWithSupport(id);
     },
-    [accessTenantWithSupport, companies, go, isGlobalAdmin, loadTenantData, showToast],
+    [accessTenantWithSupport],
   );
 
   const saveCollaborator = useCollaboratorActions({
@@ -1281,8 +1310,66 @@ export function AppProvider({ children }: { children: ReactNode }) {
     loadTenantData,
   });
 
+  const ensureSelfCollaborator = useCallback(async (): Promise<Collaborator> => {
+    const existing = stored.collaborators.find((c) => c.matricula === SELF_COLLABORATOR_MATRICULA);
+    if (existing) {
+      setDraft((d) => ({
+        ...d,
+        collaboratorId: existing.id,
+        setor: d.setor || existing.setor || 'Geral',
+      }));
+      return existing;
+    }
+
+    const nome =
+      stored.session?.name?.trim() ||
+      stored.companies.find((c) => c.id === stored.selectedCompanyId)?.name ||
+      'Avaliação própria';
+    const payload = {
+      nome,
+      matricula: SELF_COLLABORATOR_MATRICULA,
+      cargo: 'Autônomo',
+      setor: 'Geral',
+      turno: TURNOS[0],
+      consent: true,
+    };
+
+    if (dbConnected) {
+      const collab = await apiSaveCollaborator(stored.selectedCompanyId, payload);
+      setStored((s) => ({
+        ...s,
+        collaborators: s.collaborators.some((c) => c.id === collab.id)
+          ? s.collaborators
+          : [collab, ...s.collaborators],
+      }));
+      setDraft((d) => ({
+        ...d,
+        collaboratorId: collab.id,
+        setor: d.setor || collab.setor || 'Geral',
+      }));
+      return collab;
+    }
+
+    const local: Collaborator = {
+      id: `c-self-${Date.now()}`,
+      name: nome,
+      matricula: SELF_COLLABORATOR_MATRICULA,
+      cargo: 'Autônomo',
+      setor: 'Geral',
+      turno: TURNOS[0],
+      consent: true,
+      consentDate: formatDateBR(),
+      risk: 'baixo',
+      icon: '👤',
+      iconBg: 'var(--a10)',
+    };
+    setStored((s) => ({ ...s, collaborators: [local, ...s.collaborators] }));
+    setDraft((d) => ({ ...d, collaboratorId: local.id, setor: d.setor || 'Geral' }));
+    return local;
+  }, [dbConnected, stored.collaborators, stored.companies, stored.selectedCompanyId, stored.session?.name, setStored]);
+
   const captureAnalysis = useCallback(
-    (
+    async (
       angles: JointAngles,
       workstation?: WorkstationMetrics,
       captureImage?: string,
@@ -1294,15 +1381,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       autoGenerateReport?: boolean;
       /** Distância final da câmera (ref da sessão) */
       measuredDistanceCm?: number;
+      notesOverride?: string;
     },
     videoBlob?: Blob | null,
     ) => {
-      const collab = stored.collaborators.find((c) => c.id === analysisDraft.collaboratorId);
+      let collab = stored.collaborators.find((c) => c.id === analysisDraft.collaboratorId);
       if (!collab) {
-        showToast('Selecione um colaborador', 'warn');
-        return;
+        try {
+          collab = await ensureSelfCollaborator();
+        } catch (err) {
+          showToast(err instanceof Error ? err.message : 'Não foi possível iniciar sem colaborador', 'warn');
+          return;
+        }
       }
 
+      const analysisNotes = sessionMeta?.notesOverride ?? analysisDraft.notes;
       const ws = workstation ?? liveWorkstation;
       const ctx = analysisDraft.activityContext;
       const estimate = analysisDraft.loadAssessment?.estimate;
@@ -1460,7 +1553,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setor: analysisDraft.setor,
         activity: analysisDraft.activity,
         activityContext: ctx,
-        notes: analysisDraft.notes,
+        notes: analysisNotes,
         date: formatDateBR(),
         time: formatTimeBR(),
         score,
@@ -1550,11 +1643,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
             setCurrentAnalysisId(id);
           } catch (err) {
             console.error('apiSaveAnalysis', err);
+            queueOfflineAnalysis({
+              tenantId: stored.selectedCompanyId,
+              analysis: { ...analysis, localVideoUrl: undefined, captureImage: analysis.captureImage?.slice(0, 200_000) },
+            });
+            setStored((s) => ({
+              ...s,
+              analyses: s.analyses.map((a) => (a.id === analysis.id ? { ...a, synced: false } : a)),
+            }));
+            showToast('Salvo localmente — pendente de sincronização', 'warn');
           }
         })();
       }
     },
-    [analysisDraft, dbConnected, go, showToast, stored.analysisMode, stored.collaborators, stored.selectedCompanyId, stored.session, liveWorkstation],
+    [analysisDraft, dbConnected, ensureSelfCollaborator, go, showToast, stored.analysisMode, stored.collaborators, stored.selectedCompanyId, stored.session, liveWorkstation],
   );
 
   const captureVideoAnalysis = useCallback(
@@ -1705,6 +1807,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
             setCurrentAnalysisId(id);
           } catch (err) {
             console.error('apiSaveAnalysis video', err);
+            queueOfflineAnalysis({
+              tenantId: stored.selectedCompanyId,
+              analysis: { ...analysis, localVideoUrl: undefined, captureImage: analysis.captureImage?.slice(0, 200_000) },
+            });
+            setStored((s) => ({
+              ...s,
+              analyses: s.analyses.map((a) => (a.id === analysis.id ? { ...a, synced: false } : a)),
+            }));
+            showToast('Vídeo salvo localmente — pendente de sincronização', 'warn');
           }
         })();
       }
@@ -1713,20 +1824,106 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const startSync = useCallback(() => {
-    const count = stored.analyses.filter((a) => !a.synced).length;
-    if (count === 0) {
+    if (!dbConnected || !navigator.onLine) {
+      showToast('Sem conexão com o servidor', 'warn');
+      return;
+    }
+    if (!isAllowedNetworkForSync(stored.settings.wifiOnly)) {
+      showToast('Sincronização bloqueada: modo somente Wi-Fi ativo', 'warn');
+      return;
+    }
+
+    const pendingLocal = stored.analyses.filter((a) => !a.synced);
+    const queue = getOfflineQueue();
+    const total = pendingLocal.length + queue.length;
+    if (total === 0) {
       showToast('Nada para sincronizar', 'info');
       return;
     }
-    showToast(`Sincronizando ${count} análises...`, 'info');
-    setTimeout(() => {
-      setStored((s) => ({
-        ...s,
-        analyses: s.analyses.map((a) => ({ ...a, synced: true })),
-      }));
-      showToast('Sincronização concluída!', 'success');
-    }, 3000);
-  }, [showToast, stored.analyses]);
+
+    showToast(`Sincronizando ${total} análise(s)...`, 'info');
+
+    void (async () => {
+      let ok = 0;
+      let fail = 0;
+      const tenantId = stored.selectedCompanyId;
+
+      for (const analysis of pendingLocal) {
+        try {
+          const { id } = await apiSaveAnalysis(tenantId, {
+            ...analysis,
+            collaboratorName: analysis.collaboratorName,
+          });
+          setStored((s) => ({
+            ...s,
+            analyses: s.analyses.map((a) => (a.id === analysis.id ? { ...a, id, synced: true } : a)),
+          }));
+          if (currentAnalysisId === analysis.id) setCurrentAnalysisId(id);
+          ok += 1;
+        } catch (err) {
+          console.error('startSync analysis', err);
+          fail += 1;
+        }
+      }
+
+      for (const item of queue) {
+        try {
+          const payload = item.payload as { tenantId?: string; analysis?: Analysis };
+          const analysis = payload.analysis;
+          if (!analysis) {
+            removeOfflineQueueItem(item.id);
+            continue;
+          }
+          const tid = payload.tenantId || tenantId;
+          const { id } = await apiSaveAnalysis(tid, {
+            ...analysis,
+            collaboratorName: analysis.collaboratorName,
+          });
+          setStored((s) => {
+            const exists = s.analyses.some((a) => a.id === analysis.id || a.id === id);
+            return {
+              ...s,
+              analyses: exists
+                ? s.analyses.map((a) =>
+                    a.id === analysis.id || a.id === id ? { ...a, ...analysis, id, synced: true } : a,
+                  )
+                : [{ ...analysis, id, synced: true }, ...s.analyses],
+            };
+          });
+          removeOfflineQueueItem(item.id);
+          ok += 1;
+        } catch (err) {
+          console.error('startSync queue', err);
+          fail += 1;
+        }
+      }
+
+      if (fail === 0) {
+        showToast(`Sincronização concluída (${ok})`, 'success');
+      } else {
+        showToast(`Sincronizadas ${ok} · falhas ${fail}`, 'warn');
+      }
+    })();
+  }, [
+    currentAnalysisId,
+    dbConnected,
+    showToast,
+    stored.analyses,
+    stored.selectedCompanyId,
+    stored.settings.wifiOnly,
+  ]);
+
+  useEffect(() => {
+    if (!stored.settings.autoSync || !dbConnected) return;
+    const run = () => {
+      if (!navigator.onLine) return;
+      if (!isAllowedNetworkForSync(stored.settings.wifiOnly)) return;
+      const pending = stored.analyses.some((a) => !a.synced) || getOfflineQueue().length > 0;
+      if (pending) startSync();
+    };
+    window.addEventListener('online', run);
+    return () => window.removeEventListener('online', run);
+  }, [dbConnected, startSync, stored.analyses, stored.settings.autoSync, stored.settings.wifiOnly]);
 
   const planTier = useMemo((): PlanTier => {
     const meta = tenantMetadata.find((t) => t.id === stored.selectedCompanyId);
@@ -1833,9 +2030,83 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (filename) showToast(`Imagem exportada: ${filename}`, 'success');
   }, [currentAnalysis, showToast]);
 
-  const generateReport = useCallback(() => {
-    exportCurrentAnalysisPdf();
-  }, [exportCurrentAnalysisPdf]);
+  const generateReport = useCallback(
+    (opts?: { periodDays?: number | null; periodLabel?: string }) => {
+      if (!canExportPdf) {
+        showToast('Exportação PDF completa disponível no plano Profissional', 'warn');
+        return;
+      }
+      const type = stored.reportType;
+      const periodDays = opts?.periodDays ?? null;
+      const periodLabel = opts?.periodLabel ?? (periodDays == null ? 'Todo o histórico' : `Últimos ${periodDays} dias`);
+
+      const parseBr = (date: string, time: string) => {
+        const [d, m, y] = date.split('/').map(Number);
+        const [hh = 0, mm = 0] = time.split(':').map(Number);
+        if (!y || !m || !d) return Date.now();
+        return new Date(y, m - 1, d, hh, mm).getTime();
+      };
+
+      const filtered = stored.analyses.filter((a) => {
+        if (periodDays == null) return true;
+        return Date.now() - parseBr(a.date, a.time) <= periodDays * 86_400_000;
+      });
+
+      if (!filtered.length) {
+        showToast('Nenhuma análise no período selecionado', 'warn');
+        return;
+      }
+
+      void (async () => {
+        try {
+          let filename: string;
+          if (type === 'NR17' && filtered.length === 1) {
+            filename = await exportAnalysisPdf(analysisWithNr17Report(filtered[0]), {
+              companyName: selectedCompany.name,
+              evaluatorName: stored.session?.name,
+              evaluatorRole: stored.session?.role,
+              includeSignatureBlock: true,
+            });
+          } else {
+            filename = exportAnalysesSummaryPdf(filtered, type, {
+              companyName: selectedCompany.name,
+              periodLabel,
+              evaluatorName: stored.session?.name,
+            });
+          }
+
+          const newReport: Report = {
+            id: `r-${Date.now()}`,
+            title:
+              type === 'colab'
+                ? `Por colaborador · ${periodLabel}`
+                : type === 'setor'
+                  ? `Por setor · ${periodLabel}`
+                  : `NR-17 · ${periodLabel}`,
+            subtitle: `${formatDateBR()} · ${filtered.length} análise(s) · ${filename}`,
+            size: '—',
+            status: 'ready',
+            type,
+            analysisId: filtered[0]?.id,
+          };
+          setStored((s) => ({ ...s, reports: [newReport, ...s.reports] }));
+          showToast(`Relatório gerado: ${filename}`, 'success');
+        } catch (err) {
+          console.error('generateReport', err);
+          showToast('Erro ao gerar relatório', 'warn');
+        }
+      })();
+    },
+    [
+      canExportPdf,
+      selectedCompany.name,
+      showToast,
+      stored.analyses,
+      stored.reportType,
+      stored.session?.name,
+      stored.session?.role,
+    ],
+  );
 
   const clearPdfDownloadOffer = useCallback(() => setOfferPdfDownload(false), []);
 
@@ -2833,63 +3104,66 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [dbConnected, stored.selectedCompanyId]);
 
   const createSstApr = useCallback(async (data: Partial<SstApr>) => {
-    if (!dbConnected) return;
+    if (!dbConnected) { showToast('PostgreSQL offline', 'warn'); return; }
     await apiCreateSstApr(stored.selectedCompanyId, data);
     await refreshSstData();
     showToast('APR registrada', 'success');
   }, [dbConnected, refreshSstData, showToast, stored.selectedCompanyId]);
 
   const createSstEpi = useCallback(async (data: Partial<SstEpi>) => {
-    if (!dbConnected) return;
+    if (!dbConnected) { showToast('PostgreSQL offline', 'warn'); return; }
     await apiCreateSstEpi(stored.selectedCompanyId, data);
     await refreshSstData();
     showToast('EPI cadastrado', 'success');
   }, [dbConnected, refreshSstData, showToast, stored.selectedCompanyId]);
 
   const createSstEpc = useCallback(async (data: Partial<SstEpc>) => {
-    if (!dbConnected) return;
+    if (!dbConnected) { showToast('PostgreSQL offline', 'warn'); return; }
     await apiCreateSstEpc(stored.selectedCompanyId, data);
     await refreshSstData();
     showToast('EPC cadastrado', 'success');
   }, [dbConnected, refreshSstData, showToast, stored.selectedCompanyId]);
 
   const createSstInspecao = useCallback(async (title: string) => {
-    if (!dbConnected || !title.trim()) return;
+    if (!dbConnected) { showToast('PostgreSQL offline', 'warn'); return; }
+    if (!title.trim()) return;
     await apiCreateSstInspecao(stored.selectedCompanyId, title.trim());
     await refreshSstData();
     showToast('Inspeção programada', 'success');
   }, [dbConnected, refreshSstData, showToast, stored.selectedCompanyId]);
 
   const createSstAuditoria = useCallback(async (title: string) => {
-    if (!dbConnected || !title.trim()) return;
+    if (!dbConnected) { showToast('PostgreSQL offline', 'warn'); return; }
+    if (!title.trim()) return;
     await apiCreateSstAuditoria(stored.selectedCompanyId, title.trim());
     await refreshSstData();
     showToast('Auditoria planejada', 'success');
   }, [dbConnected, refreshSstData, showToast, stored.selectedCompanyId]);
 
   const createSstNc = useCallback(async (data: { description: string; title?: string; severity?: string; riskId?: string }) => {
-    if (!dbConnected) return;
+    if (!dbConnected) { showToast('PostgreSQL offline', 'warn'); return; }
     await apiCreateSstNc(stored.selectedCompanyId, data);
     await refreshSstData();
     showToast('NC registrada', 'success');
   }, [dbConnected, refreshSstData, showToast, stored.selectedCompanyId]);
 
   const createSstCapa = useCallback(async (data: { description: string; ncId?: string; riskId?: string; syncGro?: boolean }) => {
-    if (!dbConnected) return;
+    if (!dbConnected) { showToast('PostgreSQL offline', 'warn'); return; }
     await apiCreateSstCapa(stored.selectedCompanyId, data);
     await refreshSstData();
     showToast('CAPA criada' + (data.syncGro ? ' e sincronizada GRO' : ''), 'success');
   }, [dbConnected, refreshSstData, showToast, stored.selectedCompanyId]);
 
   const createSstTreinamento = useCallback(async (title: string) => {
-    if (!dbConnected || !title.trim()) return;
+    if (!dbConnected) { showToast('PostgreSQL offline', 'warn'); return; }
+    if (!title.trim()) return;
     await apiCreateSstTreinamento(stored.selectedCompanyId, title.trim());
     await refreshSstData();
     showToast('Treinamento programado', 'success');
   }, [dbConnected, refreshSstData, showToast, stored.selectedCompanyId]);
 
   const generateSstReport = useCallback(async () => {
-    if (!dbConnected) return;
+    if (!dbConnected) { showToast('PostgreSQL offline', 'warn'); return; }
     try {
       const report = await apiGenerateSstReport(stored.selectedCompanyId);
       setSstReport(report);
@@ -3475,6 +3749,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     logout,
     selectCompany,
     saveCollaborator,
+    ensureSelfCollaborator,
     setAnalysisDraft: (patch) =>
       setDraft((d) => {
         const baseManual = {
@@ -3504,6 +3779,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setApiAuthSession(session);
         return { ...s, session };
       });
+      if (dbConnected && (patch.name != null || patch.location != null)) {
+        void apiUpdateProfile({
+          nome: patch.name ?? stored.session?.name ?? '',
+          localizacao: patch.location ?? stored.session?.location ?? '',
+        }).catch((err) => {
+          console.error('apiUpdateProfile', err);
+          showToast('Perfil salvo no dispositivo (API indisponível)', 'warn');
+        });
+      }
     },
     openAnalysis: (id) => {
       setCurrentAnalysisId(id);

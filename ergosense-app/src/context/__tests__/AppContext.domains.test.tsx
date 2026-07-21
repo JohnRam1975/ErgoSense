@@ -305,8 +305,8 @@ describe('AppContext — auth estendido', () => {
       expect(await result.current.login('offline@test.com', 'password1234')).toBe(true);
     });
     expect(result.current.session?.email).toBe('offline@test.com');
-    expect(result.current.session?.tenantId).toBeUndefined();
-    expect(result.current.screen).toBe('company');
+    expect(result.current.session?.tenantId).toBe('vale');
+    expect(result.current.screen).toBe('dashboard');
   });
 
   it('bootstrap tenants com erro não quebra app', async () => {

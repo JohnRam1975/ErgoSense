@@ -180,6 +180,8 @@ export const ONBOARDING_ADMIN_SCREEN_IDS = [
 
   'admin-tenants-expired',
 
+  'admin-access-control',
+
 ] as const;
 
 
@@ -188,7 +190,9 @@ export const ONBOARDING_ADMIN_SCREEN_IDS = [
 
 export const ONBOARDING_PUBLIC_SCREEN_IDS = [
 
-  'employee-access-request',
+  'request-access',
+
+  'request-access-autonomo',
 
   'activate-account',
 
@@ -196,7 +200,7 @@ export const ONBOARDING_PUBLIC_SCREEN_IDS = [
 
 
 
-/** Todas as 87 telas registradas em ScreenId / App.tsx */
+/** Todas as telas registradas em ScreenId / App.tsx */
 
 export const ALL_SCREEN_IDS = [
 
@@ -205,6 +209,8 @@ export const ALL_SCREEN_IDS = [
   'login',
 
   'request-access',
+
+  'request-access-autonomo',
 
   'register-company',
 

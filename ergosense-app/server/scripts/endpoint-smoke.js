@@ -7,13 +7,14 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { materializePath, scanAllRoutes } from './lib/routeScanner.js';
+import { getRouteContract } from './lib/routeContracts.js';
 
 const BASE = process.env.API_URL ?? `http://localhost:${process.env.PORT ?? 3001}`;
 const TENANT = process.env.AUDIT_TENANT ?? 'vale';
 const EMAIL = process.env.AUDIT_EMAIL ?? 'lucas@vale.com.br';
 const PASS = process.env.AUDIT_PASS ?? 'ergo1234';
-const GLOBAL_EMAIL = process.env.E2E_GLOBAL_EMAIL ?? 'admin@ergosense.com.br';
-const GLOBAL_PASS = process.env.E2E_GLOBAL_PASSWORD ?? 'admin1234';
+const GLOBAL_EMAIL = process.env.E2E_GLOBAL_EMAIL ?? 'ergosense@dejohn.com.br';
+const GLOBAL_PASS = process.env.E2E_GLOBAL_PASSWORD ?? '@Ergo!2026/Adm';
 
 const tagFilter = process.argv.find((a) => a.startsWith('--tag='))?.split('=')[1];
 
@@ -133,9 +134,18 @@ async function main() {
       const ok = r.status > 0 && r.status < 500;
       record(route.tag, `${name} [auth GET <500]`, ok, `HTTP ${r.status} ${r.ms}ms`);
     } else if (route.method === 'POST') {
+      const contract = getRouteContract(route);
       const r = await request('POST', pathReady, { token: useToken, body: {} });
-      const ok = r.status >= 400 && r.status < 500;
-      record(route.tag, `${name} [auth POST empty→4xx]`, ok, `HTTP ${r.status}`);
+      // Ações sem body (advance, gerar, scan…) podem retornar 2xx/4xx; creates validados devem ser 4xx.
+      const ok = contract.bodyOptional
+        ? r.status > 0 && r.status < 500
+        : r.status >= 400 && r.status < 500;
+      record(
+        route.tag,
+        `${name} [auth POST empty→${contract.bodyOptional ? '<500' : '4xx'}]`,
+        ok,
+        `HTTP ${r.status}`,
+      );
     } else if (route.method === 'DELETE') {
       const r = await request('DELETE', pathReady, { token: useToken });
       const ok = r.status > 0 && r.status < 500;

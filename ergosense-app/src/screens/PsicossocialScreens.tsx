@@ -13,9 +13,9 @@ import {
   tipoFromAba,
   type QuestionarioResultado,
 } from '../data/psicoQuestionnaires';
-import { apiAiExpertPsicossocial, apiGetAiStatus, apiCreatePsicoCampanha, apiGetPsicoCampanhas, apiRegeneratePsicoCampanhaLink } from '../api/client';
+import { apiCreatePsicoCampanha, apiGetPsicoCampanhas, apiRegeneratePsicoCampanhaLink } from '../api/client';
 import { CampanhaSharePanel } from '../components/CampanhaSharePanel';
-import type { AiExpertResponse } from '../api/client';
+import { ComingSoonPanel } from '../components/UI';
 import type { PsicoActionPlan, PsicoCampanha, PsicoMteFactor, PsicoQuestionnaireType, PsicoRiskLevel } from '../types/psicossocial';
 import { LGPD_CONSENT_TEXT, PSICO_QUESTIONNAIRE_LABELS } from '../types/psicossocial';
 
@@ -180,7 +180,7 @@ export function PsicossocialDashboardScreen() {
         { id: 'psicossocial-matriz', ico: '🎯', label: 'Matriz de Riscos', sub: 'Heatmap 5×5' },
         { id: 'psicossocial-plano', ico: '✅', label: 'Plano de Ação', sub: `${psicoActionPlans.length} ações` },
         { id: 'psicossocial-conformidade', ico: '⚖️', label: 'Conformidade Legal', sub: 'NR-1 · Portaria 1.419/2024' },
-        { id: 'psicossocial-ia', ico: '🤖', label: 'IA ErgoSensePro', sub: 'Análise e recomendações' },
+        { id: 'psicossocial-ia', ico: '🤖', label: 'IA ErgoSensePro', sub: 'Em breve · atualização futura' },
       ].map((item) => (
         <button key={item.id} className="ac" onClick={() => go(item.id as never)}>
           <div className="av" style={{ background: 'var(--a10)', fontSize: 22 }}>{item.ico}</div>
@@ -824,102 +824,14 @@ export function PsicossocialConformidadeScreen() {
   );
 }
 
-const PROMPTS_PSICO = [
-  { ico: '⚖️', titulo: 'Relatório Portaria 1.419/2024', texto: 'Gere relatório de conformidade com a Portaria MTE 1.419/2024 e Guia MTE 2025.' },
-  { ico: '🧠', titulo: 'Análise dos 13 fatores por setor', texto: 'Analise os 13 fatores psicossociais do Guia MTE 2025 por setor e nível de risco.' },
-  { ico: '🔥', titulo: 'Cluster de adoecimento mental', texto: 'Com base nos scores COPSOQ-III, HSE, CBI e Clima, identifique clusters de risco.' },
-];
-
 export function PsicossocialIaScreen() {
-  const { showToast, psicoDashboard, psicoFatores, selectedCompany } = useApp();
-  const [prompt, setPrompt] = useState('');
-  const [output, setOutput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [aiStatus, setAiStatus] = useState<{ provider: string; configured: boolean } | null>(null);
-
-  const contexto = useMemo(() => {
-    const fatoresCriticos = psicoFatores.filter((f) => f.avaliado && f.nivel === 'critico').map((f) => f.nome);
-    return `Conformidade: ${psicoDashboard?.conformityPct ?? 0}%. Fatores críticos: ${fatoresCriticos.join(', ') || 'nenhum'}.`;
-  }, [psicoDashboard, psicoFatores]);
-
-  useEffect(() => {
-    apiGetAiStatus()
-      .then(setAiStatus)
-      .catch(() => setAiStatus(null));
-  }, []);
-
-  function formatAiResponse(res: AiExpertResponse) {
-    const narrative =
-      typeof res.analysis === 'object' && res.analysis && 'narrative' in res.analysis && res.analysis.narrative
-        ? String(res.analysis.narrative)
-        : typeof res.analysis === 'string'
-          ? res.analysis
-          : JSON.stringify(res.analysis, null, 2);
-    const sources = res.transparency?.dataSourcesUsed?.join(' · ') ?? '—';
-    return `${res.disclaimer}\n\n--- Análise ---\n${narrative}\n\n--- Transparência ---\nFontes: ${sources}\nMetodologia: ${res.transparency?.methodology?.join(', ') ?? '—'}`;
-  }
-
-  async function enviar(texto: string) {
-    const p = texto || prompt;
-    if (!p.trim()) {
-      showToast('Digite ou selecione um prompt', 'warn');
-      return;
-    }
-    if (aiStatus && !aiStatus.configured) {
-      showToast('IA não configurada no servidor (.env)', 'warn');
-      return;
-    }
-    setPrompt(p);
-    setLoading(true);
-    setOutput('Analisando com ErgoSense AI Expert…');
-    try {
-      const res = await apiAiExpertPsicossocial(selectedCompany.id, p);
-      setOutput(formatAiResponse(res));
-      showToast('Análise gerada', 'success');
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao consultar IA';
-      setOutput(`Erro: ${msg}\n\nContexto local:\n${contexto}`);
-      showToast(msg, 'warn');
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
-    <div className="scroll">
-      <div className="hl" style={{ marginBottom: 14 }}>
-        <div className="row gap8 mb4">
-          <span style={{ fontSize: 18 }}>🤖</span>
-          <span className="lbl" style={{ color: 'var(--cyan)' }}>AGENTE IA — PSICOSSOCIAL</span>
-        </div>
-        <p style={{ fontSize: 12, color: 'var(--t1)', margin: 0 }}>
-          Usa dados reais do tenant (fatores, questionários, conformidade).
-          {aiStatus?.configured
-            ? ` · IA: ${aiStatus.provider} ✓`
-            : aiStatus
-              ? ' · IA não configurada no servidor'
-              : ''}
-        </p>
-      </div>
-
-      <div className="card" style={{ marginBottom: 16 }}>
-        <textarea className="inp" rows={3} value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Sua consulta…" style={{ marginBottom: 8, resize: 'vertical' }} />
-        <button className="btn bp" onClick={() => enviar(prompt)} disabled={loading}>
-          {loading ? 'Analisando…' : 'Enviar →'}
-        </button>
-        {output && (
-          <div style={{ marginTop: 12, padding: 12, background: 'var(--bg2)', borderRadius: 10, fontSize: 12, color: 'var(--t1)', whiteSpace: 'pre-wrap' }}>{output}</div>
-        )}
-      </div>
-
-      {PROMPTS_PSICO.map((p) => (
-        <button key={p.titulo} className="ac" onClick={() => enviar(p.texto)}>
-          <div className="av" style={{ background: 'var(--c10)', fontSize: 20 }}>{p.ico}</div>
-          <div style={{ flex: 1, textAlign: 'left' }}>
-            <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--t0)' }}>{p.titulo}</div>
-          </div>
-        </button>
-      ))}
+    <div className="scroll pad">
+      <ComingSoonPanel
+        title="IA Psicossocial"
+        subtitle="Em breve: agente de IA com análise de fatores MTE, questionários e recomendações. Disponível em atualização futura."
+        badge="Em breve"
+      />
     </div>
   );
 }

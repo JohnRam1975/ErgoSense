@@ -8,8 +8,8 @@ const BASE = process.env.AUDIT_API_URL || 'http://localhost:3001';
 const TENANT = process.env.AUDIT_TENANT || 'vale';
 const EMAIL = process.env.AUDIT_EMAIL || 'lucas@vale.com.br';
 const PASS = process.env.AUDIT_PASS || 'ergo1234';
-const ADMIN_EMAIL = process.env.E2E_GLOBAL_EMAIL || 'admin@ergosense.com.br';
-const ADMIN_PASS = process.env.E2E_GLOBAL_PASSWORD || 'admin1234';
+const ADMIN_EMAIL = process.env.E2E_GLOBAL_EMAIL || 'ergosense@dejohn.com.br';
+const ADMIN_PASS = process.env.E2E_GLOBAL_PASSWORD || '@Ergo!2026/Adm';
 
 const LEVELS = [100, 500, 1000];
 

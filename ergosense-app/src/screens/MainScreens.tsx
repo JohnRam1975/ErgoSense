@@ -2,6 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { ErgoSenseLogo } from '../components/ErgoSenseLogo';
 import { AnalysisCard } from '../components/UI';
+import { PwaDownloadCard } from '../components/PwaInstallBanner';
+import { PasswordField } from '../components/PasswordField';
+import { SELF_COLLABORATOR_MATRICULA } from '../data/constants';
+import { openCollaboratorEditor } from './AnalysisScreens';
 import { countPostureRisks, riskBadgeClass, riskLabel } from '../utils/ergonomics';
 import { vibrate } from '../hooks/useClock';
 import type { Analysis } from '../types';
@@ -47,7 +51,7 @@ export function SplashScreen() {
 }
 
 export function LoginScreen() {
-  const { login, verifyMfaLogin, showToast, go } = useApp();
+  const { login, verifyMfaLogin, showToast, showModal, go } = useApp();
   const [email, setEmail] = useState('lucas@vale.com.br');
   const [password, setPassword] = useState('ergo1234');
   const [mfaPending, setMfaPending] = useState<{ token: string; email: string; name: string } | null>(null);
@@ -69,28 +73,39 @@ export function LoginScreen() {
   };
 
   return (
-    <>
-      <div className="login-top">
-        <button type="button" className="btn bp login-back-btn" onClick={() => go('splash')}>
-          Voltar
-        </button>
-      </div>
-      <div className="login-hero">
-        <ErgoSenseLogo size="lg" showTagline className="ergo-logo--login" />
-      </div>
-      <div className="scroll" style={{ flex: 'none', paddingBottom: 'calc(30px + var(--safe-bot))' }}>
-        <div className="hl">
-          <div style={{ fontFamily: 'var(--fd)', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 18 }}>
-            {mfaPending ? 'Verificação MFA' : 'Acesso à Plataforma'}
-          </div>
+    <div className="login-page">
+      <button type="button" className="btn bp login-back-btn login-page-back" onClick={() => go('splash')}>
+        Voltar
+      </button>
+
+      <div className="login-panel">
+        <div className="login-panel-brand">
+          <ErgoSenseLogo size="md" showTagline className="ergo-logo--login" />
+        </div>
+
+        <form
+          className="login-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (mfaPending) void handleMfaVerify();
+            else void handleLogin();
+          }}
+        >
+          <h1 className="login-form-title">{mfaPending ? 'Verificação MFA' : 'Entrar'}</h1>
+          <p className="login-form-sub">
+            {mfaPending
+              ? `Olá, ${mfaPending.name}. Informe o código do autenticador.`
+              : 'Acesse sua conta corporativa'}
+          </p>
+
           {mfaPending ? (
             <>
-              <p className="access-form-intro" style={{ marginBottom: 16 }}>
-                Olá, <strong>{mfaPending.name}</strong>. Informe o código de 6 dígitos do autenticador.
-              </p>
-              <label className="lbl">Código MFA</label>
+              <label className="lbl" htmlFor="login-mfa">
+                Código MFA
+              </label>
               <input
-                className="inp"
+                id="login-mfa"
+                className="inp login-inp"
                 inputMode="numeric"
                 autoComplete="one-time-code"
                 maxLength={8}
@@ -98,164 +113,82 @@ export function LoginScreen() {
                 onChange={(e) => setMfaCode(e.target.value)}
                 placeholder="000000"
               />
-              <button type="button" className="btn bp mt12" onClick={() => void handleMfaVerify()}>
-                Confirmar →
-              </button>
-              <button
-                type="button"
-                className="btn bs mt8"
-                style={{ width: '100%' }}
-                onClick={() => {
-                  setMfaPending(null);
-                  setMfaCode('');
-                }}
-              >
-                Voltar ao login
-              </button>
+              <div className="login-form-actions">
+                <button type="submit" className="btn bp">
+                  Confirmar
+                </button>
+                <button
+                  type="button"
+                  className="btn bs"
+                  onClick={() => {
+                    setMfaPending(null);
+                    setMfaCode('');
+                  }}
+                >
+                  Voltar ao login
+                </button>
+              </div>
             </>
           ) : (
             <>
-              <label className="lbl">E-mail corporativo</label>
-              <input className="inp" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="usuario@empresa.com.br" />
-              <label className="lbl">Senha</label>
-              <input className="inp" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
-              <div style={{ textAlign: 'right', margin: '4px 0 18px' }}>
-                <span style={{ fontSize: 12, color: 'var(--amber)', fontFamily: 'var(--fd)', fontWeight: 700, cursor: 'pointer', letterSpacing: '.5px', textTransform: 'uppercase' }} onClick={() => showToast('Link enviado para seu e-mail', 'success')}>
-                  Esqueci a senha
-                </span>
-              </div>
-              <button type="button" className="btn bp" onClick={() => void handleLogin()}>
-                Entrar →
+              <label className="lbl" htmlFor="login-email">
+                E-mail corporativo
+              </label>
+              <input
+                id="login-email"
+                className="inp login-inp"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="usuario@empresa.com.br"
+              />
+              <label className="lbl" htmlFor="login-pass">
+                Senha
+              </label>
+              <PasswordField
+                id="login-pass"
+                inputClassName="inp login-inp"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                className="login-forgot"
+                onClick={() =>
+                  showModal(
+                    'Redefinir senha',
+                    'Recuperação por e-mail (SMTP) está planejada para uma atualização futura. Por enquanto, peça ao administrador da empresa ou ao suporte ErgoSense para redefinir sua senha.',
+                    'Entendi',
+                  )
+                }
+              >
+                Esqueci a senha
               </button>
-              <div style={{ textAlign: 'center', marginTop: 14, fontSize: 13, color: 'var(--t1)' }}>
-                Cadastrar empresa?{' '}
-                <span style={{ color: 'var(--amber)', cursor: 'pointer', fontWeight: 600 }} onClick={() => go('request-access')}>
-                  Solicitar acesso
-                </span>
+              <div className="login-form-actions">
+                <button type="submit" className="btn bp">
+                  Entrar
+                </button>
               </div>
-              <div style={{ textAlign: 'center', marginTop: 8, fontSize: 12, color: 'var(--t2)' }}>
-                Já tem convite?{' '}
-                <span style={{ color: 'var(--amber)', cursor: 'pointer' }} onClick={() => go('employee-access-request')}>
-                  Sou colaborador
-                </span>
+              <div className="login-form-links">
+                <button type="button" className="login-text-link" onClick={() => go('request-access')}>
+                  Cadastrar empresa
+                </button>
+                <span className="login-link-sep">·</span>
+                <button type="button" className="login-text-link" onClick={() => go('request-access-autonomo')}>
+                  Sou autônomo
+                </button>
               </div>
+              <PwaDownloadCard />
             </>
           )}
-        </div>
-        <div style={{ textAlign: 'center', padding: '12px 0' }}>
-          <div style={{ fontSize: 9, fontFamily: 'var(--fd)', letterSpacing: 1.5, color: 'var(--t2)', textTransform: 'uppercase' }}>
-            🔒 JWT · TLS 1.3 · SECURE STORAGE · LGPD
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
+        </form>
 
-export function RequestAccessScreen() {
-  const { go, showToast, submitAccessRequest } = useApp();
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    funcao: '',
-    matricula: '',
-  });
-
-  const set = (key: keyof typeof form, value: string) => setForm((f) => ({ ...f, [key]: value }));
-
-  const handleSubmit = () => {
-    if (!form.name.trim()) {
-      showToast('Informe o nome completo', 'warn');
-      return;
-    }
-    if (!form.email.includes('@')) {
-      showToast('Informe um e-mail válido', 'warn');
-      return;
-    }
-    if (!form.funcao.trim()) {
-      showToast('Informe a função', 'warn');
-      return;
-    }
-    if (!form.matricula.trim()) {
-      showToast('Informe a matrícula', 'warn');
-      return;
-    }
-    void (async () => {
-      const ok = await submitAccessRequest({
-        nome: form.name.trim(),
-        email: form.email.trim(),
-        funcao: form.funcao.trim(),
-        matricula: form.matricula.trim(),
-      });
-      if (ok) {
-        showToast('Solicitação enviada! Aguarde aprovação do administrador.', 'success');
-        go('login');
-      }
-    })();
-  };
-
-  return (
-    <>
-      <div className="login-top">
-        <button type="button" className="btn bp login-back-btn" onClick={() => go('login')}>
-          Voltar
-        </button>
+        <div className="login-panel-foot">JWT · TLS · LGPD</div>
       </div>
-      <div className="login-hero login-hero--compact">
-        <ErgoSenseLogo size="md" showText className="ergo-logo--login" />
-      </div>
-      <div className="scroll" style={{ flex: 'none', paddingBottom: 'calc(30px + var(--safe-bot))' }}>
-        <div className="hl">
-          <div style={{ fontFamily: 'var(--fd)', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 8 }}>
-            Solicitar acesso
-          </div>
-          <p className="access-form-intro">
-            Preencha os dados abaixo. Um administrador analisará sua solicitação e enviará as credenciais por e-mail.
-          </p>
-          <label className="lbl">Nome completo *</label>
-          <input
-            className="inp"
-            type="text"
-            autoComplete="name"
-            value={form.name}
-            onChange={(e) => set('name', e.target.value)}
-            placeholder="Seu nome completo"
-          />
-          <label className="lbl">E-mail corporativo *</label>
-          <input
-            className="inp"
-            type="email"
-            autoComplete="email"
-            value={form.email}
-            onChange={(e) => set('email', e.target.value)}
-            placeholder="usuario@empresa.com.br"
-          />
-          <label className="lbl">Função *</label>
-          <input
-            className="inp"
-            type="text"
-            value={form.funcao}
-            onChange={(e) => set('funcao', e.target.value)}
-            placeholder="Ex.: Ergonomista, Técnico de SST"
-          />
-          <label className="lbl">Matrícula *</label>
-          <input
-            className="inp"
-            type="text"
-            inputMode="numeric"
-            value={form.matricula}
-            onChange={(e) => set('matricula', e.target.value)}
-            placeholder="Número da matrícula"
-          />
-          <button type="button" className="btn bp mt12" onClick={handleSubmit}>
-            Enviar solicitação
-          </button>
-          <button type="button" className="btn bs mt8" onClick={() => go('login')}>
-            Já tenho acesso — Entrar
-          </button>
-        </div>
-      </div>
-    </>
+    </div>
   );
 }
 
@@ -325,9 +258,19 @@ export function RegisterCompanyScreen() {
           <label className="lbl">E-mail do administrador *</label>
           <input className="inp" type="email" value={form.adminEmail} onChange={(e) => set('adminEmail', e.target.value)} placeholder="admin@empresa.com.br" />
           <label className="lbl">Senha de acesso *</label>
-          <input className="inp" type="password" value={form.adminPassword} onChange={(e) => set('adminPassword', e.target.value)} placeholder="Mínimo 8 caracteres" />
+          <PasswordField
+            value={form.adminPassword}
+            onChange={(e) => set('adminPassword', e.target.value)}
+            placeholder="Mínimo 8 caracteres"
+            autoComplete="new-password"
+          />
           <label className="lbl">Confirmar senha *</label>
-          <input className="inp" type="password" value={form.adminPassword2} onChange={(e) => set('adminPassword2', e.target.value)} placeholder="Repita a senha" />
+          <PasswordField
+            value={form.adminPassword2}
+            onChange={(e) => set('adminPassword2', e.target.value)}
+            placeholder="Repita a senha"
+            autoComplete="new-password"
+          />
         </div>
       </div>
       <button type="button" className="btn bp mt12" onClick={handleSubmit}>
@@ -374,9 +317,22 @@ export function RegisterCompanyScreen() {
 }
 
 export function CompanyScreen() {
-  const { session, selectCompany, showToast, selectedCompanyId, companies } = useApp();
+  const {
+    session,
+    selectCompany,
+    selectedCompanyId,
+    companies,
+    logout,
+    showModal,
+    isGlobalAdmin,
+    go,
+    showToast,
+  } = useApp();
   const [search, setSearch] = useState('');
-  const tenantCompanies = companies.filter((c) => c.id !== 'ergosense');
+  const allowedId = !isGlobalAdmin ? session?.tenantId : undefined;
+  const tenantCompanies = companies.filter(
+    (c) => c.id !== 'ergosense' && (!allowedId || c.id === allowedId),
+  );
   const filtered = tenantCompanies.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
 
   const colorStyles: Record<string, { bg: string; border: string }> = {
@@ -386,6 +342,36 @@ export function CompanyScreen() {
     neutral: { bg: 'var(--bg3)', border: 'var(--b1)' },
   };
 
+  const requestNewCompanyAccess = () => {
+    showModal(
+      'Solicitar acesso',
+      'Escolha: cadastrar uma empresa nova no ErgoSense, ou pedir vínculo a uma empresa existente (precisa do ID do tenant).',
+      'Cadastrar nova empresa',
+      () => go('request-access'),
+    );
+  };
+
+  const requestExistingTenant = () => {
+    if (!session?.email) {
+      showToast('Faça login para solicitar acesso', 'warn');
+      return;
+    }
+    const tenantId = window.prompt('Informe o ID do tenant da empresa desejada:');
+    if (!tenantId?.trim()) return;
+    void import('../api/client')
+      .then(({ apiSubmitAccessRequest }) =>
+        apiSubmitAccessRequest({
+          nome: session.name || session.email,
+          email: session.email,
+          funcao: session.role || 'Ergonomista',
+          matricula: 'ACCESS-REQ',
+          tenantId: tenantId.trim(),
+        }),
+      )
+      .then(() => showToast('Solicitação registrada. Aguarde o admin da empresa.', 'success'))
+      .catch((err) => showToast(err instanceof Error ? err.message : 'Falha ao enviar solicitação', 'warn'));
+  };
+
   return (
     <>
       <div className="nav-hdr" style={{ paddingTop: 8 }}>
@@ -393,7 +379,16 @@ export function CompanyScreen() {
           <ErgoSenseLogo size="sm" showText />
           <div className="hdr-title">Selecionar Empresa</div>
         </div>
-        <div style={{ width: 40 }} />
+        <button
+          type="button"
+          className="btn bd btn-sm btn-inline"
+          aria-label="Sair da conta"
+          onClick={() =>
+            showModal('Sair da Conta', 'Tem certeza que deseja encerrar a sessão?', 'Sim, Sair', logout)
+          }
+        >
+          Sair
+        </button>
       </div>
       <div className="scroll">
         <div style={{ fontSize: 13, color: 'var(--t1)', marginBottom: 16 }}>
@@ -428,14 +423,42 @@ export function CompanyScreen() {
             </button>
           );
         })}
-        <div
-          style={{ marginTop: 8, padding: 14, border: '1px dashed rgba(255,255,255,.07)', borderRadius: 14, textAlign: 'center', cursor: 'pointer' }}
-          onClick={() => showToast('Solicitação enviada ao admin', 'info')}
+        <button
+          type="button"
+          style={{
+            marginTop: 8,
+            padding: 14,
+            border: '1px dashed rgba(255,255,255,.07)',
+            borderRadius: 14,
+            textAlign: 'center',
+            cursor: 'pointer',
+            width: '100%',
+            background: 'transparent',
+          }}
+          onClick={requestNewCompanyAccess}
         >
           <span style={{ fontSize: 13, fontFamily: 'var(--fd)', fontWeight: 700, color: 'var(--t2)', letterSpacing: 1, textTransform: 'uppercase' }}>
-            + Solicitar acesso a nova empresa
+            + Solicitar cadastro de nova empresa
           </span>
-        </div>
+        </button>
+        <button
+          type="button"
+          style={{
+            marginTop: 8,
+            padding: 14,
+            border: '1px dashed rgba(255,255,255,.07)',
+            borderRadius: 14,
+            textAlign: 'center',
+            cursor: 'pointer',
+            width: '100%',
+            background: 'transparent',
+          }}
+          onClick={requestExistingTenant}
+        >
+          <span style={{ fontSize: 13, fontFamily: 'var(--fd)', fontWeight: 700, color: 'var(--t2)', letterSpacing: 1, textTransform: 'uppercase' }}>
+            + Pedir acesso a empresa existente
+          </span>
+        </button>
       </div>
     </>
   );
@@ -471,6 +494,7 @@ export function DashboardScreen() {
   return (
     <>
       <div className="scroll scroll--dashboard">
+        <PwaDownloadCard />
         {stats.critical > 0 && (
           <div style={{ background: 'var(--r10)', border: '1px solid var(--r25)', borderRadius: 14, padding: '12px 14px', marginBottom: 13, display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => go('history')}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--red)', animation: 'pr 1.6s infinite', flexShrink: 0 }} />
@@ -675,6 +699,7 @@ export function CollabsScreen() {
   }, [collaborators, sectors]);
 
   const filtered = collaborators.filter((c) => {
+    if (c.matricula === SELF_COLLABORATOR_MATRICULA) return false;
     const matchSearch = c.name.toLowerCase().includes(search.toLowerCase()) || c.matricula.includes(search);
     const matchTag = filter === 'Todos' || c.setor === filter;
     return matchSearch && matchTag;
@@ -684,17 +709,15 @@ export function CollabsScreen() {
     <>
       <div className="scroll">
         <div className="sec" style={{ marginTop: 0 }}>
-          <span className="stl">Funcionários</span>
-          <button type="button" className="btn bp btn-sm btn-inline" onClick={() => go('new-collab')}>
+          <span className="stl">Colaboradores</span>
+          <button type="button" className="btn bp btn-sm btn-inline" onClick={() => { openCollaboratorEditor(null); go('new-collab'); }}>
             ＋ Novo
           </button>
         </div>
-        {dbConnected && (
-          <div style={{ fontSize: 11, color: 'var(--green)', marginBottom: 10, fontFamily: 'var(--fm)' }}>
-            ● Sincronizado com PostgreSQL
-          </div>
-        )}
-        <input className="inp" placeholder="🔍  Buscar funcionário..." value={search} onChange={(e) => setSearch(e.target.value)} />
+        <p className="t2" style={{ marginBottom: 10 }}>
+          Cadastre e gerencie os colaboradores da empresa neste painel.
+        </p>
+        <input className="inp" placeholder="🔍  Buscar colaborador..." value={search} onChange={(e) => setSearch(e.target.value)} />
         <div className="tagrow">
           {sectorTags.map((t) => (
             <div
@@ -718,10 +741,13 @@ export function CollabsScreen() {
             subtitle={`Mat. ${c.matricula} · ${c.setor}`}
             badge={riskLabel(c.risk)}
             badgeClass={riskBadgeClass(c.risk)}
-            onClick={() => go('new-collab')}
+            onClick={() => {
+              openCollaboratorEditor(c.id);
+              go('new-collab');
+            }}
           />
         ))}
-        <button className="btn bp mt8" onClick={() => go('new-collab')}>
+        <button className="btn bp mt8" onClick={() => { openCollaboratorEditor(null); go('new-collab'); }}>
           ＋ Novo Colaborador
         </button>
       </div>

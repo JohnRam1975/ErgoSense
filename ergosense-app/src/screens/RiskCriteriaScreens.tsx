@@ -89,7 +89,7 @@ export function CriteriaDashboardScreen() {
         <div className="row between mb8">
           <span className="stl">Metodologia vigente</span>
           {dbConnected && (
-            <button type="button" className="btn-sm" onClick={() => refreshRiskCriteria()}>
+            <button type="button" className="btn bs btn-sm btn-inline" onClick={() => refreshRiskCriteria()}>
               Atualizar
             </button>
           )}
@@ -208,7 +208,7 @@ export function CriteriaConfigScreen() {
   return (
     <div className="scroll">
       <div className="row between mb12">
-        <button type="button" className="btn-sm" onClick={() => go('criterios-dashboard')}>← Voltar</button>
+        <button type="button" className="btn bs btn-sm btn-inline" onClick={() => go('criterios-dashboard')}>← Voltar</button>
         <span className="stl">Configuração</span>
       </div>
 
@@ -231,7 +231,7 @@ export function CriteriaConfigScreen() {
             <option value="PROB_SEV_5X5">Matriz 5×5 NR-01 (padrão)</option>
             <option value="PROB_SEV_3X3">Matriz 3×3 simplificada</option>
           </select>
-          <button type="button" className="btn primary" onClick={handleCreate}>Criar metodologia</button>
+          <button type="button" className="btn bp" onClick={handleCreate}>Criar metodologia</button>
         </div>
       )}
 
@@ -245,7 +245,7 @@ export function CriteriaConfigScreen() {
                 {m.matrixType} · v{m.activeVersionNumber ?? '—'}
               </div>
             </div>
-            <button type="button" className="btn-sm" onClick={() => loadVersions(m.id)}>
+            <button type="button" className="btn bs btn-sm btn-inline" onClick={() => loadVersions(m.id)}>
               Versões
             </button>
           </div>
@@ -263,7 +263,7 @@ export function CriteriaConfigScreen() {
                     {v.status !== 'ativa' && (
                       <button
                         type="button"
-                        className="btn-sm"
+                        className="btn bs btn-sm btn-inline"
                         onClick={() => handleActivate(m.id, v.id)}
                       >
                         Ativar
@@ -289,8 +289,8 @@ export function CriteriaHistoricoScreen() {
   return (
     <div className="scroll">
       <div className="row between mb12">
-        <button type="button" className="btn-sm" onClick={() => go('criterios-dashboard')}>← Voltar</button>
-        <button type="button" className="btn-sm" onClick={() => refreshRiskCriteria()}>Atualizar</button>
+        <button type="button" className="btn bs btn-sm btn-inline" onClick={() => go('criterios-dashboard')}>← Voltar</button>
+        <button type="button" className="btn bs btn-sm btn-inline" onClick={() => refreshRiskCriteria()}>Atualizar</button>
       </div>
       <div className="sec"><span className="stl">Histórico de versões e auditoria</span></div>
       <div className="card" style={{ marginBottom: 12 }}>
@@ -327,7 +327,7 @@ export function CriteriaDocumentacaoScreen() {
   return (
     <div className="scroll">
       <div className="row between mb12">
-        <button type="button" className="btn-sm" onClick={() => go('criterios-dashboard')}>← Voltar</button>
+        <button type="button" className="btn bs btn-sm btn-inline" onClick={() => go('criterios-dashboard')}>← Voltar</button>
       </div>
       <div className="sec"><span className="stl">Documentação automática NR-01</span></div>
       {!doc ? (

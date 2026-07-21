@@ -36,6 +36,8 @@ import {
   submitAetApproval,
   updateAetTechnicalResponsible,
 } from '../services/aetCorporateService.js';
+import { validateBody } from '../validation/validateRequest.js';
+import { createAetProcessoSchema } from '../validation/schemas.js';
 
 async function getProcessoOr404(tenantId, id) {
   const { rows } = await query(
@@ -168,27 +170,28 @@ export function registerAetRoutes(app, { resolveOperationalTenant }) {
     res.json(mapProcesso(row, { furniture, equipment }));
   });
 
-  app.post('/api/aet/processos', requirePermission('aet:write'), async (req, res) => {
+  app.post('/api/aet/processos', requirePermission('aet:write'), validateBody(createAetProcessoSchema), async (req, res) => {
     const tenantId = await resolveOperationalTenant(req, res, 'AET');
     if (!tenantId) return;
-    const titulo = sanitizePlainText(req.body?.title ?? 'Nova AET', 512);
+    const body = req.validatedBody;
+    const titulo = sanitizePlainText(body.title, 512);
     const { rows } = await query(
       `INSERT INTO aet_processos (tenant_id, titulo, colaborador_id, setor_id, analise_id, elaborado_por, caracterizacao_json)
        VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
       [
         tenantId,
         titulo,
-        req.body?.collaboratorId ? Number(req.body.collaboratorId) : null,
-        req.body?.sectorId ? Number(req.body.sectorId) : null,
-        req.body?.analysisId ? Number(req.body.analysisId) : null,
-        sanitizePlainText(req.body?.preparedBy ?? req.user?.name ?? '', 255),
-        JSON.stringify(req.body?.characterization ?? {}),
+        body.collaboratorId != null ? Number(body.collaboratorId) : null,
+        body.sectorId != null ? Number(body.sectorId) : null,
+        body.analysisId != null ? Number(body.analysisId) : null,
+        sanitizePlainText(body.preparedBy ?? req.user?.name ?? '', 255),
+        JSON.stringify(body.characterization ?? {}),
       ],
     );
     await logAetHistory({ tenantId, processoId: rows[0].id, action: 'PROCESSO_CRIADO', stage: 'CARACTERIZACAO', user: req.user });
-    if (req.body?.analysisId) {
+    if (body.analysisId) {
       try {
-        const methods = await importMethodsFromAnalysis(tenantId, Number(req.body.analysisId));
+        const methods = await importMethodsFromAnalysis(tenantId, Number(body.analysisId));
         if (methods) {
           await query(`UPDATE aet_processos SET metodos_json = $1 WHERE id = $2`, [JSON.stringify(methods), rows[0].id]);
         }

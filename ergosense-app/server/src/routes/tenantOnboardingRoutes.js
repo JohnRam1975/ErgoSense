@@ -11,6 +11,8 @@ import {
   tenantAdjustSchema,
   tenantBlockSchema,
   tenantReactivateSchema,
+  tenantGrantAccessSchema,
+  tenantDeactivateSchema,
   tenantUpdateSchema,
 } from '../validation/schemas.js';
 import { requireNumericId } from '../utils/parseId.js';
@@ -29,6 +31,8 @@ import {
   blockTenant,
   reactivateTenant,
   suspendTenant,
+  grantTenantAccess,
+  deactivateTenant,
 } from '../services/tenantRequestService.js';
 import { activateAccount, getActivationPreview } from '../services/activationService.js';
 import { listPlans } from '../services/planService.js';
@@ -199,6 +203,26 @@ export function registerTenantOnboardingRoutes(app) {
     try {
       const result = await suspendTenant(req.params.id, req.user, req, req.validatedBody);
       return apiSuccess(res, result, 'Empresa suspensa');
+    } catch (err) {
+      return apiError(res, err.message, err.status ?? 500);
+    }
+  });
+
+  app.post('/api/admin/tenants/:id/deactivate', authenticate, validateBody(tenantDeactivateSchema), async (req, res) => {
+    if (!requireGlobalAdmin(req, res)) return;
+    try {
+      const result = await deactivateTenant(req.params.id, req.user, req, req.validatedBody);
+      return apiSuccess(res, result, 'Acesso desativado');
+    } catch (err) {
+      return apiError(res, err.message, err.status ?? 500);
+    }
+  });
+
+  app.post('/api/admin/tenants/:id/grant-access', authenticate, validateBody(tenantGrantAccessSchema), async (req, res) => {
+    if (!requireGlobalAdmin(req, res)) return;
+    try {
+      const result = await grantTenantAccess(req.params.id, req.user, req, req.validatedBody);
+      return apiSuccess(res, result, 'Acesso liberado — empresa ativa');
     } catch (err) {
       return apiError(res, err.message, err.status ?? 500);
     }

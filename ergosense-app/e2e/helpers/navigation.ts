@@ -30,12 +30,12 @@ export async function navigateToScreen(page: Page, screenId: AllScreenId) {
 
     case 'request-access':
       await navigateToScreen(page, 'login');
-      await page.getByText(/Solicitar acesso/i).click();
+      await page.getByText(/Cadastrar empresa/i).click();
       break;
 
-    case 'employee-access-request':
+    case 'request-access-autonomo':
       await navigateToScreen(page, 'login');
-      await page.getByText(/Sou colaborador/i).click();
+      await page.getByText(/Sou autônomo/i).click();
       break;
 
     case 'activate-account':
@@ -74,6 +74,7 @@ export async function navigateToScreen(page: Page, screenId: AllScreenId) {
     case 'admin-tenants-active':
     case 'admin-tenants-blocked':
     case 'admin-tenants-expired':
+    case 'admin-access-control':
       await e2eGo(page, screenId);
       break;
 

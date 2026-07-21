@@ -62,6 +62,14 @@ export async function createCollaborator(tenantId, body) {
   const setorId = await resolveSetorId(tenantId, setor);
   const idx = Math.floor(Math.random() * ICONS.length);
 
+  const existing = await query(
+    `SELECT id FROM colaboradores WHERE tenant_id = $1 AND matricula = $2 AND deleted_at IS NULL LIMIT 1`,
+    [tenantId, safeMatricula],
+  );
+  if (existing.rows[0]?.id) {
+    return fetchCollaboratorById(existing.rows[0].id);
+  }
+
   const { rows } = await query(
     `INSERT INTO colaboradores (tenant_id, setor_id, nome, matricula, cargo, turno, data_nascimento,
       observacoes, consentimento_lgpd, consentimento_data, risk_level, icone, icone_bg)

@@ -28,8 +28,8 @@ export const FIXTURES = {
     password: process.env.AUDIT_PASS || 'ergo1234',
   },
   globalAdmin: {
-    email: process.env.E2E_GLOBAL_EMAIL || 'admin@ergosense.com.br',
-    password: process.env.E2E_GLOBAL_PASSWORD || 'admin1234',
+    email: process.env.E2E_GLOBAL_EMAIL || 'ergosense@dejohn.com.br',
+    password: process.env.E2E_GLOBAL_PASSWORD || '@Ergo!2026/Adm',
     role: 'ADMIN_GLOBAL',
   },
 };

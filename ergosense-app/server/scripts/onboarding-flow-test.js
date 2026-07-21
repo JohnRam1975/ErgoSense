@@ -5,8 +5,8 @@
 import { generateSync } from 'otplib';
 
 const API = process.env.API_URL ?? 'http://localhost:3001';
-const ADMIN_EMAIL = process.env.E2E_GLOBAL_EMAIL ?? 'admin@ergosense.com.br';
-const ADMIN_PASSWORD = process.env.E2E_GLOBAL_PASSWORD ?? 'admin1234';
+const ADMIN_EMAIL = process.env.E2E_GLOBAL_EMAIL ?? 'ergosense@dejohn.com.br';
+const ADMIN_PASSWORD = process.env.E2E_GLOBAL_PASSWORD ?? '@Ergo!2026/Adm';
 
 function generateValidCnpj() {
   const n = [];

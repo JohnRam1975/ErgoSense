@@ -1,7 +1,11 @@
 /**
- * Notificações por e-mail — stub enterprise (stdout/SIEM; integrar SMTP depois)
+ * Notificações por e-mail — atualização futura (SMTP).
+ * Hoje: apenas log estruturado (stdout). Integrar provedor SMTP na próxima release.
  */
 import { config } from '../config/env.js';
+
+const SMTP_FUTURE =
+  'SMTP e envio real de e-mail estão planejados para atualização futura (hoje: mode=log).';
 
 export async function sendActivationEmail({ to, companyName, protocolo, activationUrl, tempPassword }) {
   const payload = {
@@ -14,9 +18,10 @@ export async function sendActivationEmail({ to, companyName, protocolo, activati
     activationUrl,
     tempPasswordHint: tempPassword ? '***' : null,
     service: config.observability.serviceName,
+    note: SMTP_FUTURE,
   };
   console.log(JSON.stringify(payload));
-  return { sent: true, mode: 'log' };
+  return { sent: true, mode: 'log', future: 'smtp' };
 }
 
 export async function sendRejectionEmail({ to, companyName, protocolo, reason }) {
@@ -28,9 +33,10 @@ export async function sendRejectionEmail({ to, companyName, protocolo, reason })
       companyName,
       protocolo,
       reason,
+      note: SMTP_FUTURE,
     }),
   );
-  return { sent: true, mode: 'log' };
+  return { sent: true, mode: 'log', future: 'smtp' };
 }
 
 export async function sendAdjustmentRequestEmail({ to, companyName, protocolo, message }) {
@@ -42,7 +48,8 @@ export async function sendAdjustmentRequestEmail({ to, companyName, protocolo, m
       companyName,
       protocolo,
       message,
+      note: SMTP_FUTURE,
     }),
   );
-  return { sent: true, mode: 'log' };
+  return { sent: true, mode: 'log', future: 'smtp' };
 }

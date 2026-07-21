@@ -1,0 +1,125 @@
+# ErgoSense — Deploy Hostinger (Docker Manager)
+# ⚠️ Sem `build:` — Hostinger só faz pull de imagens.
+#
+# Preparação (no seu PC / CI):
+#   .\scripts\docker\build-and-push.ps1 -Registry SEU_USER -Tag 1.0.0
+#
+# No Hostinger Docker Manager:
+#   Cole este compose + variáveis do .env.example
+#   Projeto: ergosense
+#
+# Atualizar depois:
+#   Push novas tags → Update project no Docker Manager (pull + recreate)
+
+name: ergosense
+
+services:
+  postgres:
+    image: ${IMAGE_REGISTRY}/ergosense-postgres:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ergosense}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD}
+    volumes:
+      - ergosense_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks: [ergosense]
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - ergosense_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks: [ergosense]
+
+  api:
+    image: ${IMAGE_REGISTRY}/ergosense-api:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
+      PGHOST: postgres
+      PGPORT: 5432
+      PGDATABASE: ${POSTGRES_DB:-ergosense}
+      PGUSER: ${POSTGRES_USER:-postgres}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_ENABLED: "true"
+      REDIS_URL: redis://redis:6379
+      CACHE_ENABLED: "true"
+      SESSION_REDIS_ENABLED: "true"
+      RABBITMQ_ENABLED: "false"
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-database}
+      TRUST_PROXY: "true"
+      CSRF_ENABLED: ${CSRF_ENABLED:-true}
+      MFA_ENABLED: ${MFA_ENABLED:-true}
+      CORS_ORIGINS: ${CORS_ORIGINS:?defina CORS_ORIGINS com https://seu-dominio}
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:?defina APP_PUBLIC_URL}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?defina JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?defina JWT_REFRESH_SECRET}
+      MFA_ENCRYPTION_KEY: ${MFA_ENCRYPTION_KEY:-}
+      MFA_PENDING_SECRET: ${MFA_PENDING_SECRET:-}
+      RATE_LIMIT_SKIP_DEV: "false"
+      METRICS_ENABLED: "true"
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      AI_PROVIDER: ${AI_PROVIDER:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      SEED_GLOBAL_ADMIN_EMAIL: ${SEED_GLOBAL_ADMIN_EMAIL:-}
+      SEED_GLOBAL_ADMIN_PASSWORD: ${SEED_GLOBAL_ADMIN_PASSWORD:-}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 20s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+    networks: [ergosense]
+
+  web:
+    image: ${IMAGE_REGISTRY}/ergosense-web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${PUBLIC_HTTP_PORT:-80}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+    networks: [ergosense]
+
+volumes:
+  ergosense_pgdata:
+  ergosense_redis:
+
+networks:
+  ergosense:
+    driver: bridge

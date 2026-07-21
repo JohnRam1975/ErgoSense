@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { SECTORS, TURNOS } from '../data/constants';
+import { SECTORS, TURNOS, SELF_COLLABORATOR_MATRICULA } from '../data/constants';
 import { ACTIVITY_PROFILES, activitiesForContext, contextLabel, profileForContext, type ActivityContext } from '../data/activityProfiles';
 import { ErgoSenseLogo } from '../components/ErgoSenseLogo';
 import { AnalysisVideoPlayer } from '../components/AnalysisVideoPlayer';
@@ -38,6 +38,15 @@ import { LoadObjectTapLayer } from '../components/LoadObjectTapLayer';
 import type { ScreenPoint } from '../utils/measureLoadDistance';
 import { useLoadDistanceTracker } from '../hooks/useLoadDistanceTracker';
 import { trackLoadDistance, type LoadDistanceTrackResult } from '../utils/trackLoadDistance';
+import { playRiskSoundAlert } from '../utils/soundAlert';
+import { shareAnalysisResult } from '../utils/shareAnalysis';
+
+const EDIT_COLLAB_KEY = 'ergosense_edit_collab_id';
+
+export function openCollaboratorEditor(id: string | null) {
+  if (id) sessionStorage.setItem(EDIT_COLLAB_KEY, id);
+  else sessionStorage.removeItem(EDIT_COLLAB_KEY);
+}
 
 export function NewCollabScreen() {
   const { go, saveCollaborator, sectors, collaborators, selectedCompany, showToast } = useApp();
@@ -48,6 +57,7 @@ export function NewCollabScreen() {
     return merged.length ? merged : SECTORS;
   }, [sectors, collaborators]);
 
+  const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: '',
     matricula: '',
@@ -59,14 +69,39 @@ export function NewCollabScreen() {
     consent: true,
   });
 
+  useEffect(() => {
+    const id = sessionStorage.getItem(EDIT_COLLAB_KEY);
+    sessionStorage.removeItem(EDIT_COLLAB_KEY);
+    if (!id) {
+      setEditId(null);
+      return;
+    }
+    const existing = collaborators.find((c) => c.id === id);
+    if (!existing) {
+      setEditId(null);
+      return;
+    }
+    setEditId(existing.id);
+    setForm({
+      name: existing.name,
+      matricula: existing.matricula,
+      cargo: existing.cargo,
+      setor: existing.setor || sectorOptions[0] || SECTORS[0],
+      turno: existing.turno || TURNOS[0],
+      birthDate: existing.birthDate ?? '',
+      notes: existing.notes ?? '',
+      consent: existing.consent,
+    });
+  }, [collaborators, sectorOptions]);
+
   const set = (k: string, v: string | boolean) => setForm((f) => ({ ...f, [k]: v }));
 
   return (
     <>
-      <NavHeader back={() => go('collabs')} title="Novo Funcionário" home={() => go('dashboard')} />
+      <NavHeader back={() => go('collabs')} title={editId ? 'Editar Colaborador' : 'Novo Colaborador'} home={() => go('dashboard')} />
       <div className="scroll">
         <div style={{ fontSize: 12, color: 'var(--t1)', marginBottom: 12 }}>
-          Empresa: <strong style={{ color: 'var(--amber)' }}>{selectedCompany.name}</strong>
+          {editId ? 'Edição' : 'Cadastro'} interno da empresa <strong style={{ color: 'var(--amber)' }}>{selectedCompany.name}</strong>
         </div>
         <label className="lbl">Nome completo *</label>
         <input className="inp" value={form.name} onChange={(e) => set('name', e.target.value)} autoComplete="name" />
@@ -127,10 +162,16 @@ export function NewCollabScreen() {
               showToast('Nome e matrícula são obrigatórios', 'warn');
               return;
             }
-            saveCollaborator({ ...form, consentDate: `${formatDateBR()} ${formatTimeBR()}` });
+            saveCollaborator({
+              ...(editId ? { id: editId } : {}),
+              ...form,
+              consentDate: editId
+                ? collaborators.find((c) => c.id === editId)?.consentDate || `${formatDateBR()} ${formatTimeBR()}`
+                : `${formatDateBR()} ${formatTimeBR()}`,
+            });
           }}
         >
-          Salvar Funcionário
+          {editId ? 'Salvar alterações' : 'Salvar Funcionário'}
         </button>
         <button className="btn bs" onClick={() => go('collabs')}>
           Cancelar
@@ -143,69 +184,29 @@ export function NewCollabScreen() {
   );
 }
 
+
 export function SectorsScreen() {
-  const { go, analyses, collaborators, showToast, showModal } = useApp();
-
-  const sectorData = SECTORS.slice(0, 3).map((name, i) => {
-    const sectorAnalyses = analyses.filter((a) => a.setor === name);
-    const sectorCollabs = collaborators.filter((c) => c.setor === name);
-    const avgScore = sectorAnalyses.length
-      ? Math.round(sectorAnalyses.reduce((s, a) => s + a.score, 0) / sectorAnalyses.length)
-      : [78, 54, 28][i];
-    const alerts = sectorAnalyses.filter((a) => a.risk === 'critico' || a.risk === 'alto').length;
-    const risks: Array<'critico' | 'medio' | 'baixo'> = ['critico', 'medio', 'baixo'];
-    const cardClass = ['cr', 'ca', 'cg'][i];
-    return { name, collabs: sectorCollabs.length || [28, 16, 22][i], analyses: sectorAnalyses.length || [14, 9, 11][i], alerts: alerts || [3, 1, 0][i], avgScore, risk: risks[i], cardClass };
-  });
-
-  return (
-    <>
-      <NavHeader
-        back={() => go('dashboard')}
-        title="Setores"
-        action={{ icon: '＋', onClick: () => showModal('Novo Setor', 'Em breve: formulário para adicionar setor. Disponível na Etapa 3.', 'OK') }}
-      />
-      <div className="scroll">
-        {sectorData.map((s) => (
-          <div key={s.name} className={`card ${s.cardClass}`} style={{ cursor: 'pointer' }} onClick={() => showToast(`Setor ${s.name} selecionado`, 'info')}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <div style={{ fontFamily: 'var(--fd)', fontSize: 18, fontWeight: 800, color: 'var(--t0)', textTransform: 'uppercase' }}>{s.name}</div>
-                <div style={{ fontSize: 12, color: 'var(--t1)', marginTop: 2 }}>{s.collabs} colaboradores</div>
-              </div>
-              <div className={`badge ${riskBadgeClass(s.risk)}`}>{riskLabel(s.risk)}</div>
-            </div>
-            <div className="sep" style={{ margin: '10px 0' }} />
-            <div style={{ display: 'flex', gap: 22 }}>
-              <div>
-                <div style={{ fontFamily: 'var(--fd)', fontSize: 22, fontWeight: 800, color: s.risk === 'critico' ? 'var(--red)' : s.risk === 'medio' ? 'var(--amber)' : 'var(--green)' }}>{s.analyses}</div>
-                <div style={{ fontSize: 9, color: 'var(--t1)', fontFamily: 'var(--fd)', letterSpacing: 1, textTransform: 'uppercase' }}>Análises</div>
-              </div>
-              <div>
-                <div style={{ fontFamily: 'var(--fd)', fontSize: 22, fontWeight: 800, color: 'var(--amber)' }}>{s.alerts}</div>
-                <div style={{ fontSize: 9, color: 'var(--t1)', fontFamily: 'var(--fd)', letterSpacing: 1, textTransform: 'uppercase' }}>Alertas</div>
-              </div>
-              <div>
-                <div style={{ fontFamily: 'var(--fd)', fontSize: 22, fontWeight: 800, color: 'var(--t1)' }}>{s.avgScore}</div>
-                <div style={{ fontSize: 9, color: 'var(--t1)', fontFamily: 'var(--fd)', letterSpacing: 1, textTransform: 'uppercase' }}>Score méd.</div>
-              </div>
-            </div>
-            <button className="btn bp btn-sm mt12 mb0" onClick={(e) => { e.stopPropagation(); go('new-analysis'); }}>
-              📷 Iniciar Análise
-            </button>
-          </div>
-        ))}
-        <button className="btn bs btn-sm mt4" onClick={() => go('dashboard')}>
-          🏠 Voltar ao Início
-        </button>
-      </div>
-    </>
-  );
+  const { go } = useApp();
+  useEffect(() => {
+    go('sectors');
+  }, [go]);
+  return null;
 }
 
 export function NewAnalysisScreen() {
-  const { go, collaborators, analysisDraft, setAnalysisDraft, analysisMode, setAnalysisMode, showToast, sectors, selectedCompany } =
-    useApp();
+  const {
+    go,
+    collaborators,
+    analysisDraft,
+    setAnalysisDraft,
+    analysisMode,
+    setAnalysisMode,
+    showToast,
+    sectors,
+    selectedCompany,
+    ensureSelfCollaborator,
+    captureAnalysis,
+  } = useApp();
 
   const prevCtxRef = useRef(analysisDraft.activityContext);
   useEffect(() => {
@@ -222,7 +223,84 @@ export function NewAnalysisScreen() {
     return [...new Set([...fromDb, ...fromCollabs, ...SECTORS])];
   }, [sectors, collaborators]);
 
-  const canStart = collaborators.length > 0;
+  const teamCollaborators = useMemo(
+    () => collaborators.filter((c) => c.matricula !== SELF_COLLABORATOR_MATRICULA),
+    [collaborators],
+  );
+
+  const [captureMethod, setCaptureMethod] = useState<'camera' | 'manual'>('camera');
+  const [manualAngles, setManualAngles] = useState({
+    lombar: 15,
+    pescoco: 10,
+    ombroD: 45,
+    cotovelo: 90,
+    dorso: 10,
+    repeticao: 4,
+  });
+  const [starting, setStarting] = useState(false);
+
+  const setAngle = (key: keyof typeof manualAngles, value: string) => {
+    const n = Number(value);
+    setManualAngles((a) => ({ ...a, [key]: Number.isFinite(n) ? n : 0 }));
+  };
+
+  const prepareCollaborator = async () => {
+    if (!analysisDraft.collaboratorId) {
+      await ensureSelfCollaborator();
+    }
+  };
+
+  const handleStartCamera = () => {
+    void (async () => {
+      setStarting(true);
+      try {
+        await prepareCollaborator();
+        go('camera');
+      } catch (err) {
+        showToast(err instanceof Error ? err.message : 'Não foi possível iniciar a análise', 'warn');
+      } finally {
+        setStarting(false);
+      }
+    })();
+  };
+
+  const handleFinishManual = () => {
+    void (async () => {
+      setStarting(true);
+      try {
+        await prepareCollaborator();
+        const angles = {
+          ...EMPTY_JOINT_ANGLES,
+          lombar: manualAngles.lombar,
+          pescoco: manualAngles.pescoco,
+          ombroD: manualAngles.ombroD,
+          cotovelo: manualAngles.cotovelo,
+          dorso: manualAngles.dorso,
+          repeticao: manualAngles.repeticao,
+          maoD: 140,
+          quadril: 95,
+          joelhoD: 90,
+          tornozeloD: 90,
+        };
+        const notes = analysisDraft.notes.trim();
+        const notesOverride =
+          notes.toLowerCase().includes('observação manual') || notes.toLowerCase().includes('observacao manual')
+            ? notes
+            : notes
+              ? `${notes} · Observação manual (sem câmera)`
+              : 'Observação manual (sem câmera)';
+        await captureAnalysis(angles, undefined, undefined, undefined, undefined, {
+          sessionSampleCount: 1,
+          autoGenerateReport: true,
+          notesOverride,
+        });
+      } catch (err) {
+        showToast(err instanceof Error ? err.message : 'Não foi possível salvar a análise', 'warn');
+      } finally {
+        setStarting(false);
+      }
+    })();
+  };
 
   return (
     <>
@@ -239,32 +317,31 @@ export function NewAnalysisScreen() {
             </div>
           </div>
         </div>
-        {!canStart ? (
-          <div className="hl-r" style={{ marginBottom: 14 }}>
-            <p style={{ fontSize: 13, color: 'var(--t0)', margin: '0 0 12px' }}>
-              Cadastre pelo menos um funcionário antes de iniciar a avaliação ergonômica.
-            </p>
-            <button type="button" className="btn bp" onClick={() => go('new-collab')}>
-              Cadastrar funcionário
-            </button>
-          </div>
-        ) : (
+        {teamCollaborators.length > 0 && (
           <>
-        <label className="lbl">Funcionário *</label>
-        <select
-          className="inp"
-          value={analysisDraft.collaboratorId}
-          onChange={(e) => {
-            const c = collaborators.find((x) => x.id === e.target.value);
-            setAnalysisDraft({ collaboratorId: e.target.value, setor: c?.setor ?? analysisDraft.setor });
-          }}
-        >
-          {collaborators.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name} — Mat. {c.matricula}
-            </option>
-          ))}
-        </select>
+            <label className="lbl">Funcionário (opcional)</label>
+            <select
+              className="inp"
+              value={analysisDraft.collaboratorId}
+              onChange={(e) => {
+                const id = e.target.value;
+                if (!id) {
+                  setAnalysisDraft({ collaboratorId: '' });
+                  return;
+                }
+                const c = teamCollaborators.find((x) => x.id === id);
+                setAnalysisDraft({ collaboratorId: id, setor: c?.setor ?? analysisDraft.setor });
+              }}
+            >
+              <option value="">—</option>
+              {teamCollaborators.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} — Mat. {c.matricula}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
         <label className="lbl">Setor *</label>
         <select className="inp" value={analysisDraft.setor} onChange={(e) => setAnalysisDraft({ setor: e.target.value })}>
           {sectorOptions.map((s) => (
@@ -305,48 +382,123 @@ export function NewAnalysisScreen() {
             setAnalysisDraft({ loadAssessment: { manual: patch } })
           }
         />
+
         <div style={{ background: 'var(--bg2)', border: '1px solid var(--b1)', borderRadius: 14, padding: 14, marginBottom: 14 }}>
           <div style={{ fontFamily: 'var(--fd)', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: 'var(--t1)', textTransform: 'uppercase', marginBottom: 11 }}>
-            Modo de Análise
+            Forma de captura
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
             <div
-              style={{ display: 'flex', alignItems: 'center', gap: 11, padding: 12, background: analysisMode === 'complete' ? 'var(--a10)' : 'var(--bg1)', border: `1px solid ${analysisMode === 'complete' ? 'var(--a35)' : 'var(--b1)'}`, borderRadius: 11, cursor: 'pointer' }}
-              onClick={() => { setAnalysisMode('complete'); showToast('Modo: Análise Completa (Servidor)', 'info'); }}
+              style={{ display: 'flex', alignItems: 'center', gap: 11, padding: 12, background: captureMethod === 'camera' ? 'var(--a10)' : 'var(--bg1)', border: `1px solid ${captureMethod === 'camera' ? 'var(--a35)' : 'var(--b1)'}`, borderRadius: 11, cursor: 'pointer' }}
+              onClick={() => setCaptureMethod('camera')}
             >
-              <div style={{ width: 20, height: 20, borderRadius: '50%', background: analysisMode === 'complete' ? 'var(--amber)' : 'var(--bg3)', border: analysisMode === 'complete' ? 'none' : '1.5px solid var(--b2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, flexShrink: 0, color: '#09090d', fontWeight: 800 }}>
-                {analysisMode === 'complete' ? '✓' : ''}
+              <div style={{ width: 20, height: 20, borderRadius: '50%', background: captureMethod === 'camera' ? 'var(--amber)' : 'var(--bg3)', border: captureMethod === 'camera' ? 'none' : '1.5px solid var(--b2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, flexShrink: 0, color: '#09090d', fontWeight: 800 }}>
+                {captureMethod === 'camera' ? '✓' : ''}
               </div>
               <div>
-                <div style={{ fontFamily: 'var(--fd)', fontSize: 14, fontWeight: 700, color: analysisMode === 'complete' ? 'var(--amber)' : 'var(--t1)', textTransform: 'uppercase' }}>Análise Completa</div>
-                <div style={{ fontSize: 11, color: 'var(--t1)' }}>Câmera + MediaPipe Servidor</div>
+                <div style={{ fontFamily: 'var(--fd)', fontSize: 14, fontWeight: 700, color: captureMethod === 'camera' ? 'var(--amber)' : 'var(--t1)', textTransform: 'uppercase' }}>Com câmera</div>
+                <div style={{ fontSize: 11, color: 'var(--t1)' }}>Leitura postural por vídeo / pose</div>
               </div>
             </div>
             <div
-              style={{ display: 'flex', alignItems: 'center', gap: 11, padding: 12, background: analysisMode === 'offline' ? 'var(--a10)' : 'var(--bg1)', border: `1px solid ${analysisMode === 'offline' ? 'var(--a35)' : 'var(--b1)'}`, borderRadius: 11, cursor: 'pointer' }}
-              onClick={() => { setAnalysisMode('offline'); showToast('Modo: Análise Offline (Local TFLite)', 'info'); }}
+              style={{ display: 'flex', alignItems: 'center', gap: 11, padding: 12, background: captureMethod === 'manual' ? 'var(--a10)' : 'var(--bg1)', border: `1px solid ${captureMethod === 'manual' ? 'var(--a35)' : 'var(--b1)'}`, borderRadius: 11, cursor: 'pointer' }}
+              onClick={() => setCaptureMethod('manual')}
             >
-              <div style={{ width: 20, height: 20, borderRadius: '50%', background: analysisMode === 'offline' ? 'var(--amber)' : 'var(--bg3)', border: analysisMode === 'offline' ? 'none' : '1.5px solid var(--b2)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: '#09090d', fontWeight: 800 }}>
-                {analysisMode === 'offline' ? '✓' : ''}
+              <div style={{ width: 20, height: 20, borderRadius: '50%', background: captureMethod === 'manual' ? 'var(--amber)' : 'var(--bg3)', border: captureMethod === 'manual' ? 'none' : '1.5px solid var(--b2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, flexShrink: 0, color: '#09090d', fontWeight: 800 }}>
+                {captureMethod === 'manual' ? '✓' : ''}
               </div>
               <div>
-                <div style={{ fontFamily: 'var(--fd)', fontSize: 14, fontWeight: 700, color: analysisMode === 'offline' ? 'var(--amber)' : 'var(--t1)', textTransform: 'uppercase' }}>Análise Offline</div>
-                <div style={{ fontSize: 11, color: 'var(--t2)' }}>TFLite local · sem internet</div>
+                <div style={{ fontFamily: 'var(--fd)', fontSize: 14, fontWeight: 700, color: captureMethod === 'manual' ? 'var(--amber)' : 'var(--t1)', textTransform: 'uppercase' }}>Sem câmera</div>
+                <div style={{ fontSize: 11, color: 'var(--t1)' }}>Observação manual dos ângulos e carga</div>
               </div>
             </div>
           </div>
         </div>
+
+        {captureMethod === 'camera' ? (
+          <>
+            <div style={{ background: 'var(--bg2)', border: '1px solid var(--b1)', borderRadius: 14, padding: 14, marginBottom: 14 }}>
+              <div style={{ fontFamily: 'var(--fd)', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: 'var(--t1)', textTransform: 'uppercase', marginBottom: 11 }}>
+                Modo de Análise
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: 11, padding: 12, background: analysisMode === 'complete' ? 'var(--a10)' : 'var(--bg1)', border: `1px solid ${analysisMode === 'complete' ? 'var(--a35)' : 'var(--b1)'}`, borderRadius: 11, cursor: 'pointer' }}
+                  onClick={() => { setAnalysisMode('complete'); showToast('Modo: Análise Completa (Servidor)', 'info'); }}
+                >
+                  <div style={{ width: 20, height: 20, borderRadius: '50%', background: analysisMode === 'complete' ? 'var(--amber)' : 'var(--bg3)', border: analysisMode === 'complete' ? 'none' : '1.5px solid var(--b2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, flexShrink: 0, color: '#09090d', fontWeight: 800 }}>
+                    {analysisMode === 'complete' ? '✓' : ''}
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: 'var(--fd)', fontSize: 14, fontWeight: 700, color: analysisMode === 'complete' ? 'var(--amber)' : 'var(--t1)', textTransform: 'uppercase' }}>Análise Completa</div>
+                    <div style={{ fontSize: 11, color: 'var(--t1)' }}>Câmera + MediaPipe Servidor</div>
+                  </div>
+                </div>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: 11, padding: 12, background: analysisMode === 'offline' ? 'var(--a10)' : 'var(--bg1)', border: `1px solid ${analysisMode === 'offline' ? 'var(--a35)' : 'var(--b1)'}`, borderRadius: 11, cursor: 'pointer' }}
+                  onClick={() => { setAnalysisMode('offline'); showToast('Modo: Análise Offline (Local TFLite)', 'info'); }}
+                >
+                  <div style={{ width: 20, height: 20, borderRadius: '50%', background: analysisMode === 'offline' ? 'var(--amber)' : 'var(--bg3)', border: analysisMode === 'offline' ? 'none' : '1.5px solid var(--b2)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: '#09090d', fontWeight: 800 }}>
+                    {analysisMode === 'offline' ? '✓' : ''}
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: 'var(--fd)', fontSize: 14, fontWeight: 700, color: analysisMode === 'offline' ? 'var(--amber)' : 'var(--t1)', textTransform: 'uppercase' }}>Análise Offline</div>
+                    <div style={{ fontSize: 11, color: 'var(--t2)' }}>TFLite local · sem internet</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button type="button" className="btn bp" onClick={handleStartCamera} disabled={starting}>
+              {starting ? 'Preparando…' : '📷 Iniciar Leitura com Câmera'}
+            </button>
+          </>
+        ) : (
+          <>
+            <div style={{ background: 'var(--bg2)', border: '1px solid var(--b1)', borderRadius: 14, padding: 14, marginBottom: 14 }}>
+              <div style={{ fontFamily: 'var(--fd)', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: 'var(--t1)', textTransform: 'uppercase', marginBottom: 11 }}>
+                Ângulos observados (graus)
+              </div>
+              <div className="form-row">
+                <div className="form-field">
+                  <label className="lbl">Lombar / tronco</label>
+                  <input className="inp" type="number" min={0} max={90} value={manualAngles.lombar} onChange={(e) => setAngle('lombar', e.target.value)} />
+                </div>
+                <div className="form-field">
+                  <label className="lbl">Pescoço</label>
+                  <input className="inp" type="number" min={0} max={90} value={manualAngles.pescoco} onChange={(e) => setAngle('pescoco', e.target.value)} />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-field">
+                  <label className="lbl">Ombro</label>
+                  <input className="inp" type="number" min={0} max={180} value={manualAngles.ombroD} onChange={(e) => setAngle('ombroD', e.target.value)} />
+                </div>
+                <div className="form-field">
+                  <label className="lbl">Cotovelo</label>
+                  <input className="inp" type="number" min={0} max={180} value={manualAngles.cotovelo} onChange={(e) => setAngle('cotovelo', e.target.value)} />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-field">
+                  <label className="lbl">Dorso</label>
+                  <input className="inp" type="number" min={0} max={90} value={manualAngles.dorso} onChange={(e) => setAngle('dorso', e.target.value)} />
+                </div>
+                <div className="form-field">
+                  <label className="lbl">Repetições / min</label>
+                  <input className="inp" type="number" min={0} max={30} value={manualAngles.repeticao} onChange={(e) => setAngle('repeticao', e.target.value)} />
+                </div>
+              </div>
+            </div>
+            <button type="button" className="btn bp" onClick={handleFinishManual} disabled={starting}>
+              {starting ? 'Salvando…' : '✓ Finalizar análise sem câmera'}
+            </button>
           </>
         )}
-        <button className="btn bp" onClick={() => go('camera')} disabled={!canStart}>
-          📷 Iniciar Leitura com Câmera
-        </button>
+
         <div style={{ fontSize: 11, color: 'var(--t2)', textAlign: 'center', marginTop: 8, marginBottom: 8, lineHeight: 1.5 }}>
-          {canStart
-            ? 'Escritório, campo, obra, montagem, motoristas e demais atividades · PDF NR-17'
-            : 'Cadastre um funcionário acima para habilitar a captura com câmera.'}
+          Escritório, campo, obra, montagem, motoristas e demais atividades · PDF NR-17
         </div>
-        <button className="btn bs" onClick={() => go('dashboard')}>
+        <button type="button" className="btn bs" onClick={() => go('dashboard')}>
           Voltar ao Início
         </button>
       </div>
@@ -366,6 +518,7 @@ export function CameraScreen() {
     showToast,
     analysisDraft,
     setAnalysisDraft,
+    logout,
   } = useApp();
   const activityContext = analysisDraft.activityContext;
   const loadManual = analysisDraft.loadAssessment?.manual ?? DEFAULT_LOAD_MANUAL_INPUT;
@@ -398,7 +551,7 @@ export function CameraScreen() {
     startRecording,
     stopRecording,
     hasPreview,
-  } = useCamera(facingMode, onCameraError);
+  } = useCamera(facingMode, onCameraError, settings.captureQuality);
 
   const onPoseAngles = useCallback(
     (angles: typeof liveAngles) => setLiveAngles(angles),
@@ -671,13 +824,15 @@ export function CameraScreen() {
     }
     if (postureDuration.level === 'critico' && durationToastRef.current !== 'critico') {
       durationToastRef.current = 'critico';
+      if (settings.soundAlerts) playRiskSoundAlert('critico');
       showToast(`Postura de risco há ${Math.floor(postureDuration.streakSecs / 60)}+ min — corrija agora!`, 'warn');
     } else if (postureDuration.level === 'atencao' && durationToastRef.current === 'ok') {
       durationToastRef.current = 'atencao';
+      if (settings.soundAlerts) playRiskSoundAlert('warn');
       showToast('Postura de risco prolongada — ajuste em breve', 'warn');
     }
     if (postureDuration.level === 'ok') durationToastRef.current = 'ok';
-  }, [postureDuration.level, postureDuration.streakSecs, sessionActive, showToast]);
+  }, [postureDuration.level, postureDuration.streakSecs, sessionActive, settings.soundAlerts, showToast]);
 
   const handleToggleSession = () => {
     if (capturing || status === 'loading') return;
@@ -776,7 +931,16 @@ export function CameraScreen() {
                 : 'Toque ⏺ para iniciar · toque ⏹ para encerrar'}
           </span>
         </div>
-        <div className="cam-top-spacer" />
+        <button
+          type="button"
+          className="cam-top-logout"
+          aria-label="Sair da conta"
+          onClick={() =>
+            showModal('Sair da Conta', 'Tem certeza que deseja encerrar a sessão?', 'Sim, Sair', logout)
+          }
+        >
+          Sair
+        </button>
       </div>
       <div className="cam-video-wrap" ref={camWrapRef}>
         {status !== 'error' ? (
@@ -992,8 +1156,23 @@ export function ResultScreen() {
           icon: '📤',
           title: 'Compartilhar',
           onClick: () =>
-            showModal('Compartilhar Resultado', 'Compartilhar o resultado desta análise via e-mail ou WhatsApp?', 'Compartilhar', () =>
-              showToast('Resultado compartilhado!', 'success'),
+            showModal(
+              'Compartilhar Resultado',
+              'Compartilhar o resumo desta análise (Web Share, WhatsApp ou e-mail)?',
+              'Compartilhar',
+              () => {
+                void shareAnalysisResult(a, selectedCompany.name)
+                  .then((via) => {
+                    if (via === 'shared') showToast('Compartilhado', 'success');
+                    else if (via === 'whatsapp') showToast('Abrindo WhatsApp…', 'success');
+                    else if (via === 'clipboard') showToast('Texto copiado e e-mail aberto', 'success');
+                    else showToast('Abrindo cliente de e-mail…', 'info');
+                  })
+                  .catch((err) => {
+                    if (err instanceof DOMException && err.name === 'AbortError') return;
+                    showToast('Não foi possível compartilhar', 'warn');
+                  });
+              },
             ),
         }}
       />

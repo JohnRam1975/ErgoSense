@@ -63,3 +63,61 @@ test('tenantRequestPublicSchema — CNPJ e email', () => {
     true,
   );
 });
+
+test('tenantRequestPublicSchema — autônomo exige CPF e endereço', () => {
+  assert.equal(
+    tenantRequestPublicSchema.safeParse({
+      tipoCadastro: 'AUTONOMO',
+      razaoSocial: 'Maria Souza',
+      cpf: '529.982.247-25',
+      segmento: 'Ergonomia',
+      responsavelNome: 'Maria Souza',
+      email: 'maria@exemplo.com',
+      telefone: '11988887777',
+      password: 'Senha123',
+      confirmPassword: 'Senha123',
+      logradouro: 'Rua das Flores',
+      numero: '100',
+      bairro: 'Centro',
+      cidade: 'São Paulo',
+      estado: 'SP',
+      cep: '01310-100',
+    }).success,
+    true,
+  );
+  assert.equal(
+    tenantRequestPublicSchema.safeParse({
+      tipoCadastro: 'AUTONOMO',
+      razaoSocial: 'Maria Souza',
+      cpf: '529.982.247-25',
+      segmento: 'Ergonomia',
+      responsavelNome: 'Maria Souza',
+      email: 'maria@exemplo.com',
+      telefone: '11988887777',
+    }).success,
+    false,
+  );
+});
+
+test('tenantRequestPublicSchema — autônomo exige senha e confirmação iguais', () => {
+  assert.equal(
+    tenantRequestPublicSchema.safeParse({
+      tipoCadastro: 'AUTONOMO',
+      razaoSocial: 'Maria Souza',
+      cpf: '529.982.247-25',
+      segmento: 'Ergonomia',
+      responsavelNome: 'Maria Souza',
+      email: 'maria@exemplo.com',
+      telefone: '11988887777',
+      password: 'Senha123',
+      confirmPassword: 'Outra123',
+      logradouro: 'Rua das Flores',
+      numero: '100',
+      bairro: 'Centro',
+      cidade: 'São Paulo',
+      estado: 'SP',
+      cep: '01310-100',
+    }).success,
+    false,
+  );
+});

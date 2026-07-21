@@ -48,15 +48,18 @@ export const DEFAULT_ANALYSES: Analysis[] = [
   },
 ];
 
-export const DEFAULT_REPORTS: Report[] = [
-  { id: 'r1', title: 'NR17 · Mai 2026', subtitle: 'Gerado 25/05 · 4.2 MB', size: '4.2 MB', status: 'ready', type: 'NR17' },
-  { id: 'r2', title: 'Beneficiamento · Mai', subtitle: 'Gerado 20/05 · 1.8 MB', size: '1.8 MB', status: 'ready', type: 'setor' },
-  { id: 'r3', title: 'Carlos Ferreira', subtitle: 'Gerando... 67%', size: '—', status: 'generating', progress: 67, type: 'colab' },
-];
+export const DEFAULT_REPORTS: Report[] = [];
+
+export const REPORT_PERIOD_OPTIONS = [
+  { id: '7', label: 'Últimos 7 dias', days: 7 },
+  { id: '30', label: 'Últimos 30 dias', days: 30 },
+  { id: '90', label: 'Últimos 90 dias', days: 90 },
+  { id: 'all', label: 'Todo o histórico', days: null },
+] as const;
 
 export const DEFAULT_SETTINGS: AppSettings = {
   captureQuality: 'HD 1080p',
-  aiEngine: 'Híbrido (Local + Servidor)',
+  aiEngine: 'Análise completa (dispositivo + servidor)',
   skeletonOverlay: true,
   soundAlerts: true,
   autoSync: true,
@@ -70,9 +73,8 @@ export const CAPTURE_QUALITY_OPTIONS = [
 ] as const;
 
 export const AI_ENGINE_OPTIONS = [
-  { id: 'hybrid', label: 'Híbrido (Local + Servidor)', sub: 'TFLite offline + MediaPipe na nuvem', mode: 'complete' as const },
-  { id: 'local', label: 'Local (TFLite Offline)', sub: 'Análise 100% no dispositivo', mode: 'offline' as const },
-  { id: 'server', label: 'Servidor (MediaPipe)', sub: 'Processamento na API ErgoSense', mode: 'complete' as const },
+  { id: 'complete', label: 'Análise completa (dispositivo + servidor)', sub: 'Modo padrão com MediaPipe local', mode: 'complete' as const },
+  { id: 'local', label: 'Somente offline (dispositivo)', sub: 'Análise 100% no dispositivo', mode: 'offline' as const },
 ] as const;
 
 export const SECTORS = [
@@ -92,7 +94,27 @@ export type { ActivityContext } from './activityProfiles';
 
 export const TURNOS = ['Manhã 06h–14h', 'Tarde 14h–22h', 'Noite 22h–06h'];
 
-export const FULLSCREEN_SCREENS = ['splash', 'login', 'request-access', 'register-company', 'global-admin', 'company', 'camera'];
+/** Colaborador implícito para avaliação própria (autônomo / sem equipe) */
+export const SELF_COLLABORATOR_MATRICULA = 'ESP-SELF';
+
+export const FULLSCREEN_SCREENS = [
+  'splash',
+  'login',
+  'request-access',
+  'request-access-autonomo',
+  'activate-account',
+  'register-company',
+  'global-admin',
+  'admin-tenant-requests',
+  'admin-tenant-request-detail',
+  'admin-tenants-active',
+  'admin-tenants-blocked',
+  'admin-tenants-expired',
+  'admin-access-control',
+  'admin-tenant-detail',
+  'company',
+  'camera',
+];
 
 export const MAIN_TAB_SCREENS = ['dashboard', 'history', 'collabs', 'reports'] as const;
 

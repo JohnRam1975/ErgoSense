@@ -1,10 +1,14 @@
 import { ErgoSenseLogo } from './ErgoSenseLogo';
 
+import { useEffect } from 'react';
+
 import { useApp } from '../context/AppContext';
 
 import { BNAV_MAP, DRAWER_MAP, FULLSCREEN_SCREENS, MAIN_TAB_SCREENS } from '../data/constants';
 
 import { vibrate } from '../hooks/useClock';
+
+import { usePwaInstall } from '../hooks/usePwaInstall';
 
 import type { ScreenId } from '../types';
 
@@ -42,7 +46,7 @@ const TAB_TITLES: Partial<Record<ScreenId, string>> = {
 
 export function AppChrome({ screen }: { screen: ScreenId }) {
 
-  const { go, openMenu, session, selectedCompany } = useApp();
+  const { go, openMenu, session, selectedCompany, logout, showModal } = useApp();
 
   if (FULLSCREEN_SCREENS.includes(screen)) return null;
 
@@ -68,6 +72,16 @@ export function AppChrome({ screen }: { screen: ScreenId }) {
             <div className="app-chrome-tenant">
               <div className="app-chrome-meta">{selectedCompany.name}</div>
               <div className="app-chrome-location">{session?.location ?? 'Carajás'}</div>
+              <button
+                type="button"
+                className="btn bd btn-sm btn-inline app-chrome-logout"
+                aria-label="Sair da conta"
+                onClick={() =>
+                  showModal('Sair da Conta', 'Tem certeza que deseja encerrar a sessão?', 'Sim, Sair', logout)
+                }
+              >
+                Sair
+              </button>
             </div>
           </div>
         )}
@@ -140,6 +154,14 @@ export function MenuDrawer() {
 
   } = useApp();
 
+  const { installed: pwaInstalled, downloadApp, openGuide } = usePwaInstall();
+
+  useEffect(() => {
+    if (FULLSCREEN_SCREENS.includes(screen) && menuOpen) closeMenu();
+  }, [screen, menuOpen, closeMenu]);
+
+  if (FULLSCREEN_SCREENS.includes(screen)) return null;
+
 
 
   const drawerActive = DRAWER_MAP[screen] ?? '';
@@ -194,7 +216,7 @@ export function MenuDrawer() {
 
     { id: 'psicossocial-conformidade', icon: '⚖️', label: 'Conformidade Legal', sub: 'NR-1 · ISO 45003 · Guia MTE' },
 
-    { id: 'psicossocial-ia', icon: '🤖', label: 'IA Psicossocial', sub: 'Análise e recomendações' },
+    { id: 'psicossocial-ia', icon: '🤖', label: 'IA Psicossocial', sub: 'Em breve · atualização futura' },
 
     null,
 
@@ -274,17 +296,17 @@ export function MenuDrawer() {
 
     null,
 
-    { id: 'esocial-dashboard', icon: '📡', label: 'eSocial', sub: 'S-2210 · S-2220 · S-2240 · gov.br' },
+    { id: 'esocial-dashboard', icon: '📡', label: 'eSocial', sub: 'Em breve · atualização futura' },
 
-    { id: 'esocial-s2210', icon: '🏥', label: 'S-2210 CAT', sub: 'Comunicação de Acidente' },
+    { id: 'esocial-s2210', icon: '🏥', label: 'S-2210 CAT', sub: 'Em breve' },
 
-    { id: 'esocial-s2220', icon: '🩺', label: 'S-2220 ASO', sub: 'Monitoramento da Saúde' },
+    { id: 'esocial-s2220', icon: '🩺', label: 'S-2220 ASO', sub: 'Em breve' },
 
-    { id: 'esocial-s2240', icon: '⚗️', label: 'S-2240 Agentes', sub: 'Condições Ambientais' },
+    { id: 'esocial-s2240', icon: '⚗️', label: 'S-2240 Agentes', sub: 'Em breve' },
 
-    { id: 'esocial-historico', icon: '📝', label: 'Histórico eSocial', sub: 'Validação · Assinaturas' },
+    { id: 'esocial-historico', icon: '📝', label: 'Histórico eSocial', sub: 'Em breve' },
 
-    { id: 'esocial-config', icon: '🔐', label: 'Config eSocial', sub: 'CNPJ · Certificado ICP-Brasil' },
+    { id: 'esocial-config', icon: '🔐', label: 'Config eSocial', sub: 'Em breve' },
 
     null,
 
@@ -425,6 +447,41 @@ export function MenuDrawer() {
 
           )}
 
+          {!pwaInstalled && (
+            <button
+              type="button"
+              className="di"
+              style={{ marginTop: 4 }}
+              onClick={() => {
+                closeMenu();
+                void downloadApp();
+              }}
+            >
+              <div className="di-ico">⬇</div>
+              <div className="di-txt">
+                <div className="di-lbl">Baixar app</div>
+                <div className="di-sub">PC e celular · instalar PWA</div>
+              </div>
+            </button>
+          )}
+
+          {!pwaInstalled && (
+            <button
+              type="button"
+              className="di"
+              onClick={() => {
+                closeMenu();
+                openGuide();
+              }}
+            >
+              <div className="di-ico">📱</div>
+              <div className="di-txt">
+                <div className="di-lbl">Como instalar</div>
+                <div className="di-sub">Chrome · Edge · Android · iPhone</div>
+              </div>
+            </button>
+          )}
+
           <button
 
             type="button"
@@ -483,13 +540,23 @@ export function MenuDrawer() {
             </button>
           )}
           {!globalSupportMode && (
-            <button type="button" className="btn bs btn-rich" onClick={() => menuGo('company')}>
+            <button
+              type="button"
+              className="btn bs btn-rich"
+              onClick={() => {
+                if (isGlobalAdmin) menuGo('company');
+                else closeMenu();
+              }}
+            >
               <span className="btn-rich-ico">⚙️</span>
               <div className="btn-rich-body">
                 <span className="btn-rich-main">{selectedCompany.name}</span>
-                <span className="btn-rich-sub">{session?.location ?? 'Carajás'} · Trocar empresa</span>
+                <span className="btn-rich-sub">
+                  {session?.location ?? 'Carajás'}
+                  {isGlobalAdmin ? ' · Trocar empresa' : ' · Sua empresa'}
+                </span>
               </div>
-              <span className="btn-rich-chevron">›</span>
+              {isGlobalAdmin ? <span className="btn-rich-chevron">›</span> : null}
             </button>
           )}
         </div>

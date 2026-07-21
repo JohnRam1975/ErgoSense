@@ -1,20 +1,13 @@
 {
-  "generatedAt": "2026-07-02T13:47:16.374Z",
+  "generatedAt": "2026-07-21T19:13:01.110Z",
   "base": "http://localhost:3001",
   "bySeverity": {
     "CRÍTICO": 0,
     "ALTO": 0,
     "MÉDIO": 0,
-    "BAIXO": 11
+    "BAIXO": 9
   },
   "findings": [
-    {
-      "severity": "BAIXO",
-      "category": "IDOR",
-      "title": "Cross-tenant bloqueado",
-      "detail": "HTTP 403",
-      "fixed": false
-    },
     {
       "severity": "BAIXO",
       "category": "SQLi",
@@ -24,16 +17,9 @@
     },
     {
       "severity": "BAIXO",
-      "category": "XSS",
-      "title": "Criação colaborador XSS rejeitada",
-      "detail": "HTTP 403",
-      "fixed": false
-    },
-    {
-      "severity": "BAIXO",
       "category": "CSRF",
       "title": "API usa Bearer (não cookie-only)",
-      "detail": "GET autenticado HTTP 200",
+      "detail": "GET autenticado HTTP 401",
       "fixed": false
     },
     {

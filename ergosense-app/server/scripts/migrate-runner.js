@@ -38,6 +38,8 @@ const ORDERED_MIGRATIONS = [
   'migrate-psico-campanha-links.js',
   'migrate-enterprise.js',
   'migrate-tenant-onboarding.js',
+  'migrate-autonomo-cadastro.js',
+  'migrate-autonomo-senha.js',
 ];
 
 async function ensureMigrationTable(client) {

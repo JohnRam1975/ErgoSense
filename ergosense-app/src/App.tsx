@@ -3,15 +3,18 @@ import { useApp } from './context/AppContext';
 import { StatusBar, Toast, Modal } from './components/UI';
 import { AppChrome, MenuDrawer } from './components/Navigation';
 import { SupportModeBar, SupportModeCameraExit } from './components/SupportModeBar';
+import { PwaInstallBanner, PwaInstallGuide } from './components/PwaInstallBanner';
 import { useHaptic } from './hooks/useHaptic';
 import { SplashScreen, LoginScreen, RegisterCompanyScreen, CompanyScreen, DashboardScreen, CollabsScreen } from './screens/MainScreens';
 import {
   TenantRequestAccessScreen,
-  EmployeeAccessRequestScreen,
+  AutonomoRequestAccessScreen,
   ActivateAccountScreen,
   AdminTenantRequestsScreen,
   AdminTenantRequestDetailScreen,
   AdminTenantsListScreen,
+  AdminAccessControlScreen,
+  AdminTenantDetailScreen,
 } from './screens/TenantOnboardingScreens';
 import { GlobalAdminScreen } from './screens/AdminScreens';
 import { SupportAccessScreen } from './screens/SupportScreens';
@@ -102,13 +105,15 @@ const SCREENS: Record<ScreenId, React.ComponentType> = {
   splash: SplashScreen,
   login: LoginScreen,
   'request-access': TenantRequestAccessScreen,
-  'employee-access-request': EmployeeAccessRequestScreen,
+  'request-access-autonomo': AutonomoRequestAccessScreen,
   'activate-account': ActivateAccountScreen,
   'admin-tenant-requests': AdminTenantRequestsScreen,
   'admin-tenant-request-detail': AdminTenantRequestDetailScreen,
   'admin-tenants-active': () => <AdminTenantsListScreen filter="active" />,
   'admin-tenants-blocked': () => <AdminTenantsListScreen filter="blocked" />,
   'admin-tenants-expired': () => <AdminTenantsListScreen filter="expired" />,
+  'admin-access-control': AdminAccessControlScreen,
+  'admin-tenant-detail': AdminTenantDetailScreen,
   'register-company': RegisterCompanyScreen,
   'global-admin': GlobalAdminScreen,
   'support-access': SupportAccessScreen,
@@ -192,13 +197,14 @@ const SCREEN_CLASSES: Partial<Record<ScreenId, string>> = {
   splash: 'screen-splash',
   login: 'screen-login',
   'request-access': 'screen-login',
-  'employee-access-request': 'screen-login',
+  'request-access-autonomo': 'screen-login',
   'activate-account': 'screen-login',
   'admin-tenant-requests': 'screen-global-admin',
   'admin-tenant-request-detail': 'screen-global-admin',
   'admin-tenants-active': 'screen-global-admin',
   'admin-tenants-blocked': 'screen-global-admin',
   'admin-tenants-expired': 'screen-global-admin',
+  'admin-access-control': 'screen-global-admin',
   'register-company': 'screen-login screen-admin-form',
   'global-admin': 'screen-global-admin',
   camera: 'screen-camera',
@@ -232,10 +238,12 @@ export default function App() {
     screen === 'camera' ||
     screen === 'login' ||
     screen === 'request-access' ||
-    screen === 'employee-access-request' ||
+    screen === 'request-access-autonomo' ||
     screen === 'activate-account' ||
     screen === 'register-company' ||
     screen === 'global-admin' ||
+    screen === 'admin-access-control' ||
+    screen.startsWith('admin-tenant') ||
     screen === 'splash' ||
     globalSupportMode;
   useHaptic();
@@ -247,6 +255,9 @@ export default function App() {
     if (window.location.pathname.match(/^\/request-access\/?$/i)) {
       go('request-access', { instant: true });
     }
+    if (window.location.pathname.match(/^\/request-access-autonomo\/?$/i)) {
+      go('request-access-autonomo', { instant: true });
+    }
   }, [go]);
 
   useEffect(() => {
@@ -255,6 +266,7 @@ export default function App() {
       screen === 'global-admin' ||
       screen.startsWith('admin-tenant') ||
       screen.startsWith('admin-tenants') ||
+      screen === 'admin-access-control' ||
       (screen === 'register-company' && isGlobalAdmin);
     root?.classList.toggle('admin-desktop', adminDesktop);
     root?.classList.toggle('support-mode-active', globalSupportMode);
@@ -278,6 +290,8 @@ export default function App() {
       <main className="app-main">
         <ScreenRouter />
       </main>
+      {!hideStatusBar && <PwaInstallBanner />}
+      <PwaInstallGuide />
     </>
   );
 }

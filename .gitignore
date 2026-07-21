@@ -49,3 +49,8 @@ ergosense-app/server/integration-*.log
 # Tools cache
 .tools/
 .claude/
+
+# Vite PWA temp
+dev-dist/
+**/dev-dist/
+

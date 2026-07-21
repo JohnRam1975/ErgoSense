@@ -1,0 +1,97 @@
+/**
+ * PADRÃO GLOBAL DE BOTÕES — fonte única, carregada por último.
+ * Qualquer .btn no app (atual ou futuro) herda este tamanho.
+ * NÃO use width:100%, flex:1, fontSize/padding inline em botões.
+ * Exceção de layout em linha inteira: apenas .btn-list e .btn-rich (menus).
+ */
+
+#root .btn:not(.btn-list):not(.btn-rich),
+#root button.btn:not(.btn-list):not(.btn-rich),
+#root a.btn:not(.btn-list):not(.btn-rich) {
+  width: auto !important;
+  max-width: 100% !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 7px 14px !important;
+  min-height: 32px !important;
+  max-height: 36px !important;
+  height: auto !important;
+  margin-bottom: 8px;
+  border-radius: 10px !important;
+  box-sizing: border-box !important;
+  font-family: var(--fd) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  line-height: 1.2 !important;
+  white-space: nowrap;
+}
+
+#root .btn.btn-sm:not(.btn-list):not(.btn-rich),
+#root .btn.btn-inline:not(.btn-list):not(.btn-rich) {
+  padding: 7px 14px !important;
+  font-size: 10px !important;
+  min-height: 32px !important;
+  max-height: 36px !important;
+  margin-bottom: 6px;
+}
+
+#root .btn.btn-inline {
+  margin-bottom: 0 !important;
+}
+
+#root .btn.btn-icon {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  max-width: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  padding: 0 !important;
+  margin-bottom: 0 !important;
+  font-size: 15px !important;
+  white-space: normal;
+}
+
+#root .btn.btn-list,
+#root .btn.btn-rich {
+  width: 100% !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  height: auto !important;
+  flex: 1 1 auto !important;
+  white-space: normal;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-size: 12px !important;
+  padding: 10px 12px !important;
+}
+
+#root .login-back-btn {
+  width: auto !important;
+  min-width: 72px !important;
+  padding: 7px 12px !important;
+  font-size: 10px !important;
+  min-height: 32px !important;
+  max-height: 36px !important;
+  margin-bottom: 0 !important;
+}
+
+#root .history-activity-btn {
+  width: auto !important;
+}
+
+#root .btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+#root .btn-row > .btn {
+  margin-bottom: 0 !important;
+}

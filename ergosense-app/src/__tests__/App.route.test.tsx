@@ -18,6 +18,12 @@ vi.mock('../context/AppContext', () => ({
 
 vi.mock('../hooks/useHaptic', () => ({ useHaptic: () => {} }));
 
+vi.mock('../components/PwaInstallBanner', () => ({
+  PwaInstallBanner: () => null,
+  PwaInstallGuide: () => null,
+  PwaDownloadCard: () => null,
+}));
+
 vi.mock('../components/Navigation', () => ({
   AppChrome: () => <div data-testid="chrome" />,
   MenuDrawer: () => null,
@@ -126,11 +132,13 @@ vi.mock('../screens/SstScreens', () => ({
 }));
 vi.mock('../screens/TenantOnboardingScreens', () => ({
   TenantRequestAccessScreen: () => null,
-  EmployeeAccessRequestScreen: () => null,
+  AutonomoRequestAccessScreen: () => null,
   ActivateAccountScreen: () => null,
   AdminTenantRequestsScreen: () => null,
   AdminTenantRequestDetailScreen: () => null,
   AdminTenantsListScreen: () => null,
+  AdminAccessControlScreen: () => null,
+  AdminTenantDetailScreen: () => null,
 }));
 vi.mock('../screens/AdminScreens', () => ({ GlobalAdminScreen: () => null }));
 vi.mock('../screens/SupportScreens', () => ({ SupportAccessScreen: () => null }));

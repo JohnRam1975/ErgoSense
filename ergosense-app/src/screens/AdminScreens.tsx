@@ -66,6 +66,10 @@ export function GlobalAdminScreen() {
             <span className="admin-nav-ico">🏢</span>
             <span>Empresas</span>
           </button>
+          <button type="button" className="admin-nav-item" onClick={() => go('admin-access-control')}>
+            <span className="admin-nav-ico">🔑</span>
+            <span>Controle de Acesso</span>
+          </button>
           <button type="button" className="admin-nav-item" onClick={() => go('admin-tenant-requests')}>
             <span className="admin-nav-ico">📋</span>
             <span>Solicitações</span>
@@ -112,11 +116,11 @@ export function GlobalAdminScreen() {
             </div>
           </div>
           <div className="admin-topbar-actions">
-            <button type="button" className="btn bp admin-btn-new" onClick={() => go('register-company')}>
+            <button type="button" className="btn bp btn-sm btn-inline admin-btn-new" onClick={() => go('register-company')}>
               + Nova empresa
             </button>
-            <button type="button" className="btn bd btn-icon admin-icon-btn--mobile" onClick={confirmLogout} aria-label="Sair">
-              🚪
+            <button type="button" className="btn bd btn-sm btn-inline" onClick={confirmLogout} aria-label="Sair da conta">
+              Sair
             </button>
           </div>
         </header>
@@ -175,7 +179,7 @@ export function GlobalAdminScreen() {
               <div className="admin-empty-icon">{tab === 'support' ? '🔒' : '🏢'}</div>
               <p>{tab === 'support' ? 'Nenhum tenant com suporte ativo no momento.' : 'Nenhuma empresa encontrada.'}</p>
               {tab === 'all' && (
-                <button type="button" className="btn bp" onClick={() => go('register-company')}>
+                <button type="button" className="btn bp btn-sm btn-inline" onClick={() => go('register-company')}>
                   Cadastrar empresa
                 </button>
               )}
@@ -219,7 +223,11 @@ export function GlobalAdminScreen() {
                           <td>{c.plan}</td>
                           <td>{c.userCount}</td>
                           <td>
-                            <span className={`badge ${c.supportActive ? 'bi' : 'br'}`}>
+                            <span
+                              className={`badge ${
+                                c.supportActive ? 'bi' : c.active ? 'bl' : 'br'
+                              }`}
+                            >
                               {c.supportActive ? 'SUPORTE OK' : c.active ? 'ATIVA' : 'INATIVA'}
                             </span>
                           </td>
@@ -231,14 +239,26 @@ export function GlobalAdminScreen() {
                             </>
                           )}
                           <td className="admin-table-actions">
-                            <button
-                              type="button"
-                              className={`btn ${c.supportActive ? 'bp' : 'bs'} admin-table-btn`}
-                              disabled={!c.supportActive}
-                              onClick={() => openCompany(c.id, c.supportActive)}
-                            >
-                              Acessar ambiente
-                            </button>
+                            <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                              <button
+                                type="button"
+                                className="btn bs btn-sm btn-inline"
+                                onClick={() => {
+                                  sessionStorage.setItem('ergosense_admin_tenant_id', c.id);
+                                  go('admin-tenant-detail');
+                                }}
+                              >
+                                Ver / Editar
+                              </button>
+                              <button
+                                type="button"
+                                className={`btn btn-sm btn-inline ${c.supportActive ? 'bp' : 'bs'} admin-table-btn`}
+                                disabled={!c.supportActive}
+                                onClick={() => openCompany(c.id, c.supportActive)}
+                              >
+                                Acessar ambiente
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -265,13 +285,27 @@ export function GlobalAdminScreen() {
                             Suporte até {formatDateTime(c.supportExpiresAt)} ({timeRemaining(c.supportExpiresAt)})
                           </div>
                         )}
-                        <div className={`badge ${c.supportActive ? 'bi' : 'br'} mt4`}>
-                          {c.supportActive ? 'SUPORTE AUTORIZADO' : 'SEM ACESSO OPERACIONAL'}
+                        <div
+                          className={`badge ${
+                            c.supportActive ? 'bi' : c.active ? 'bl' : 'br'
+                          } mt4`}
+                        >
+                          {c.supportActive ? 'SUPORTE AUTORIZADO' : c.active ? 'ATIVA' : 'INATIVA'}
                         </div>
                       </div>
                       <button
                         type="button"
-                        className={`btn ${c.supportActive ? 'bp' : 'bs'} admin-table-btn`}
+                        className="btn bs btn-sm btn-inline"
+                        onClick={() => {
+                          sessionStorage.setItem('ergosense_admin_tenant_id', c.id);
+                          go('admin-tenant-detail');
+                        }}
+                      >
+                        Ver / Editar
+                      </button>
+                      <button
+                        type="button"
+                        className={`btn btn-sm btn-inline ${c.supportActive ? 'bp' : 'bs'} admin-table-btn`}
                         disabled={!c.supportActive}
                         onClick={() => openCompany(c.id, c.supportActive)}
                       >

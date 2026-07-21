@@ -294,7 +294,7 @@ describe('AppContext', () => {
       const ok = await result.current.login('offline@test.com', 'password1234');
       expect(ok).toBe(true);
     });
-    expect(result.current.screen).toBe('company');
+    expect(result.current.screen).toBe('dashboard');
     expect(result.current.session?.email).toBe('offline@test.com');
   });
 

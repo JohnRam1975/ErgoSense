@@ -79,7 +79,7 @@ API: **http://localhost:3001** · Docs: **http://localhost:3001/api/docs**
 | Perfil | E-mail | Senha |
 |--------|--------|-------|
 | Ergonomista | `lucas@vale.com.br` | `ergo1234` |
-| Admin global | `admin@ergosense.com.br` | `admin1234` |
+| Admin global | `ergosense@dejohn.com.br` | `@Ergo!2026/Adm` |
 
 ---
 

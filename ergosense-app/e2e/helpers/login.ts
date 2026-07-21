@@ -4,8 +4,8 @@ const EMAIL = process.env.E2E_EMAIL ?? process.env.AUDIT_EMAIL ?? 'auditor@ergos
 const PASSWORD = process.env.E2E_PASSWORD ?? process.env.AUDIT_PASS ?? 'AuditTest!2026';
 const FALLBACK_EMAIL = process.env.AUDIT_LEGACY_EMAIL ?? 'lucas@vale.com.br';
 const FALLBACK_PASSWORD = process.env.AUDIT_LEGACY_PASS ?? 'ergo1234';
-const GLOBAL_EMAIL = process.env.E2E_GLOBAL_EMAIL ?? 'admin@ergosense.com.br';
-const GLOBAL_PASSWORD = process.env.E2E_GLOBAL_PASSWORD ?? 'admin1234';
+const GLOBAL_EMAIL = process.env.E2E_GLOBAL_EMAIL ?? 'ergosense@dejohn.com.br';
+const GLOBAL_PASSWORD = process.env.E2E_GLOBAL_PASSWORD ?? '@Ergo!2026/Adm';
 
 /** Aguarda React montar pelo menos uma tela */
 export async function waitForAppBoot(page: Page) {

@@ -1,0 +1,5 @@
+# Postgres ErgoSense — schema base embutido (Hostinger: sem bind mount de SQL)
+FROM postgres:16-alpine
+COPY docs/database/postgresql-schema-full.sql /docker-entrypoint-initdb.d/01-schema.sql
+HEALTHCHECK --interval=10s --timeout=5s --retries=10 \
+  CMD pg_isready -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-ergosense}"

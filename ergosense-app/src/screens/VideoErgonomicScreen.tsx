@@ -5,6 +5,7 @@ import { AnalysisVideoPlayer } from '../components/AnalysisVideoPlayer';
 import { SkeletonOverlay } from '../components/SkeletonOverlay';
 import { VideoErgoExecutivePanel } from '../components/VideoErgoExecutivePanel';
 import { useApp } from '../context/AppContext';
+import { SELF_COLLABORATOR_MATRICULA } from '../data/constants';
 import { useCamera } from '../hooks/useCamera';
 import { usePoseDetection } from '../hooks/usePoseDetection';
 import { useVideoErgonomicAnalysis } from '../hooks/useVideoErgonomicAnalysis';
@@ -27,6 +28,8 @@ export function VideoErgonomicScreen() {
     go,
     captureVideoAnalysis,
     currentAnalysis,
+    ensureSelfCollaborator,
+    settings,
   } = useApp();
 
   const [tab, setTab] = useState<TabId>('capture');
@@ -39,7 +42,18 @@ export function VideoErgonomicScreen() {
   const startTimeRef = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const teamCollaborators = useMemo(
+    () => collaborators.filter((c) => c.matricula !== SELF_COLLABORATOR_MATRICULA),
+    [collaborators],
+  );
   const collab = collaborators.find((c) => c.id === selectedCollabId);
+
+  const resolveCollabId = useCallback(async () => {
+    if (collab) return collab.id;
+    const self = await ensureSelfCollaborator();
+    setSelectedCollabId(self.id);
+    return self.id;
+  }, [collab, ensureSelfCollaborator]);
 
   const baseInput = useMemo(
     () => ({
@@ -62,6 +76,7 @@ export function VideoErgonomicScreen() {
   const { setVideoNode, videoRef, status: cameraStatus, startRecording, stopRecording } = useCamera(
     facing,
     onCameraError,
+    settings.captureQuality,
   );
 
   const onAngles = useCallback((angles: JointAngles) => {
@@ -82,27 +97,31 @@ export function VideoErgonomicScreen() {
   });
 
   const finishAnalysis = useCallback(
-    (result: VideoErgonomicReport, source: 'live' | 'upload', videoBlob?: Blob | null) => {
-      if (!collab) {
-        showToast('Selecione um colaborador', 'warn');
-        return;
+    async (result: VideoErgonomicReport, source: 'live' | 'upload', videoBlob?: Blob | null) => {
+      try {
+        const collabId = await resolveCollabId();
+        captureVideoAnalysis(result, collabId, source, videoBlob ?? null);
+        setTab('results');
+      } catch (err) {
+        showToast(err instanceof Error ? err.message : 'Não foi possível salvar a análise', 'warn');
       }
-      captureVideoAnalysis(result, collab.id, source, videoBlob ?? null);
-      setTab('results');
     },
-    [captureVideoAnalysis, collab, showToast],
+    [captureVideoAnalysis, resolveCollabId, showToast],
   );
 
   const startLive = () => {
-    if (!collab) {
-      showToast('Selecione um colaborador', 'warn');
-      return;
-    }
-    liveSamplesRef.current = [];
-    startTimeRef.current = Date.now();
-    setRecording(true);
-    startRecording();
-    showToast('Análise em tempo real iniciada', 'info');
+    void (async () => {
+      try {
+        await resolveCollabId();
+        liveSamplesRef.current = [];
+        startTimeRef.current = Date.now();
+        setRecording(true);
+        startRecording();
+        showToast('Análise em tempo real iniciada', 'info');
+      } catch (err) {
+        showToast(err instanceof Error ? err.message : 'Não foi possível iniciar', 'warn');
+      }
+    })();
   };
 
   const stopLive = async () => {
@@ -127,14 +146,16 @@ export function VideoErgonomicScreen() {
   };
 
   const handleUpload = async (file: File | null) => {
-    if (!file || !collab) {
-      if (!collab) showToast('Selecione um colaborador', 'warn');
-      return;
-    }
-    const result = await analyzeFromFile(file, 'upload');
-    if (result) {
-      finishAnalysis(result, 'upload', file);
-      showToast(`${result.frameCount} frames analisados`, 'success');
+    if (!file) return;
+    try {
+      await resolveCollabId();
+      const result = await analyzeFromFile(file, 'upload');
+      if (result) {
+        await finishAnalysis(result, 'upload', file);
+        showToast(`${result.frameCount} frames analisados`, 'success');
+      }
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Falha no upload', 'warn');
     }
   };
 
@@ -148,19 +169,21 @@ export function VideoErgonomicScreen() {
         <p className="t2">MediaPipe Pose · RULA · REBA · OWAS · NR-17 · NIOSH</p>
       </div>
 
-      <div className="card" style={{ marginBottom: 12 }}>
-        <div className="card-t">Colaborador</div>
-        <select
-          value={selectedCollabId}
-          onChange={(e) => setSelectedCollabId(e.target.value)}
-          style={{ width: '100%', padding: 8, borderRadius: 8 }}
-        >
-          <option value="">Selecione...</option>
-          {collaborators.map((c) => (
-            <option key={c.id} value={c.id}>{c.name} — {c.setor}</option>
-          ))}
-        </select>
-      </div>
+      {teamCollaborators.length > 0 && (
+        <div className="card" style={{ marginBottom: 12 }}>
+          <div className="card-t">Colaborador (opcional)</div>
+          <select
+            value={selectedCollabId}
+            onChange={(e) => setSelectedCollabId(e.target.value)}
+            style={{ width: '100%', padding: 8, borderRadius: 8 }}
+          >
+            <option value="">—</option>
+            {teamCollaborators.map((c) => (
+              <option key={c.id} value={c.id}>{c.name} — {c.setor}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
         {(['capture', 'results', 'reports'] as TabId[]).map((t) => (

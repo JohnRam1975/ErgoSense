@@ -4,6 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { formatCnpj, isValidCnpj, normalizeCnpj } from '../utils/cnpj.js';
+import { formatCpf, isValidCpf, normalizeCpf } from '../utils/cpf.js';
 
 test('CNPJ válido conhecido', () => {
   assert.equal(isValidCnpj('11.222.333/0001-81'), true);
@@ -23,4 +24,17 @@ test('formatCnpj aplica máscara', () => {
 
 test('CNPJ curto é inválido', () => {
   assert.equal(isValidCnpj('123'), false);
+});
+
+test('CPF válido conhecido', () => {
+  assert.equal(isValidCpf('529.982.247-25'), true);
+});
+
+test('CPF inválido — dígitos repetidos', () => {
+  assert.equal(isValidCpf('111.111.111-11'), false);
+});
+
+test('normalizeCpf e formatCpf', () => {
+  assert.equal(normalizeCpf('529.982.247-25'), '52998224725');
+  assert.equal(formatCpf('52998224725'), '529.982.247-25');
 });

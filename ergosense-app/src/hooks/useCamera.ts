@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { videoConstraintsForQuality } from '../utils/captureQuality';
 import { pickVideoMimeType } from '../utils/videoRecording';
 
 export type CameraStatus = 'idle' | 'loading' | 'ready' | 'recording' | 'paused' | 'error';
@@ -8,7 +9,11 @@ function pickMimeType() {
   return pickVideoMimeType();
 }
 
-export function useCamera(facingMode: 'user' | 'environment', onError?: (msg: string) => void) {
+export function useCamera(
+  facingMode: 'user' | 'environment',
+  onError?: (msg: string) => void,
+  captureQuality = 'HD 720p',
+) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -59,10 +64,11 @@ export function useCamera(facingMode: 'user' | 'environment', onError?: (msg: st
     setStatus('loading');
     setError('');
 
+    const primary = videoConstraintsForQuality(captureQuality, facingMode);
     const attempts: MediaStreamConstraints[] = [
-      { video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
-      { video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
-      { video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+      { video: primary, audio: false },
+      { video: { facingMode: 'user', width: primary.width, height: primary.height }, audio: false },
+      { video: { width: primary.width, height: primary.height }, audio: false },
       { video: true, audio: false },
     ];
 
@@ -104,7 +110,7 @@ export function useCamera(facingMode: 'user' | 'environment', onError?: (msg: st
       return;
     }
 
-    start();
+    void start();
 
     return () => {
       active = false;
@@ -113,7 +119,7 @@ export function useCamera(facingMode: 'user' | 'environment', onError?: (msg: st
       streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     };
-  }, [facingMode, attachStream, startRecorder, onError]);
+  }, [facingMode, captureQuality, attachStream, startRecorder, onError]);
 
   const captureFrame = useCallback((): string | null => {
     const video = videoRef.current;

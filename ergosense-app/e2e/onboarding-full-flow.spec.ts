@@ -11,8 +11,8 @@ import {
   totpFromOtpAuthUrl,
 } from './helpers/onboardingApi';
 
-const GLOBAL_EMAIL = process.env.E2E_GLOBAL_EMAIL ?? 'admin@ergosense.com.br';
-const GLOBAL_PASSWORD = process.env.E2E_GLOBAL_PASSWORD ?? 'admin1234';
+const GLOBAL_EMAIL = process.env.E2E_GLOBAL_EMAIL ?? 'ergosense@dejohn.com.br';
+const GLOBAL_PASSWORD = process.env.E2E_GLOBAL_PASSWORD ?? '@Ergo!2026/Adm';
 
 async function fillInput(page: import('@playwright/test').Page, selector: string, value: string) {
   await page.locator(selector).evaluate((el, v) => {

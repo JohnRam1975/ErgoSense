@@ -19,7 +19,7 @@ import {
 import { validatePassword } from '../auth/password.js';
 import { sanitizeEmail } from '../auth/sanitize.js';
 import { validateBody } from '../validation/validateRequest.js';
-import { loginSchema } from '../validation/schemas.js';
+import { loginSchema, updateProfileSchema } from '../validation/schemas.js';
 import { apiError, apiSuccess } from '../utils/apiResponse.js';
 import { csrfProtection, clearAuthCookies, setCsrfCookie, setRefreshCookie } from '../middleware/csrf.js';
 import { authenticate } from '../middleware/authenticate.js';
@@ -79,7 +79,7 @@ export function registerAuthRoutes(app, { loginRateLimit }) {
       return apiError(res, 'Conta pendente de ativação. Acesse o link enviado por e-mail.', 403);
     }
 
-    if (u.bloqueado || ['BLOQUEADO', 'SUSPENSO', 'EXPIRADO'].includes(u.status_conta)) {
+    if (u.bloqueado || ['BLOQUEADO', 'SUSPENSO', 'EXPIRADO', 'INATIVO', 'PENDENTE_ATIVACAO'].includes(u.status_conta)) {
       await logSecurityEvent({
         eventType: 'LOGIN_TENANT_BLOCKED',
         email,
@@ -88,7 +88,13 @@ export function registerAuthRoutes(app, { loginRateLimit }) {
         statusCode: 403,
         details: { status: u.status_conta, reason: u.bloqueado_motivo },
       });
-      return apiError(res, 'Acesso da empresa suspenso ou bloqueado. Contate o suporte.', 403);
+      const msg =
+        u.status_conta === 'PENDENTE_ATIVACAO'
+          ? 'Acesso ainda não liberado. Aguarde a confirmação do pagamento / liberação pelo ErgoSense.'
+          : u.status_conta === 'INATIVO'
+            ? 'Acesso da empresa desativado. Contate o suporte ErgoSense.'
+            : 'Acesso da empresa suspenso ou bloqueado. Contate o suporte.';
+      return apiError(res, msg, 403);
     }
     await query('UPDATE usuarios SET ultimo_login = NOW(), updated_at = NOW() WHERE id = $1', [u.id]);
     await recordLoginAttempt(email, true, req);
@@ -245,6 +251,51 @@ export function registerAuthRoutes(app, { loginRateLimit }) {
     }
     clearAuthCookies(res);
     return apiSuccess(res, null, 'Logout realizado');
+  });
+
+  app.put('/api/auth/profile', authenticate, csrfProtection, validateBody(updateProfileSchema), async (req, res) => {
+    const { nome, localizacao } = req.validatedBody;
+    if (!req.user?.id) {
+      return apiError(res, 'Não autenticado', 401);
+    }
+    const { rows } = await query(
+      `UPDATE usuarios
+       SET nome = $2,
+           localizacao = $3,
+           updated_at = NOW()
+       WHERE id = $1 AND deleted_at IS NULL
+       RETURNING id, email, nome, perfil, cargo, localizacao, tenant_id`,
+      [req.user.id, nome.slice(0, 200), String(localizacao ?? '').slice(0, 200)],
+    );
+    if (!rows.length) {
+      return apiError(res, 'Usuário não encontrado', 404);
+    }
+    const u = rows[0];
+    return apiSuccess(res, {
+      id: String(u.id),
+      email: u.email,
+      name: u.nome,
+      role: u.cargo || u.perfil,
+      roleCode: u.perfil,
+      location: u.localizacao ?? '',
+      tenantId: u.tenant_id,
+    });
+  });
+
+  app.get('/api/auth/me', authenticate, async (req, res) => {
+    if (!req.user?.id) {
+      return apiError(res, 'Não autenticado', 401);
+    }
+    return apiSuccess(res, {
+      id: String(req.user.id),
+      email: req.user.email,
+      name: req.user.name,
+      role: req.user.role,
+      roleCode: req.user.role,
+      location: req.user.location ?? '',
+      company: req.user.company,
+      tenantId: req.user.tenantId,
+    });
   });
 }
 

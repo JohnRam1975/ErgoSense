@@ -6,7 +6,8 @@
 #
 # No Hostinger Docker Manager:
 #   Cole este compose + variáveis do .env.example
-#   Projeto: ergosense
+#   Nome do projeto: ergosense  ← ÚNICO nome válido
+#   NÃO use ergosensepro (nem qualquer variação)
 #
 # Atualizar depois:
 #   Push novas tags → Update project no Docker Manager (pull + recreate)

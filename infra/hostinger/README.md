@@ -46,9 +46,13 @@ Isso publica:
 1. VPS → **Docker Manager** → **Compose**
 2. **Compose manually** (ou URL deste arquivo no Git)
 3. Cole o conteúdo de `infra/hostinger/docker-compose.yml`
-4. Nome do projeto: `ergosense`
+4. **Nome do projeto: `ergosense`** — único nome válido  
+   - ❌ Não use `ergosensepro` (nem pasta/projeto com esse nome)
+   - O campo `name:` do YAML já é `ergosense`; o painel deve bater com ele
 5. Cole as env vars
 6. **Deploy** — o painel faz `pull` + `up` (sem build)
+
+Se o projeto antigo `ergosensepro` ainda existir no painel: **apague/pare** e crie um novo só como `ergosense`.
 
 ## 4. Atualizar versão
 

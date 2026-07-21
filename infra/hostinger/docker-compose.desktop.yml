@@ -5,8 +5,10 @@
 #   docker compose -f infra/hostinger/docker-compose.desktop.yml up -d
 #   docker compose -f infra/hostinger/docker-compose.desktop.yml ps
 #   docker compose -f infra/hostinger/docker-compose.desktop.yml down -v
+#
+# Project name local = ergosense (igual à VPS). Não use ergosensepro.
 
-name: ergosense-desktop
+name: ergosense
 
 services:
   postgres:
@@ -19,7 +21,7 @@ services:
     ports:
       - "5435:5432"
     volumes:
-      - ergosense_desktop_pgdata:/var/lib/postgresql/data
+      - ergosense_pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d ergosense"]
       interval: 5s
@@ -33,7 +35,7 @@ services:
     restart: unless-stopped
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
-      - ergosense_desktop_redis:/data
+      - ergosense_redis:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -105,8 +107,8 @@ services:
     networks: [ergosense]
 
 volumes:
-  ergosense_desktop_pgdata:
-  ergosense_desktop_redis:
+  ergosense_pgdata:
+  ergosense_redis:
 
 networks:
   ergosense:

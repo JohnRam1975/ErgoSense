@@ -122,7 +122,8 @@ services:
       backend:
         condition: service_healthy
     ports:
-      - "${PUBLIC_HTTP_PORT:-80}:80"
+      # No VPS compartilhado com FinCare a 80 já está ocupada → padrão 8088
+      - "${PUBLIC_HTTP_PORT:-8088}:80"
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
       interval: 20s

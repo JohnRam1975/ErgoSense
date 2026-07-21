@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: ergosense
-  labels:
-    app.kubernetes.io/name: ergosense
-    app.kubernetes.io/part-of: ergosense-saas

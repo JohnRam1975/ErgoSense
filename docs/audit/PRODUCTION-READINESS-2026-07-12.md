@@ -1,4 +1,4 @@
-# Auditoria de Prontidão para Produção — ErgoSensePro
+# Auditoria de Prontidão para Produção — ErgoSense
 
 **Data:** 2026-07-12  
 **Escopo:** sistema completo (web Node + React, infra, mobile, Spring scaffold)  
@@ -286,4 +286,4 @@ Main, Analysis, Video, Utility, Admin, Support, TenantOnboarding, RiskInventory,
 
 ---
 
-**Conclusão em uma frase:** o ErgoSensePro Node está **maduro para homologação e piloto controlado**, mas **não está 100% pronto para produção SaaS em escala** enquanto backup, storage externo, reset de senha, eSocial real e cobertura/qualidade estrutural não fecharem.
+**Conclusão em uma frase:** o ErgoSense Node está **maduro para homologação e piloto controlado**, mas **não está 100% pronto para produção SaaS em escala** enquanto backup, storage externo, reset de senha, eSocial real e cobertura/qualidade estrutural não fecharem.

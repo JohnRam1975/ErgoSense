@@ -12,7 +12,7 @@ export async function sendActivationEmail({ to, companyName, protocolo, activati
     level: 'info',
     msg: 'email_activation_queued',
     to,
-    subject: `ErgoSensePro — Ative sua conta (${companyName})`,
+    subject: `ErgoSense — Ative sua conta (${companyName})`,
     companyName,
     protocolo,
     activationUrl,
@@ -52,4 +52,33 @@ export async function sendAdjustmentRequestEmail({ to, companyName, protocolo, m
     }),
   );
   return { sent: true, mode: 'log', future: 'smtp' };
+}
+
+export async function sendSupportContactEmail({
+  to,
+  protocolo,
+  nome,
+  email,
+  telefone,
+  empresa,
+  assunto,
+  mensagem,
+}) {
+  const payload = {
+    level: 'info',
+    msg: 'email_support_contact_queued',
+    to: to || config.support.contactEmail,
+    subject: `ErgoSense — Contato suporte [${protocolo}] ${assunto}`,
+    protocolo,
+    fromName: nome,
+    fromEmail: email,
+    telefone: telefone || null,
+    empresa: empresa || null,
+    assunto,
+    mensagem,
+    service: config.observability.serviceName,
+    note: SMTP_FUTURE,
+  };
+  console.log(JSON.stringify(payload));
+  return { sent: true, mode: 'log', future: 'smtp', to: payload.to };
 }

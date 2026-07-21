@@ -68,6 +68,7 @@ export function isPublicApiRoute(req) {
   if (path === '/api/access-requests' && req.method === 'POST') return true;
   if (path === '/api/public/tenant-request' && req.method === 'POST') return true;
   if (path === '/api/public/plans' && req.method === 'GET') return true;
+  if (path === '/api/public/support-contact' && (req.method === 'GET' || req.method === 'POST')) return true;
   if (path === '/api/auth/activate-account/preview' && req.method === 'GET') return true;
   if (path.startsWith('/api/denuncias/public')) return true;
   if (path.startsWith('/api/psico/public/')) return true;

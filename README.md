@@ -1,50 +1,45 @@
-# ErgoSense AI
+# ErgoSense
 
-Sistema mobile-first de **análise ergonômica industrial com IA**, offline-first, multi-tenant e sincronização automática.
+Plataforma de análise ergonômica industrial com IA — React + Node/Express, multi-tenant.
 
-## Repositório
+## Estrutura
 
-| Camada | Pasta | Stack | Status |
-|--------|-------|-------|--------|
-| **Protótipo UI** | [`index.html`](index.html) | HTML/CSS/JS | Referência visual |
-| **App + API** | [`ergosense-app/`](ergosense-app/) | React + Vite + Node/Express | Runtime principal |
-| **Deploy Hostinger** | [`infra/hostinger/`](infra/hostinger/) | Docker Compose (imagens) | Produção lean |
-| **Documentação** | [`docs/`](docs/) | Arquitetura completa | ✅ |
+```
+ergosense-app/     # frontend + API
+infra/             # Compose + Dockerfiles (produção)
+docs/              # domínio, banco, segurança, IA
+```
 
-## Documentação principal
+## Local (Docker Desktop — stack completa)
 
-- [Kubernetes no Docker Desktop](docs/cloud/DOCKER-DESKTOP-KUBERNETES.md)
-- [Cloud-Native / Kubernetes Readiness](docs/cloud/K8S-READINESS-AUDIT.md)
-- [Docker Compose (stack completa)](infra/docker/README.md)
-- [Arquitetura completa](docs/ARCHITECTURE.md)
-- [Banco SQLite (offline)](docs/database/sqlite-schema.sql)
-- [Banco PostgreSQL (servidor)](docs/database/postgresql-schema.sql)
-- [Sincronização offline-first](docs/sync/OFFLINE-FIRST.md)
-- [Segurança e LGPD](docs/security/SECURITY.md)
-- [Estratégia de IA](docs/ai/AI-STRATEGY.md)
+```powershell
+.\infra\build-and-push.ps1 -Registry ergosense -Tag local -SkipPush
+docker compose --env-file infra/.env -f infra/docker-compose.yml -p ergosense up -d
+```
 
-## Princípios
+App: http://localhost:8090  
+Login: `ergosense@dejohn.com.br` / `@Ergo!2026/Adm`
 
-1. **Nunca depende de internet** para realizar análises
-2. **SQLite é a fonte de verdade** no dispositivo
-3. **Sync automático** quando a rede estiver disponível
-4. **Multi-tenant** por `tenant_id` em todas as camadas
-5. **IA híbrida**: TensorFlow Lite offline + MediaPipe online
+Containers: `ergosense-frontend` · `ergosense-backend` · `ergosense-db` · `ergosense-cache` · `ergosense-storage`
 
-## Quick start (Web MVP)
+## Produção (Hostinger — só imagens)
+
+```powershell
+.\infra\build-and-push.ps1 -Registry SEU_USER -Tag 1.0.0
+```
+
+No Docker Manager: projeto `ergosense`, cole `infra/docker-compose.yml` + env de `infra/.env.example` (`IMAGE_REGISTRY`, senhas, JWT, domínio).
+
+## Dev sem Docker da app
 
 ```bash
 cd ergosense-app && npm install && npm run dev
 ```
 
-## Quick start (Backend)
+## Docs
 
-```bash
-cd backend && docker compose up -d && ./mvnw spring-boot:run
-```
-
-## Quick start (Mobile)
-
-```bash
-cd mobile && flutter pub get && flutter run
-```
+- [Arquitetura](docs/ARCHITECTURE.md)
+- [PostgreSQL](docs/database/postgresql-schema.sql)
+- [Offline-first](docs/sync/OFFLINE-FIRST.md)
+- [Segurança](docs/security/SECURITY.md)
+- [IA](docs/ai/AI-STRATEGY.md)

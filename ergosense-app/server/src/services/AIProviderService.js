@@ -133,7 +133,7 @@ async function invokeProvider(prompt, options = {}) {
         maxTokens,
         extraHeaders: {
           'HTTP-Referer': process.env.APP_PUBLIC_URL ?? 'http://localhost:5173',
-          'X-Title': 'ErgoSensePro',
+          'X-Title': 'ErgoSense',
         },
       });
     case 'anthropic':

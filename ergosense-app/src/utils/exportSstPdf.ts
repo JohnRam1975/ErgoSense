@@ -10,7 +10,7 @@ export function exportSstPdf(report: SstReport): void {
     doc.setFontSize(8);
     doc.setTextColor(120);
     const { marginLeft, contentW } = getA4Sizes(doc);
-    doc.text(`ErgoSensePro — SST · Página ${pageNum}`, marginLeft + contentW / 2, A4_FOOTER_Y, { align: 'center' });
+    doc.text(`ErgoSense — SST · Página ${pageNum}`, marginLeft + contentW / 2, A4_FOOTER_Y, { align: 'center' });
     doc.setTextColor(0);
     pageNum += 1;
     y = 24;
@@ -56,6 +56,6 @@ export function exportSstPdf(report: SstReport): void {
 
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
-  wrapTextLeft(doc, 'Documento gerado pelo ErgoSensePro. Validar com responsável técnico SST/SMS.', y, 4);
+  wrapTextLeft(doc, 'Documento gerado pelo ErgoSense. Validar com responsável técnico SST/SMS.', y, 4);
   doc.save(`SST-${Date.now()}.pdf`);
 }

@@ -31,7 +31,7 @@ function drawFooter(doc: jsPDF, pageNum: number) {
   const { marginLeft, contentW } = getA4Sizes(doc);
   doc.setFontSize(8);
   doc.setTextColor(120);
-  doc.text(`ErgoSensePro — PGR NR-01 · Página ${pageNum}`, marginLeft + contentW / 2, A4_FOOTER_Y, {
+  doc.text(`ErgoSense — PGR NR-01 · Página ${pageNum}`, marginLeft + contentW / 2, A4_FOOTER_Y, {
     align: 'center',
   });
   doc.setTextColor(0);
@@ -157,7 +157,7 @@ export function exportPgrPdf(program: PgrProgram, version: PgrVersionDetail): vo
   doc.setTextColor(100);
   wrapTextLeft(
     doc,
-    `Documento gerado em ${new Date(snap.generatedAt).toLocaleString('pt-BR')} · ErgoSensePro · Controle de versão ${version.number}`,
+    `Documento gerado em ${new Date(snap.generatedAt).toLocaleString('pt-BR')} · ErgoSense · Controle de versão ${version.number}`,
     y,
     8,
   );

@@ -1,4 +1,4 @@
-# Auditoria QA Completa — ErgoSensePro
+# Auditoria QA Completa — ErgoSense
 
 **Data:** 2026-07-01  
 **Executor:** bateria automatizada + inspeção estática + correções aplicadas  
@@ -55,7 +55,7 @@
 ## 1. Estrutura do projeto
 
 ```
-ERGOSENSEPRO/
+ERGOSENSE/
 ├── ergosense-app/          # Frontend React + API Express (principal)
 │   ├── src/                # 174 arquivos TS/TSX
 │   ├── server/src/         # routes, services, middleware, auth
@@ -227,7 +227,7 @@ Auth, Core colaboradores, Psico dashboard, GRO, PGR, AET, Inventário, Complianc
 
 ## 10. Conclusão
 
-O ErgoSensePro está **funcional para piloto controlado** após migrations aplicadas: login, módulos principais, segurança básica e navegação UI validados automaticamente.
+O ErgoSense está **funcional para piloto controlado** após migrations aplicadas: login, módulos principais, segurança básica e navegação UI validados automaticamente.
 
 **Não está pronto para claim "100% testado"** — lint falha, ~62% dos endpoints sem teste HTTP, 7 telas fora do E2E principal, e bundle/performance mobile precisam trabalho.
 

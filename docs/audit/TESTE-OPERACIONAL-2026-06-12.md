@@ -1,6 +1,6 @@
 # Relatório — Teste Operacional Completo (Simulação de Produção)
 
-**Produto:** ErgoSensePro  
+**Produto:** ErgoSense  
 **Data:** 2026-06-12  
 **Ambiente:** Local — API `:3001`, Postgres `:5433`, tenant demo `vale`  
 **Executor:** Auditoria automatizada + revisão de código + testes reais  

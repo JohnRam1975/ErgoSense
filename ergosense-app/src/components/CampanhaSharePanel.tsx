@@ -13,7 +13,7 @@ type Props = {
 };
 
 function shareMessage(title: string, link: string) {
-  return `Olá! Você foi convidado(a) a responder o formulário anônimo "${title}" no ErgoSensePro.\n\nAcesse pelo link:\n${link}\n\nSuas respostas são confidenciais e não permitem identificação individual.`;
+  return `Olá! Você foi convidado(a) a responder o formulário anônimo "${title}" no ErgoSense.\n\nAcesse pelo link:\n${link}\n\nSuas respostas são confidenciais e não permitem identificação individual.`;
 }
 
 export function CampanhaSharePanel({ link, title, warning, onCopySuccess, onCopyError }: Props) {

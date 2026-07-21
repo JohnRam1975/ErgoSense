@@ -180,7 +180,7 @@ export function PsicossocialDashboardScreen() {
         { id: 'psicossocial-matriz', ico: '🎯', label: 'Matriz de Riscos', sub: 'Heatmap 5×5' },
         { id: 'psicossocial-plano', ico: '✅', label: 'Plano de Ação', sub: `${psicoActionPlans.length} ações` },
         { id: 'psicossocial-conformidade', ico: '⚖️', label: 'Conformidade Legal', sub: 'NR-1 · Portaria 1.419/2024' },
-        { id: 'psicossocial-ia', ico: '🤖', label: 'IA ErgoSensePro', sub: 'Em breve · atualização futura' },
+        { id: 'psicossocial-ia', ico: '🤖', label: 'IA ErgoSense', sub: 'Em breve · atualização futura' },
       ].map((item) => (
         <button key={item.id} className="ac" onClick={() => go(item.id as never)}>
           <div className="av" style={{ background: 'var(--a10)', fontSize: 22 }}>{item.ico}</div>
@@ -795,7 +795,7 @@ export function PsicossocialConformidadeScreen() {
             <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--amber)', fontFamily: 'var(--fd)' }}>{conformidade}%</div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 11, color: 'var(--t1)' }}>Meta ErgoSensePro</div>
+            <div style={{ fontSize: 11, color: 'var(--t1)' }}>Meta ErgoSense</div>
             <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--green)', fontFamily: 'var(--fd)' }}>95%</div>
           </div>
         </div>

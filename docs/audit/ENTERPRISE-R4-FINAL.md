@@ -1,4 +1,4 @@
-# ErgoSensePro — Relatório Final Enterprise (R4)
+# ErgoSense — Relatório Final Enterprise (R4)
 
 **Data:** 2026-06-12  
 **Missão:** Evolução para nível enterprise (10 etapas)  

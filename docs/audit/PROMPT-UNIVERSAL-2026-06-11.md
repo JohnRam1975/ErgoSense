@@ -1,4 +1,4 @@
-# Auditoria PROMPT UNIVERSAL — ErgoSensePro
+# Auditoria PROMPT UNIVERSAL — ErgoSense
 
 **Data:** 2026-06-11  
 **Documentos analisados:** `PROMPT UNIVERSAL.docx`, `PROMPT UNIVERSAL DE CLEAN CODE E ARQUITETURA PROFISSIONAL.docx`  
@@ -10,7 +10,7 @@
 
 | Atributo | Valor |
 |----------|-------|
-| Produto | ErgoSensePro — plataforma de ergonomia ocupacional |
+| Produto | ErgoSense — plataforma de ergonomia ocupacional |
 | Segmento | Mineração / Indústria pesada / SST / NR-17 / NR-01 |
 | Modelo | SaaS por assinatura, multi-empresa |
 | Stack | React 19 + Vite · Express 4 · PostgreSQL 17 · IA generativa |
@@ -195,7 +195,7 @@ Envelope `{ success, message, data }` definido em `server/src/utils/apiResponse.
 
 ## 6. Conclusão
 
-O ErgoSensePro **atende o perfil SaaS Multi-Tenant + Industrial + IA** definido no PROMPT UNIVERSAL, implementado como **monolito modular cloud-native** — decisão correta para o estágio atual.
+O ErgoSense **atende o perfil SaaS Multi-Tenant + Industrial + IA** definido no PROMPT UNIVERSAL, implementado como **monolito modular cloud-native** — decisão correta para o estágio atual.
 
 **Pontos fortes:** multi-tenancy auditado, RBAC, IA desacoplada, infra K8s/Docker, testes de domínio crítico.
 

@@ -8,7 +8,7 @@ import { query } from '../../db.js';
 import { config } from '../../config/env.js';
 import { emitSecurityEvent } from '../enterpriseAudit.js';
 
-const APP_NAME = 'ErgoSensePro';
+const APP_NAME = 'ErgoSense';
 
 function encryptSecret(plain) {
   const key = crypto.createHash('sha256').update(config.mfa.encryptionKey).digest();

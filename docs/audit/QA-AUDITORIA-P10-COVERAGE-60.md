@@ -1,7 +1,7 @@
 # QA Auditoria P10 — Cobertura 60%
 
 Gerado: 2026-06-11  
-Projeto: ErgoSensePro  
+Projeto: ErgoSense  
 Fase: P10 — AppContext + eSocial/Compliance + CI Integration
 
 ---

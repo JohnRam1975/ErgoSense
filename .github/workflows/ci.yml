@@ -208,7 +208,9 @@ jobs:
     if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
+      - name: Build Postgres image
+        run: docker build -f infra/Dockerfile.postgres -t ergosense/postgres:ci .
       - name: Build API image
-        run: docker build -f infra/docker/Dockerfile.api -t ergosense/api:ci .
+        run: docker build -f infra/Dockerfile.api -t ergosense/api:ci .
       - name: Build Web image
-        run: docker build -f infra/docker/Dockerfile.web -t ergosense/web:ci .
+        run: docker build -f infra/Dockerfile.web -t ergosense/web:ci .

@@ -95,7 +95,7 @@ async function runExpertTask({
 
   const fullPrompt =
     `${taskPrompt}\n\n` +
-    '--- DADOS OPERACIONAIS DO ERGOSENSEPRO (JSON) ---\n' +
+    '--- DADOS OPERACIONAIS DO ERGOSENSE (JSON) ---\n' +
     contextBlock;
 
   const { provider, text } = await generateText(fullPrompt, {
@@ -174,7 +174,7 @@ export async function analyzeErgonomicData(tenantId, user, options = {}) {
     text: result.text,
     structured,
     dataSources,
-    methodology: ['RULA', 'REBA', 'OWAS', 'NIOSH', 'NR-17', 'Análise postural ErgoSensePro'],
+    methodology: ['RULA', 'REBA', 'OWAS', 'NIOSH', 'NR-17', 'Análise postural ErgoSense'],
   });
 
   await logAiExpertAudit({

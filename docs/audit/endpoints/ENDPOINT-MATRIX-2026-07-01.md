@@ -1,4 +1,4 @@
-# Matriz de Endpoints v2 (contrato) — ErgoSensePro
+# Matriz de Endpoints v2 (contrato) — ErgoSense
 
 Gerado: 2026-07-02T01:44:59.331Z
 

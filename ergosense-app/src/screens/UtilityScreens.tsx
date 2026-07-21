@@ -447,6 +447,19 @@ export function SettingsScreen() {
           </div>
         </div>
         <div style={{ fontFamily: 'var(--fd)', fontSize: 10, fontWeight: 700, letterSpacing: 2, color: 'var(--t1)', textTransform: 'uppercase', marginBottom: 9, display: 'flex', alignItems: 'center', gap: 5 }}>
+          <span style={{ width: 10, height: 2, background: 'var(--cyan)', display: 'inline-block' }} />
+          AJUDA
+        </div>
+        <div className="card card--flush" style={{ marginBottom: 14 }}>
+          <button type="button" className="btn bp btn-list" onClick={() => go('contact-support')}>
+            <div>
+              <div style={{ fontSize: 15, color: 'var(--t0)' }}>Falar com o suporte</div>
+              <div className="btn-list-sub">ergosense.suporte@dejohn.com.br</div>
+            </div>
+            <span style={{ color: 'var(--amber)', fontSize: 18 }}>›</span>
+          </button>
+        </div>
+        <div style={{ fontFamily: 'var(--fd)', fontSize: 10, fontWeight: 700, letterSpacing: 2, color: 'var(--t1)', textTransform: 'uppercase', marginBottom: 9, display: 'flex', alignItems: 'center', gap: 5 }}>
           <span style={{ width: 10, height: 2, background: 'var(--amber)', display: 'inline-block' }} />
           SISTEMA
         </div>

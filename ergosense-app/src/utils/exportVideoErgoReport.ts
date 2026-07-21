@@ -24,7 +24,7 @@ export function exportVideoErgoPdf(analysis: Analysis, companyName: string) {
   let y = 15;
 
   doc.setFontSize(16);
-  doc.text('ErgoSensePro — Análise Ergonômica por Vídeo', 15, y);
+  doc.text('ErgoSense — Análise Ergonômica por Vídeo', 15, y);
   y += 8;
   doc.setFontSize(10);
   doc.text(`${companyName} · ${analysis.collaboratorName} · ${analysis.date}`, 15, y);
@@ -150,7 +150,7 @@ export function exportVideoErgoWord(analysis: Analysis, companyName: string) {
     .join('');
 
   const rtf = `{\\rtf1\\ansi
-{\\b ErgoSensePro — Análise Ergonômica por Vídeo}\\par
+{\\b ErgoSense — Análise Ergonômica por Vídeo}\\par
 ${companyName} · ${analysis.collaboratorName} · ${analysis.date}\\par\\par
 Índice ergonômico: ${report.executive.ergonomicIndex}\\par
 Score segurança: ${report.executive.safetyScore}\\par

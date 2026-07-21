@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
-    "db:up": "docker compose up -d",
-    "db:down": "docker compose down",
+    "db:up": "docker compose --env-file ../../infra/.env -f ../../infra/docker-compose.yml up -d db",
+    "db:down": "docker compose --env-file ../../infra/.env -f ../../infra/docker-compose.yml stop db",
     "health": "node -e \"fetch('http://localhost:'+(process.env.PORT||3001)+'/health').then(r=>r.json()).then(console.log)\"",
     "fix-utf8": "node scripts/fix-utf8-data.js",
     "migrate:load": "node scripts/migrate-load-assessment.js",

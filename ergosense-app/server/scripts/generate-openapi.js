@@ -107,7 +107,7 @@ function scanRoutes() {
 const spec = {
   openapi: '3.0.3',
   info: {
-    title: 'ErgoSensePro API',
+    title: 'ErgoSense API',
     version: '1.0.0',
     description: 'API REST multi-tenant para SST, ergonomia, GRO, PGR, AET, psicossocial, eSocial e compliance.',
   },

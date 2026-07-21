@@ -40,6 +40,7 @@ const ORDERED_MIGRATIONS = [
   'migrate-tenant-onboarding.js',
   'migrate-autonomo-cadastro.js',
   'migrate-autonomo-senha.js',
+  'migrate-contato-suporte.js',
 ];
 
 async function ensureMigrationTable(client) {

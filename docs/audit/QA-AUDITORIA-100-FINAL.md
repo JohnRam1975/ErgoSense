@@ -1,4 +1,4 @@
-# QA Auditoria 100% — ErgoSensePro (P7)
+# QA Auditoria 100% — ErgoSense (P7)
 
 **Data:** 2026-07-01  
 **Conclusão:** **APROVADO COM RESSALVAS**  

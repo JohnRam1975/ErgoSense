@@ -99,7 +99,7 @@ export default function PsicoPublicFormPage({ token }: Props) {
   return (
     <div className="public-form-page">
       <header className="public-form-header">
-        <div className="public-form-brand">ErgoSensePro</div>
+        <div className="public-form-brand">ErgoSense</div>
         <div className="public-form-badge">Resposta anônima · LGPD</div>
       </header>
 

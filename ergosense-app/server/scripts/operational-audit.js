@@ -218,7 +218,7 @@ async function phaseDatabase() {
 }
 
 async function main() {
-  console.log('\n=== AUDITORIA OPERACIONAL ErgoSensePro ===\n');
+  console.log('\n=== AUDITORIA OPERACIONAL ErgoSense ===\n');
   console.log(`API: ${BASE} | Tenant: ${TENANT}\n`);
 
   await phaseHealth();

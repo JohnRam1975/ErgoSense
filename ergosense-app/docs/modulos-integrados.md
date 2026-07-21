@@ -1,4 +1,4 @@
-# Módulos Integrados — ErgoSensePro v3
+# Módulos Integrados — ErgoSense v3
 **Data:** 08/06/2026
 
 ---

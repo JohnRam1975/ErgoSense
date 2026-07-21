@@ -53,7 +53,7 @@ export const EXPERT_SYSTEM_PROMPT =
   'Responda em português do Brasil, linguagem técnica e estruturada. Prefira JSON válido quando solicitado.';
 
 export const ANALYSIS_LIMITATIONS = [
-  'Análise baseada exclusivamente nos dados disponíveis no ErgoSensePro no momento da consulta.',
+  'Análise baseada exclusivamente nos dados disponíveis no ErgoSense no momento da consulta.',
   'Não inclui inspeção presencial no local de trabalho.',
   'Classificações de risco devem ser validadas por profissional habilitado.',
   'Questionários psicossociais agregados não substituem avaliação clínica individual.',

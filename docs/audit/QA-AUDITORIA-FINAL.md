@@ -1,10 +1,10 @@
-# QA Auditoria Final — ErgoSensePro (P5 + P6)
+# QA Auditoria Final — ErgoSense (P5 + P6)
 
 **Data:** 2026-07-01  
 **Escopo:** Fechamento definitivo da auditoria P1 → P6  
 **Nota QA final sugerida:** **97/100**
 
-> **O ErgoSensePro NÃO está 100% testado.** Cobertura de código combinada medida em **28,34% linhas** (P6). A matriz de endpoints atinge **99% acionável** (1450/1462). Pendências documentadas abaixo com impacto e esforço.
+> **O ErgoSense NÃO está 100% testado.** Cobertura de código combinada medida em **28,34% linhas** (P6). A matriz de endpoints atinge **99% acionável** (1450/1462). Pendências documentadas abaixo com impacto e esforço.
 
 ---
 
@@ -119,7 +119,7 @@ Relatório consolidado: `docs/audit/coverage/coverage-report.md`
 
 ### Mutation testing
 
-**Não disponível** no projeto ErgoSensePro. Não há Stryker (ou equivalente) configurado em `package.json`. Limitação documentada: testes unitários validam caminhos, mas não há evidência de mutation score.
+**Não disponível** no projeto ErgoSense. Não há Stryker (ou equivalente) configurado em `package.json`. Limitação documentada: testes unitários validam caminhos, mas não há evidência de mutation score.
 
 ### Auditoria cruzada P6 (reexecutada)
 

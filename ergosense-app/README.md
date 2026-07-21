@@ -3,7 +3,7 @@
 Cliente **mobile-first** (React/Vite/PWA) e API Node/Express em `server/`.
 
 > **Arquitetura:** [`../docs/ARCHITECTURE.md`](../docs/ARCHITECTURE.md)  
-> **Deploy Hostinger:** [`../infra/hostinger/README.md`](../infra/hostinger/README.md)
+> **Produção:** [`../infra/docker-compose.yml`](../infra/docker-compose.yml)
 
 ## Executar
 

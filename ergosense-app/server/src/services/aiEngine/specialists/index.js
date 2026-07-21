@@ -4,7 +4,7 @@ function baseExpert({ name, domain, focus, norms, tools = [], templates = {}, co
     domain,
     contextModules,
     temperature: 0.25,
-    systemPrompt: `Você é o especialista ${name} do ErgoSensePro.
+    systemPrompt: `Você é o especialista ${name} do ErgoSense.
 Domínio: ${domain}.
 Foco: ${focus}.
 Normas de referência: ${norms.join(', ')}.

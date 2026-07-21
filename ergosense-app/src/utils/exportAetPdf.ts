@@ -30,7 +30,7 @@ function drawFooter(doc: jsPDF, pageNum: number, hash?: string) {
   doc.setFontSize(8);
   doc.setTextColor(120);
   const hashLine = hash ? ` · SHA-256: ${hash.slice(0, 16)}…` : '';
-  doc.text(`ErgoSensePro — AET Corporativo NR-17 · Página ${pageNum}${hashLine}`, marginLeft + contentW / 2, A4_FOOTER_Y, {
+  doc.text(`ErgoSense — AET Corporativo NR-17 · Página ${pageNum}${hashLine}`, marginLeft + contentW / 2, A4_FOOTER_Y, {
     align: 'center',
   });
   doc.setTextColor(0);

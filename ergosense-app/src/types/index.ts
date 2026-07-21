@@ -29,6 +29,7 @@ export type ScreenId =
   | 'request-access'
   | 'request-access-autonomo'
   | 'activate-account'
+  | 'contact-support'
   | 'admin-tenant-requests'
   | 'admin-tenant-request-detail'
   | 'admin-tenants-active'

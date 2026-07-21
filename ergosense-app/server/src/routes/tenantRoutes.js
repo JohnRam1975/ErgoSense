@@ -2,7 +2,7 @@
  * Rotas de tenants — SaaS multi-tenant
  */
 import { isGlobalAdmin } from '../auth/rbac.js';
-import { listTenantsForUser, listTenantMetadata, createTenant } from '../services/tenantService.js';
+import { listTenantsForUser, createTenant } from '../services/tenantService.js';
 import { validateBody } from '../validation/validateRequest.js';
 import { createTenantSchema } from '../validation/schemas.js';
 import { apiSuccess, apiCreated, apiError } from '../utils/apiResponse.js';
@@ -31,12 +31,4 @@ export function registerTenantRoutes(app, { publicFormRateLimit }) {
       }
     },
   );
-
-  app.get('/api/admin/tenants/metadata', async (req, res) => {
-    if (req.user?.role !== 'ADMIN_GLOBAL') {
-      return apiError(res, 'Acesso restrito ao administrador global.', 403);
-    }
-    const data = await listTenantMetadata();
-    return apiSuccess(res, data);
-  });
 }

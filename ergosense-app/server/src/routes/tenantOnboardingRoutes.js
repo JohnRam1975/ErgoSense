@@ -36,6 +36,7 @@ import {
 } from '../services/tenantRequestService.js';
 import { activateAccount, getActivationPreview } from '../services/activationService.js';
 import { listPlans } from '../services/planService.js';
+import { listTenantMetadata } from '../services/tenantService.js';
 import { config } from '../config/env.js';
 
 function requireGlobalAdmin(req, res) {
@@ -168,6 +169,13 @@ export function registerTenantOnboardingRoutes(app) {
     if (!requireGlobalAdmin(req, res)) return;
     const filter = req.query.filter?.toString() ?? 'all';
     const data = await listAdminTenants(filter);
+    return apiSuccess(res, data);
+  });
+
+  // Deve ficar ANTES de /:id — senão "metadata" é capturado como id
+  app.get('/api/admin/tenants/metadata', authenticate, async (req, res) => {
+    if (!requireGlobalAdmin(req, res)) return;
+    const data = await listTenantMetadata();
     return apiSuccess(res, data);
   });
 

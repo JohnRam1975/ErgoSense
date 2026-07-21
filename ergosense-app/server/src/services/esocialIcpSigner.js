@@ -94,7 +94,7 @@ export class DevIcpSigner {
     cert.validity.notBefore = new Date();
     cert.validity.notAfter = new Date();
     cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
-    const attrs = [{ name: 'commonName', value: 'ErgoSensePro Dev ICP-Brasil' }];
+    const attrs = [{ name: 'commonName', value: 'ErgoSense Dev ICP-Brasil' }];
     cert.setSubject(attrs);
     cert.setIssuer(attrs);
     cert.sign(keys.privateKey, forge.md.sha256.create());

@@ -1,4 +1,4 @@
-# Roadmap de Ajustes Futuros — ErgoSensePro
+# Roadmap de Ajustes Futuros — ErgoSense
 **Data:** 08/06/2026 | Baseado na análise de gap vs. Guia MTE 2025
 
 ---

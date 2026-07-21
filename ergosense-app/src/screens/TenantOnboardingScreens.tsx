@@ -17,6 +17,8 @@ import {
   apiRejectTenantRequest,
   apiRequestTenantAdjustment,
   apiSubmitTenantRequest,
+  apiGetSupportContactInfo,
+  apiSubmitSupportContact,
   type TenantRequestItem,
   type AdminTenantDetail,
 } from '../api/client';
@@ -95,7 +97,7 @@ export function TenantRequestAccessScreen() {
 
   return (
     <PublicFormShell title="Cadastrar empresa" onBack={() => go('login')}>
-      <p className="access-form-intro">Solicite acesso ao ErgoSensePro para sua organização. Análise em até 2 dias úteis.</p>
+      <p className="access-form-intro">Solicite acesso ao ErgoSense para sua organização. Análise em até 2 dias úteis.</p>
       <label className="lbl">Razão Social *</label>
       <input className="inp" value={form.razaoSocial} onChange={(e) => set('razaoSocial', e.target.value)} />
       <label className="lbl">Nome Fantasia</label>
@@ -483,6 +485,142 @@ function PublicFormShell({ title, onBack, children }: { title: string; onBack: (
         </div>
       </div>
     </div>
+  );
+}
+
+const DEFAULT_SUPPORT_SUBJECTS = [
+  'Dúvida sobre o produto',
+  'Problema de acesso / login',
+  'Solicitação comercial',
+  'LGPD / privacidade',
+  'Outro',
+];
+
+export function ContactSupportScreen() {
+  const { go, showToast, session } = useApp();
+  const backScreen = session ? 'settings' : 'login';
+  const [supportEmail, setSupportEmail] = useState('ergosense.suporte@dejohn.com.br');
+  const [subjects, setSubjects] = useState<string[]>(DEFAULT_SUPPORT_SUBJECTS);
+  const [loading, setLoading] = useState(false);
+  const [protocolo, setProtocolo] = useState('');
+  const [form, setForm] = useState({
+    nome: '',
+    email: '',
+    telefone: '',
+    empresa: '',
+    assunto: DEFAULT_SUPPORT_SUBJECTS[0],
+    mensagem: '',
+  });
+
+  useEffect(() => {
+    void apiGetSupportContactInfo()
+      .then((info) => {
+        if (info.supportEmail) setSupportEmail(info.supportEmail);
+        if (info.subjects?.length) {
+          setSubjects(info.subjects);
+          setForm((f) => ({ ...f, assunto: info.subjects[0] }));
+        }
+      })
+      .catch(() => {
+        /* mantém defaults offline */
+      });
+  }, []);
+
+  const set = (key: keyof typeof form, value: string) => setForm((f) => ({ ...f, [key]: value }));
+
+  const handleSubmit = () => {
+    void (async () => {
+      if (!form.nome.trim() || !form.email.trim() || !form.mensagem.trim()) {
+        showToast('Preencha nome, e-mail e mensagem', 'warn');
+        return;
+      }
+      setLoading(true);
+      try {
+        const res = await apiSubmitSupportContact({
+          nome: form.nome.trim(),
+          email: form.email.trim(),
+          telefone: form.telefone.trim() || undefined,
+          empresa: form.empresa.trim() || undefined,
+          assunto: form.assunto.trim(),
+          mensagem: form.mensagem.trim(),
+        });
+        setProtocolo(res.protocolo);
+        if (res.supportEmail) setSupportEmail(res.supportEmail);
+        showToast('Mensagem enviada ao suporte', 'success');
+      } catch (err) {
+        showToast(err instanceof Error ? err.message : 'Erro ao enviar', 'warn');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  };
+
+  if (protocolo) {
+    return (
+      <PublicFormShell title="Mensagem enviada" onBack={() => go(backScreen)}>
+        <div className="hl" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
+          <p>Protocolo de atendimento:</p>
+          <div style={{ fontFamily: 'var(--fm)', fontSize: 20, color: 'var(--amber)', margin: '12px 0' }}>{protocolo}</div>
+          <p className="access-form-intro">
+            Sua mensagem foi registrada para a equipe de suporte em{' '}
+            <strong>{supportEmail}</strong>. Retornaremos o mais breve possível.
+          </p>
+          <button type="button" className="btn bp mt12" onClick={() => go(backScreen)}>
+            {session ? 'Voltar às configurações' : 'Voltar ao login'}
+          </button>
+        </div>
+      </PublicFormShell>
+    );
+  }
+
+  return (
+    <PublicFormShell title="Falar com o suporte" onBack={() => go(backScreen)}>
+      <p className="access-form-intro">
+        Canal oficial: <strong>{supportEmail}</strong>. Descreva sua dúvida ou problema e nossa equipe responde
+        com base no protocolo gerado.
+      </p>
+      <label className="lbl">Nome *</label>
+      <input className="inp" value={form.nome} onChange={(e) => set('nome', e.target.value)} autoComplete="name" />
+      <label className="lbl">E-mail *</label>
+      <input
+        className="inp"
+        type="email"
+        value={form.email}
+        onChange={(e) => set('email', e.target.value)}
+        autoComplete="email"
+      />
+      <label className="lbl">Telefone</label>
+      <input
+        className="inp"
+        value={form.telefone}
+        onChange={(e) => set('telefone', formatPhoneInput(e.target.value))}
+        placeholder="(11) 99999-9999"
+        autoComplete="tel"
+      />
+      <label className="lbl">Empresa</label>
+      <input className="inp" value={form.empresa} onChange={(e) => set('empresa', e.target.value)} />
+      <label className="lbl">Assunto *</label>
+      <select className="inp" value={form.assunto} onChange={(e) => set('assunto', e.target.value)}>
+        {subjects.map((s) => (
+          <option key={s} value={s}>
+            {s}
+          </option>
+        ))}
+      </select>
+      <label className="lbl">Mensagem *</label>
+      <textarea
+        className="inp"
+        rows={5}
+        value={form.mensagem}
+        onChange={(e) => set('mensagem', e.target.value)}
+        placeholder="Descreva o problema ou a dúvida com o máximo de detalhes possível."
+        style={{ resize: 'vertical', minHeight: 120 }}
+      />
+      <button type="button" className="btn bp mt12" disabled={loading} onClick={handleSubmit}>
+        {loading ? 'Enviando…' : 'Enviar para o suporte'}
+      </button>
+    </PublicFormShell>
   );
 }
 

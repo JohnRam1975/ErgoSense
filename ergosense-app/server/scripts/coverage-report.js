@@ -105,7 +105,7 @@ const report = {
 fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(path.join(outDir, 'coverage-summary.json'), JSON.stringify(report, null, 2));
 
-let md = `# Cobertura — ErgoSensePro\n\nGerado: ${report.generatedAt}\n\n`;
+let md = `# Cobertura — ErgoSense\n\nGerado: ${report.generatedAt}\n\n`;
 md += `## Código\n\n`;
 if (fe) {
   md += `### Frontend (Vitest)\n\n| Métrica | % |\n|---------|--:|\n`;

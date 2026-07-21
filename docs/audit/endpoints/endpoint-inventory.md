@@ -1,4 +1,4 @@
-# Inventário de Endpoints — ErgoSensePro
+# Inventário de Endpoints — ErgoSense
 
 Gerado em: 2026-07-01T16:05:13.427Z
 

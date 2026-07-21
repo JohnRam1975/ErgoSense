@@ -1,7 +1,7 @@
 # QA Auditoria P8 — Cobertura 60%
 
 Gerado: 2026-06-11  
-Projeto: ErgoSensePro  
+Projeto: ErgoSense  
 Fase: P8 — Elevar cobertura real combinada para ≥60%
 
 ---

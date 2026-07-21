@@ -1,9 +1,0 @@
-apiVersion: 1
-providers:
-  - name: ErgoSense
-    orgId: 1
-    folder: ErgoSense
-    type: file
-    disableDeletion: false
-    options:
-      path: /etc/grafana/provisioning/dashboards/json

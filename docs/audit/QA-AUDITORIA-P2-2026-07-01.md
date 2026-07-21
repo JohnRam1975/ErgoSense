@@ -1,4 +1,4 @@
-# QA Auditoria P2 — ErgoSensePro
+# QA Auditoria P2 — ErgoSense
 
 **Data:** 2026-07-01  
 **Base:** P1 (88/100) → **P2 concluído**  

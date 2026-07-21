@@ -1,4 +1,4 @@
-# Critérios de 100% — ErgoSensePro (P7)
+# Critérios de 100% — ErgoSense (P7)
 
 **Data:** 2026-07-01  
 **Princípio:** 100% só quando há evidência objetiva e mensurável. Skips, estimativas e médias enganosas não contam.

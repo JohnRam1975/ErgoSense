@@ -83,6 +83,21 @@ function parseCreateBody(body) {
   };
 }
 
+function assertCreatePayload(parsed) {
+  if (!DENUNCIA_TIPOS.includes(parsed.type)) {
+    throw new Error(`Tipo de denúncia inválido. Use: ${DENUNCIA_TIPOS.join(', ')}`);
+  }
+  if (!['ANONIMA', 'IDENTIFICADA'].includes(parsed.modality)) {
+    throw new Error('Modalidade inválida. Use: ANONIMA ou IDENTIFICADA');
+  }
+  if (!parsed.lgpdConsent) {
+    throw new Error('Consentimento LGPD obrigatório para registro da denúncia');
+  }
+  if (!parsed.description?.trim()) {
+    throw new Error('Descrição obrigatória');
+  }
+}
+
 async function resolveSectorId(tenantId, sectorName) {
   if (!sectorName) return null;
   const { rows } = await query(
@@ -167,6 +182,7 @@ export function registerDenunciaRoutes(app, { resolveOperationalTenant }) {
 
     try {
       const parsed = parseCreateBody(req.body);
+      assertCreatePayload(parsed);
       const sectorId = await resolveSectorId(tenantId, parsed.sectorName);
       const created = await createDenuncia(null, { tenantId, ...parsed, sectorId }, req.user, clientIp(req));
       res.status(201).json(created);
@@ -187,6 +203,7 @@ export function registerDenunciaRoutes(app, { resolveOperationalTenant }) {
 
     try {
       const parsed = parseCreateBody(req.body);
+      assertCreatePayload(parsed);
       const sectorId = await resolveSectorId(tenantId, parsed.sectorName);
       const created = await createDenuncia(null, { tenantId, ...parsed, sectorId }, null, clientIp(req));
       res.status(201).json({

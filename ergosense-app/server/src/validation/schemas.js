@@ -190,3 +190,12 @@ export const updateProfileSchema = z.object({
   nome: z.string().trim().min(2, 'Informe um nome válido').max(200),
   localizacao: z.string().trim().max(200).optional().default(''),
 });
+
+export const contactSupportSchema = z.object({
+  nome: z.string().trim().min(2, 'Nome obrigatório').max(200),
+  email: z.string().email('E-mail inválido'),
+  telefone: z.string().trim().max(64).optional().nullable(),
+  empresa: z.string().trim().max(255).optional().nullable(),
+  assunto: z.string().trim().min(3, 'Assunto obrigatório').max(120),
+  mensagem: z.string().trim().min(10, 'Mensagem muito curta').max(4000),
+});

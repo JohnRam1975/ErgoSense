@@ -1,4 +1,4 @@
-# Rodar local — ErgoSensePro
+# Rodar local — ErgoSense
 
 ## Requisitos
 

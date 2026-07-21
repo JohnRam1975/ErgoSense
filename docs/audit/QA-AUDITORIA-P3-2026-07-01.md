@@ -1,4 +1,4 @@
-# QA Auditoria P3 — ErgoSensePro
+# QA Auditoria P3 — ErgoSense
 
 **Data:** 2026-07-01  
 **Base:** P2 (92/100) → **P3 concluído**  

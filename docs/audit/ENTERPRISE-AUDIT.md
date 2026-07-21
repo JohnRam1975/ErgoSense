@@ -1,4 +1,4 @@
-# ErgoSensePro — Auditoria Enterprise (Etapa 1)
+# ErgoSense — Auditoria Enterprise (Etapa 1)
 
 **Data:** 2026-06-12  
 **Escopo:** Arquitetura completa pré-evolução enterprise  

@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS esocial_config (
   razao_social VARCHAR(255),
   ambiente SMALLINT NOT NULL DEFAULT 2 CHECK (ambiente IN (1, 2)),
   proc_emi SMALLINT NOT NULL DEFAULT 1 CHECK (proc_emi IN (1, 2, 3, 4, 8, 9)),
-  ver_proc VARCHAR(20) NOT NULL DEFAULT 'ErgoSensePro 1.0',
+  ver_proc VARCHAR(20) NOT NULL DEFAULT 'ErgoSense 1.0',
   certificado_serial VARCHAR(128),
   certificado_validade DATE,
   govbr_endpoint_prod VARCHAR(512) DEFAULT 'https://webservices.producaorestrita.esocial.gov.br/servicos/empregador/enviarloteeventos/WsEnviarLoteEventos.svc',

@@ -94,7 +94,7 @@ function writeReports(matrix, classified) {
   fs.writeFileSync(path.join(outDir, 'endpoint-matrix.json'), JSON.stringify(matrix, null, 2));
   fs.writeFileSync(path.join(outDir, 'endpoint-matrix-classifications.json'), JSON.stringify(classified, null, 2));
 
-  let md = `# Matriz de Endpoints v2 (contrato) — ErgoSensePro\n\nGerado: ${matrix.generatedAt}\n\n`;
+  let md = `# Matriz de Endpoints v2 (contrato) — ErgoSense\n\nGerado: ${matrix.generatedAt}\n\n`;
   md += `| Métrica | Valor |\n|---------|------:|\n`;
   md += `| Rotas | ${matrix.summary.total} |\n`;
   md += `| Checks acionáveis | ${actionable} |\n`;

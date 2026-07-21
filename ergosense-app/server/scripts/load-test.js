@@ -54,7 +54,7 @@ async function runLevel(n, path, token) {
 }
 
 async function main() {
-  console.log('\n=== LOAD TEST ErgoSensePro ===\n');
+  console.log('\n=== LOAD TEST ErgoSense ===\n');
   const token = await login();
   console.log('Login OK\n');
 

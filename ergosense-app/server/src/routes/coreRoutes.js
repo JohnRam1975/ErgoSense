@@ -19,9 +19,12 @@ import {
   listReports,
 } from '../services/analysisService.js';
 import { validateBody } from '../validation/validateRequest.js';
-import { collaboratorSchema, sectorSchema, accessRequestSchema, analysisSchema } from '../validation/schemas.js';
+import { collaboratorSchema, sectorSchema, accessRequestSchema, analysisSchema, contactSupportSchema } from '../validation/schemas.js';
 import { apiSuccess, apiCreated, apiError } from '../utils/apiResponse.js';
 import { sanitizeEmail } from '../auth/sanitize.js';
+import { createSupportContact } from '../services/contactSupportService.js';
+import { config } from '../config/env.js';
+import { clientIp } from '../supportAuth.js';
 
 export function registerCoreRoutes(app, { resolveOperationalTenant, publicFormRateLimit }) {
   app.get('/api/sectors', requirePermission('sectors:read'), async (req, res) => {
@@ -85,6 +88,39 @@ export function registerCoreRoutes(app, { resolveOperationalTenant, publicFormRa
     return apiCreated(res, rows[0]);
   });
 
+  app.get('/api/public/support-contact', (_req, res) => {
+    return apiSuccess(res, {
+      supportEmail: config.support.contactEmail,
+      subjects: [
+        'Dúvida sobre o produto',
+        'Problema de acesso / login',
+        'Solicitação comercial',
+        'LGPD / privacidade',
+        'Outro',
+      ],
+    });
+  });
+
+  app.post(
+    '/api/public/support-contact',
+    publicFormRateLimit,
+    validateBody(contactSupportSchema),
+    async (req, res) => {
+      try {
+        const result = await createSupportContact(req.validatedBody, {
+          ip: clientIp(req),
+          userAgent: req.headers['user-agent']?.toString()?.slice(0, 512) ?? null,
+        });
+        return apiCreated(
+          res,
+          result,
+          `Mensagem enviada ao suporte (${result.supportEmail}). Protocolo: ${result.protocolo}`,
+        );
+      } catch (err) {
+        return apiError(res, err.message, err.status ?? 500);
+      }
+    },
+  );
   app.get('/api/collaborators', requirePermission('collaborators:read'), async (req, res) => {
     const tenantId = await resolveOperationalTenant(req, res, 'Colaboradores');
     if (!tenantId) return;

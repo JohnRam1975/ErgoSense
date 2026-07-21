@@ -1,11 +1,11 @@
-# Checklist de Conformidade MTE / NR-01 — ErgoSensePro
+# Checklist de Conformidade MTE / NR-01 — ErgoSense
 **Referência:** Portaria MTE nº 1.419/2024 · Guia MTE 2025 · NR-1 · ISO 45003:2021
 **Data:** 08/06/2026
 
 ---
 
 ## Legenda
-- ✅ **Atendido** — Implementado no sistema (ErgoSensePro v3)
+- ✅ **Atendido** — Implementado no sistema (ErgoSense v3)
 - ⚠ **Parcial** — Implementado parcialmente; completar na Fase indicada
 - ❌ **Pendente** — Não implementado; implementar na Fase indicada
 - 🎯 **Meta** — Fase em que o requisito será atendido

@@ -46,7 +46,7 @@ function ideEvento(config, indRetif = 1, nrRecibo = null) {
   if (indRetif === 2 && nrRecibo) xml += `<nrRecibo>${escapeXml(nrRecibo)}</nrRecibo>`;
   xml += `<tpAmb>${config.ambiente ?? 2}</tpAmb>`;
   xml += `<procEmi>${config.proc_emi ?? 1}</procEmi>`;
-  xml += `<verProc>${escapeXml(config.ver_proc ?? 'ErgoSensePro 1.0')}</verProc>`;
+  xml += `<verProc>${escapeXml(config.ver_proc ?? 'ErgoSense 1.0')}</verProc>`;
   xml += `</ideEvento>`;
   return xml;
 }
@@ -145,7 +145,7 @@ function buildS2240Body(data) {
     tpAval: data.tpAval ?? '1',
     intConc: data.intConc ?? '3',
     unMed: data.unMed ?? 'NA',
-    tecMedicao: data.tecMedicao ?? 'ErgoSensePro — avaliação ergonômica',
+    tecMedicao: data.tecMedicao ?? 'ErgoSense — avaliação ergonômica',
   }];
   let agXml = '';
   for (const ag of agentes) {
@@ -156,7 +156,7 @@ function buildS2240Body(data) {
       <intConc>${escapeXml(ag.intConc ?? '3')}</intConc>
       <limTol>${escapeXml(ag.limTol ?? 'NA')}</limTol>
       <unMed>${escapeXml(ag.unMed ?? 'NA')}</unMed>
-      <tecMedicao>${escapeXml(ag.tecMedicao ?? 'ErgoSensePro')}</tecMedicao>
+      <tecMedicao>${escapeXml(ag.tecMedicao ?? 'ErgoSense')}</tecMedicao>
       <epcEpi>
         <utilizEPC>${escapeXml(ag.utilizEPC ?? '0')}</utilizEPC>
         <utilizEPI>${escapeXml(ag.utilizEPI ?? '0')}</utilizEPI>
@@ -200,7 +200,7 @@ export function buildEsocialXml(tipoEvento, config, eventId, payload) {
 /** Bloco de assinatura preparado para certificado ICP-Brasil (gov.br) */
 export function appendSignaturePlaceholder(xml, assinatura) {
   const sigBlock = `
-<!-- Assinatura digital ErgoSensePro — pronta para XML-DSig gov.br -->
+<!-- Assinatura digital ErgoSense — pronta para XML-DSig gov.br -->
 <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
   <SignedInfo>
     <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>

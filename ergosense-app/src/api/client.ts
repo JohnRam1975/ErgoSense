@@ -393,6 +393,27 @@ export async function apiSubmitAccessRequest(data: {
   });
 }
 
+export async function apiGetSupportContactInfo(): Promise<{
+  supportEmail: string;
+  subjects: string[];
+}> {
+  return request('/api/public/support-contact');
+}
+
+export async function apiSubmitSupportContact(data: {
+  nome: string;
+  email: string;
+  telefone?: string;
+  empresa?: string;
+  assunto: string;
+  mensagem: string;
+}): Promise<{ protocolo: string; supportEmail: string }> {
+  return request('/api/public/support-contact', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
 export async function apiUpdateProfile(data: { nome: string; localizacao?: string }) {
   return request<{
     id: string;

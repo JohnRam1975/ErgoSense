@@ -1,4 +1,4 @@
-/** Configuração central — modelos de visão computacional ErgoSensePro */
+/** Configuração central — modelos de visão computacional ErgoSense */
 
 export const VISION_CONFIG = {
   pose: {

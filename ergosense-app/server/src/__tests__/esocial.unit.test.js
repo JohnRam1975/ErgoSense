@@ -21,7 +21,7 @@ const baseConfig = {
   nr_insc: '11222333000181',
   ambiente: 2,
   proc_emi: 1,
-  ver_proc: 'ErgoSensePro 1.0',
+  ver_proc: 'ErgoSense 1.0',
 };
 
 const basePayload = {

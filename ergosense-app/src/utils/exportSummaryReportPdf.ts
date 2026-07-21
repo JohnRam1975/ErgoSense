@@ -136,7 +136,7 @@ export function exportAnalysesSummaryPdf(
     }
   }
 
-  addDocumentFooter(doc, 'ErgoSensePro — relatorio consolidado');
+  addDocumentFooter(doc, 'ErgoSense — relatorio consolidado');
   const filename = `ErgoSense_${safeFilename(title)}_${safeFilename(opts.companyName)}.pdf`;
   downloadPdfBlob(doc, filename);
   return filename;

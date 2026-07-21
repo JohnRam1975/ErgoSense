@@ -57,7 +57,7 @@ fs.mkdirSync(outDir, { recursive: true });
 const jsonPath = path.join(outDir, 'endpoint-inventory.json');
 fs.writeFileSync(jsonPath, JSON.stringify(inventory, null, 2));
 
-let md = `# Inventário de Endpoints — ErgoSensePro\n\n`;
+let md = `# Inventário de Endpoints — ErgoSense\n\n`;
 md += `Gerado em: ${inventory.generatedAt}\n\n`;
 md += `| Métrica | Valor |\n|---------|------:|\n`;
 md += `| Rotas registradas | ${inventory.totals.routes} |\n`;

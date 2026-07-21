@@ -21,7 +21,7 @@ const CLIENT_PROFILES = [
   { perfil: 'INDUSTRIA', desc: 'Operações industriais com PGR/GRO ativos' },
   { perfil: 'ESCRITORIO', desc: 'Teleatendimento e ergonomia NR-17' },
   { perfil: 'SAUDE', desc: 'Exposições SST e eSocial SST' },
-  { perfil: 'GERAL', desc: 'Todos os clientes ErgoSensePro' },
+  { perfil: 'GERAL', desc: 'Todos os clientes ErgoSense' },
 ];
 
 export function analyzeSystemImpact(detection) {
@@ -47,7 +47,7 @@ export function analyzeSystemImpact(detection) {
       componente: 'complianceMonitor.js',
       descricao: 'Alteração regulatória transversal detectada.',
       severidade: 'medio',
-      acao_sistema: 'Análise jurídica e mapeamento de impacto nos módulos ErgoSensePro.',
+      acao_sistema: 'Análise jurídica e mapeamento de impacto nos módulos ErgoSense.',
       requer_atualizacao: true,
     });
   }

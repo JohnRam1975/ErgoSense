@@ -116,7 +116,7 @@ function buildFieldNr17Report() {
 
 async function main() {
   console.log('\n═══════════════════════════════════════════════════════════');
-  console.log('  INSPEÇÃO DE CAMPO — Ergonomista Sênior · ErgoSensePro');
+  console.log('  INSPEÇÃO DE CAMPO — Ergonomista Sênior · ErgoSense');
   console.log(`  Tenant: ${TENANT} · ${new Date().toLocaleString('pt-BR')}`);
   console.log('═══════════════════════════════════════════════════════════\n');
 

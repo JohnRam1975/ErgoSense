@@ -160,7 +160,7 @@ export function LoginScreen() {
                 onClick={() =>
                   showModal(
                     'Redefinir senha',
-                    'Recuperação por e-mail (SMTP) está planejada para uma atualização futura. Por enquanto, peça ao administrador da empresa ou ao suporte ErgoSense para redefinir sua senha.',
+                    'Recuperação por e-mail (SMTP) está planejada para uma atualização futura. Por enquanto, use “Falar com o suporte” (ergosense.suporte@dejohn.com.br) ou peça ao administrador da empresa para redefinir sua senha.',
                     'Entendi',
                   )
                 }
@@ -179,6 +179,10 @@ export function LoginScreen() {
                 <span className="login-link-sep">·</span>
                 <button type="button" className="login-text-link" onClick={() => go('request-access-autonomo')}>
                   Sou autônomo
+                </button>
+                <span className="login-link-sep">·</span>
+                <button type="button" className="login-text-link" onClick={() => go('contact-support')}>
+                  Falar com o suporte
                 </button>
               </div>
               <PwaDownloadCard />

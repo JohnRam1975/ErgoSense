@@ -1,4 +1,4 @@
-# ErgoSensePro — Onboarding de Empresas (Tenants)
+# ErgoSense — Onboarding de Empresas (Tenants)
 
 **Data:** 2026-06-12  
 **Escopo:** Cadastro, aprovação, ativação e gestão de empresas

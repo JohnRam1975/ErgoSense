@@ -108,6 +108,10 @@ export const config = {
   public: {
     appUrl: env('APP_PUBLIC_URL', env('CORS_ORIGINS', 'http://localhost:5173').split(',')[0]),
   },
+
+  support: {
+    contactEmail: env('SUPPORT_CONTACT_EMAIL', 'ergosense.suporte@dejohn.com.br'),
+  },
 };
 
 export function isProduction() {

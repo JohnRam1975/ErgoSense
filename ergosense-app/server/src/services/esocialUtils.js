@@ -267,7 +267,7 @@ export async function buildPayloadFromAnalysis(tenantId, analysisId, tipoEvento)
       ...base,
       agentes: [{
         codAgNoc: '302010200',
-        dscAgNoc: 'Postura inadequada ou posição forçada — avaliação ErgoSensePro',
+        dscAgNoc: 'Postura inadequada ou posição forçada — avaliação ErgoSense',
         tpAval: '1',
         intConc: '3',
         tecMedicao: `Análise ergonômica #${analysisId}`,
@@ -285,7 +285,7 @@ export async function buildPayloadFromAnalysis(tenantId, analysisId, tipoEvento)
   return {
     ...base,
     dtAcid: a.data_analise,
-    descricao: a.observacoes ?? 'Acidente registrado via ErgoSensePro',
+    descricao: a.observacoes ?? 'Acidente registrado via ErgoSense',
     cat: { dtAcid: a.data_analise, dscLocal: a.setor_nome },
   };
 }

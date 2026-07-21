@@ -1,0 +1,149 @@
+# ErgoSense — produção (Hostinger / VPS) — mesmo padrão do FinCare
+# Imagens: GitHub Container Registry (GHCR) — grátis, packages públicos
+#
+#   1) Publicar:  powershell -File infra/docker-publish.ps1
+#   2) Hostinger: colar este compose + .env (base: infra/.env.example)
+#   3) Projeto Docker Manager: ergosense
+
+name: ergosense
+
+services:
+  db:
+    container_name: ergosense-db
+    image: ${ERGOSENSE_POSTGRES_IMAGE:-ghcr.io/johnram1975/ergosense-postgres:latest}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ergosense}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ergosense_change_me}
+    volumes:
+      - ergosense_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - ergosense
+
+  cache:
+    container_name: ergosense-cache
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - ergosense_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - ergosense
+
+  storage:
+    container_name: ergosense-storage
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-ergosense}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-ergosense_minio_change_me}
+    volumes:
+      - ergosense_minio:/data
+    networks:
+      - ergosense
+
+  backend:
+    container_name: ergosense-backend
+    image: ${ERGOSENSE_API_IMAGE:-ghcr.io/johnram1975/ergosense-api:latest}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+      storage:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: ${POSTGRES_DB:-ergosense}
+      PGUSER: ${POSTGRES_USER:-postgres}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-ergosense_change_me}
+      REDIS_ENABLED: "true"
+      REDIS_URL: redis://cache:6379
+      CACHE_ENABLED: "true"
+      SESSION_REDIS_ENABLED: "true"
+      RABBITMQ_ENABLED: "false"
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-database}
+      STORAGE_ENDPOINT: http://storage:9000
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-ergosense-media}
+      STORAGE_ACCESS_KEY: ${MINIO_ROOT_USER:-ergosense}
+      STORAGE_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-ergosense_minio_change_me}
+      TRUST_PROXY: "true"
+      CSRF_ENABLED: ${CSRF_ENABLED:-true}
+      MFA_ENABLED: ${MFA_ENABLED:-false}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://ergosense.dejohn.com.br}
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:-https://ergosense.dejohn.com.br}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-desktop-access-secret-min-32-chars-xx}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-desktop-refresh-secret-min-32-chars-x}
+      MFA_ENCRYPTION_KEY: ${MFA_ENCRYPTION_KEY:-}
+      MFA_PENDING_SECRET: ${MFA_PENDING_SECRET:-}
+      RATE_LIMIT_SKIP_DEV: ${RATE_LIMIT_SKIP_DEV:-false}
+      METRICS_ENABLED: "true"
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      AI_PROVIDER: ${AI_PROVIDER:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      SEED_GLOBAL_ADMIN_EMAIL: ${SEED_GLOBAL_ADMIN_EMAIL:-}
+      SEED_GLOBAL_ADMIN_PASSWORD: ${SEED_GLOBAL_ADMIN_PASSWORD:-}
+      SUPPORT_CONTACT_EMAIL: ${SUPPORT_CONTACT_EMAIL:-ergosense.suporte@dejohn.com.br}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+    networks:
+      - ergosense
+
+  frontend:
+    container_name: ergosense-frontend
+    image: ${ERGOSENSE_WEB_IMAGE:-ghcr.io/johnram1975/ergosense-web:latest}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      # Hostinger: SSL do domínio aponta para esta porta 80
+      - "${PUBLIC_HTTP_PORT:-80}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 20s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+    networks:
+      - ergosense
+
+volumes:
+  ergosense_pgdata:
+  ergosense_redis:
+  ergosense_minio:
+
+networks:
+  ergosense:
+    driver: bridge

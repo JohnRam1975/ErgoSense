@@ -1,4 +1,4 @@
-# ErgoSensePro — Auditoria Extrema de Qualidade (Modo Produção Real)
+# ErgoSense — Auditoria Extrema de Qualidade (Modo Produção Real)
 
 **Data:** 11/06/2026  
 **Metodologia:** Documento `AUDITORIA EXTREMA DE QUALIDADE.pdf` (15 fases)  

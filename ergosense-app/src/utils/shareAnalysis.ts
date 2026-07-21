@@ -10,7 +10,7 @@ export function buildAnalysisShareText(analysis: Analysis, companyName: string):
         : 'Não conforme'
     : riskLabel(analysis.risk);
   return [
-    `ErgoSensePro — Resultado da análise`,
+    `ErgoSense — Resultado da análise`,
     `Empresa: ${companyName}`,
     `Colaborador: ${analysis.collaboratorName}`,
     `Setor: ${analysis.setor}`,

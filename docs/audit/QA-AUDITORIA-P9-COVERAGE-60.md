@@ -1,7 +1,7 @@
 # QA Auditoria P9 — Cobertura 60%
 
 Gerado: 2026-06-11  
-Projeto: ErgoSensePro  
+Projeto: ErgoSense  
 Fase: P9 — Supertest + Testcontainers + integração para ≥60% combinado
 
 ---

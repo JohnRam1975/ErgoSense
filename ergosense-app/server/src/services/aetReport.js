@@ -119,7 +119,7 @@ export function buildAetNormativeReport(processo, extras = {}) {
     documentHash: processo.documentHash ?? null,
     integrations: integrations ?? null,
     disclaimer:
-      'Laudo técnico de Análise Ergonômica do Trabalho (AET) gerado pelo ErgoSensePro. ' +
+      'Laudo técnico de Análise Ergonômica do Trabalho (AET) gerado pelo ErgoSense. ' +
       'Documento com validade após revisão e assinatura do ergonomista responsável (CREA/ABERG). ' +
       'Referências: NR-17, NR-15, NHO-10, ISO 2631-1, ISO 5349, NIOSH RNLE.',
     generatedAt: now,

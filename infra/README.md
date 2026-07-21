@@ -22,12 +22,31 @@ Depois: https://github.com/users/JohnRam1975/packages → cada package ErgoSense
 
 ## Hostinger Docker Manager
 
-1. Projeto: **`ergosense`**
-2. Colar o conteúdo de `infra/docker-compose.yml`
-3. Colar `.env` preenchido (senhas fortes + domínio)
-4. Deploy / Pull + Up
+**Recomendado:** Compose from URL (evita erro de paste / `.hstgr-*.list.py`):
 
-Domínio SSL aponta para a **porta 80** (`PUBLIC_HTTP_PORT=80`).
+```
+https://raw.githubusercontent.com/JohnRam1975/ErgoSense/main/infra/docker-compose.yml
+```
+
+1. Projeto: **`ergosense`**
+2. Cole o `.env` (base: `.env.example`) com senhas reais
+3. Deploy
+
+### Se aparecer `python3: can't open file '/.hstgr-....list.py'`
+
+É falha interna do painel Hostinger (não do app). Causas mais comuns:
+
+1. **Porta 80 ocupada** pelo FinCare (`fincare-proxy`) — no `.env` use `PUBLIC_HTTP_PORT=8088`
+2. Compose colado com erro — use **Compose from URL** acima
+3. Ver o log real no terminal do VPS:
+
+```bash
+cat /docker/ergosense/.build.log
+sudo netstat -tlnp | grep -E ':80|:8088'
+docker ps -a
+```
+
+Domínio SSL aponta para a porta publicada (`80` ou `8088`).
 
 ## Local (desktop)
 

@@ -25,12 +25,14 @@ test.describe('Jornada — tenant bloqueado', () => {
     const suffix = Date.now();
     const email = `blocked_e2e_${suffix}@test.local`;
     const cnpj = generateValidCnpj();
+    const pass = 'BlockTest1!';
     const req = await submitTenantRequestApi({
       razaoSocial: `Blocked Co ${suffix}`,
       cnpj,
       email,
       responsavelNome: 'Admin Blocked',
       telefone: '11988887777',
+      password: pass,
     });
     const token = await adminToken();
     const approved = await approveTenantRequestApi(token, req.id);
@@ -40,8 +42,7 @@ test.describe('Jornada — tenant bloqueado', () => {
 
     const preview = await getActivationPreviewApi(approved.activationToken);
     const mfaCode = totpFromOtpAuthUrl(preview.otpauthUrl);
-    const pass = 'BlockTest1!';
-    await activateAccountApi({ token: approved.activationToken, password: pass, mfaCode });
+    await activateAccountApi({ token: approved.activationToken, mfaCode });
 
     const blockRes = await fetch(`${API}/api/admin/tenants/${tenantId}/block`, {
       method: 'POST',

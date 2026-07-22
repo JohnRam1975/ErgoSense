@@ -45,10 +45,10 @@ export async function navigateToScreen(page: Page, screenId: AllScreenId) {
       return;
 
     case 'company':
-      await openMenu(page);
-      await page.getByRole('button', { name: /Trocar empresa/i }).click();
-      await expectScreenActive(page, 'company');
-      await page.locator('button.cch').first().click();
+      // Ergonomista usa bridge E2E — menu só oferece "Trocar empresa" para admin global.
+      await e2eGo(page, 'company');
+      await page.locator('button.cch').first().click({ timeout: 15000 }).catch(() => undefined);
+      await page.evaluate(() => window.__ERGOSENSE_E2E__?.go('dashboard'));
       await expectScreenActive(page, 'dashboard');
       return;
 

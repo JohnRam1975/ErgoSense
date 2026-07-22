@@ -180,9 +180,9 @@ test.describe('Inventário completo ScreenId', () => {
 
     expect(ALL_SCREEN_IDS.length).toBe(90);
 
-    expect(ONBOARDING_PUBLIC_SCREEN_IDS.length).toBe(2);
+    expect(ONBOARDING_PUBLIC_SCREEN_IDS.length).toBe(3);
 
-    expect(ONBOARDING_ADMIN_SCREEN_IDS.length).toBe(5);
+    expect(ONBOARDING_ADMIN_SCREEN_IDS.length).toBe(6);
 
   });
 

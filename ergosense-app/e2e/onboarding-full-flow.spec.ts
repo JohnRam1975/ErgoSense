@@ -6,6 +6,8 @@ import {
   approveTenantRequestApi,
   generateValidCnpj,
   getActivationPreviewApi,
+  getTenantRequestApi,
+  grantTenantAccessApi,
   listTenantRequests,
   loginApi,
   totpFromOtpAuthUrl,
@@ -43,6 +45,8 @@ test.describe('Fluxo E2E — onboarding tenant completo', () => {
     await fillInput(page, 'input.inp >> nth=5', 'Admin E2E');
     await fillInput(page, 'input[type="email"]', email);
     await fillInput(page, 'input.inp >> nth=7', '11999990000');
+    await fillInput(page, 'input[type="password"] >> nth=0', password);
+    await fillInput(page, 'input[type="password"] >> nth=1', password);
 
     const submitResponse = page.waitForResponse(
       (res) => res.url().includes('/api/public/tenant-request') && res.status() < 500,
@@ -57,17 +61,22 @@ test.describe('Fluxo E2E — onboarding tenant completo', () => {
     const adminLogin = await loginApi(GLOBAL_EMAIL, GLOBAL_PASSWORD);
     expect(adminLogin.mfaRequired, 'admin global não deve exigir MFA no ambiente E2E').toBeFalsy();
     const pending = await listTenantRequests(adminLogin.accessToken, company);
-    const request = pending.find((r) => r.email === email || r.razaoSocial === company);
+    const request = pending.find((r) => r.email === email || (r as { razaoSocial?: string }).razaoSocial === company);
     expect(request, 'solicitação pendente não encontrada').toBeTruthy();
 
     const approved = await approveTenantRequestApi(adminLogin.accessToken, request!.id);
     const activationToken = approved.activationToken;
     expect(activationToken).toBeTruthy();
 
-    // 3. API — preview MFA + ativação
+    // 3. API — preview MFA + ativação (senha já definida no cadastro)
     const preview = await getActivationPreviewApi(activationToken);
     const activateMfaCode = totpFromOtpAuthUrl(preview.otpauthUrl);
-    await activateAccountApi({ token: activationToken, password, mfaCode: activateMfaCode });
+    await activateAccountApi({ token: activationToken, mfaCode: activateMfaCode });
+
+    const detail = await getTenantRequestApi(adminLogin.accessToken, request!.id);
+    const tenantId = detail.tenantId ?? approved.tenantId;
+    expect(tenantId).toBeTruthy();
+    await grantTenantAccessApi(adminLogin.accessToken, tenantId!);
 
     // 4. UI — login com MFA
     await waitForAppBoot(page);

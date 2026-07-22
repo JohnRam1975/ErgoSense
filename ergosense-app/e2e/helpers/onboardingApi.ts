@@ -53,6 +53,7 @@ export async function submitTenantRequestApi(payload: {
   email: string;
   responsavelNome: string;
   telefone: string;
+  password: string;
 }) {
   return apiJson<{ id: string; protocolo: string }>('/api/public/tenant-request', {
     method: 'POST',
@@ -66,6 +67,8 @@ export async function submitTenantRequestApi(payload: {
       email: payload.email,
       telefone: payload.telefone,
       plano: 'STARTER',
+      password: payload.password,
+      confirmPassword: payload.password,
     }),
   });
 }
@@ -128,16 +131,25 @@ export async function getActivationPreviewApi(activationToken: string) {
 
 export async function activateAccountApi(data: {
   token: string;
-  password: string;
+  password?: string;
   mfaCode: string;
 }) {
   return apiJson<{ email: string }>('/api/auth/activate-account', {
     method: 'POST',
     body: JSON.stringify({
       token: data.token,
-      password: data.password,
-      confirmPassword: data.password,
+      ...(data.password
+        ? { password: data.password, confirmPassword: data.password }
+        : {}),
       mfaCode: data.mfaCode,
     }),
+  });
+}
+
+export async function grantTenantAccessApi(token: string, tenantId: string) {
+  return apiJson<{ tenantId: string }>(`/api/admin/tenants/${encodeURIComponent(tenantId)}/grant-access`, {
+    method: 'POST',
+    token,
+    body: JSON.stringify({ confirm: true, paymentNote: 'E2E liberação' }),
   });
 }

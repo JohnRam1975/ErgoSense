@@ -1,52 +1,19 @@
 import type { Company, Collaborator, Analysis, Report, AppSettings } from '../types';
 
-export const COMPANIES: Company[] = [
-  { id: 'vale', name: 'Vale S.A.', industry: 'Mineração', schema: 'vale_sa', icon: '⚙️', color: 'amber', active: true },
-  { id: 'gerdau', name: 'Gerdau Aços', industry: 'Siderurgia', employees: 820, icon: '🏭', color: 'cyan' },
-  { id: 'porto', name: 'Porto do Açu', industry: 'Portuário', employees: 450, icon: '🚢', color: 'green' },
-  { id: 'usiminas', name: 'Usiminas', industry: 'Siderurgia', employees: 1100, icon: '🏗️', color: 'neutral' },
-];
+export const COMPANIES: Company[] = [];
 
-export const DEFAULT_COLLABORATORS: Collaborator[] = [
-  { id: '1', name: 'Carlos Ferreira', matricula: '00142', cargo: 'Operador de Britagem', setor: 'Beneficiamento', turno: 'Manhã 06h–14h', consent: true, consentDate: '26/05/2026 09:38', risk: 'critico', icon: '🦺', iconBg: 'var(--r10)' },
-  { id: '2', name: 'Ana Paula Silva', matricula: '00098', cargo: 'Técnica de Manutenção', setor: 'Manutenção', turno: 'Tarde 14h–22h', consent: true, consentDate: '20/05/2026 14:22', risk: 'medio', icon: '⚙️', iconBg: 'var(--a10)' },
-  { id: '3', name: 'Roberto Nascimento', matricula: '00215', cargo: 'Operador de Empilhadeira', setor: 'Logística', turno: 'Manhã 06h–14h', consent: true, consentDate: '18/05/2026 08:10', risk: 'baixo', icon: '👷', iconBg: 'var(--g10)' },
-  { id: '4', name: 'Marcos Oliveira', matricula: '00334', cargo: 'Eletricista', setor: 'Elétrica', turno: 'Noite 22h–06h', consent: true, consentDate: '15/05/2026 22:05', risk: 'baixo', icon: '👨‍🔧', iconBg: 'var(--c10)' },
-  { id: '5', name: 'Fernanda Costa', matricula: '00287', cargo: 'Soldadora', setor: 'Soldagem', turno: 'Tarde 14h–22h', consent: true, consentDate: '12/05/2026 16:30', risk: 'alto', icon: '🔧', iconBg: 'var(--o10)' },
-];
+/** Placeholder sem identidade demo — usado só até a API carregar o tenant. */
+export const EMPTY_COMPANY: Company = {
+  id: '',
+  name: '—',
+  industry: '',
+  icon: '🏢',
+  color: 'neutral',
+};
 
-export const DEFAULT_ANALYSES: Analysis[] = [
-  {
-    id: 'a1', collaboratorId: '1', collaboratorName: 'Carlos Ferreira', setor: 'Beneficiamento', activity: 'Operação de britagem',
-    date: '26/05/2026', time: '09:32', score: 87, risk: 'critico', rula: 7, reba: 11,
-    angles: { lombar: 34, dorso: 32, ombroD: 127, pescoco: 22, cotovelo: 88, maoD: 155, quadril: 78, joelhoD: 68, tornozeloD: 72, repeticao: 8 },
-    mode: 'complete', synced: true, icon: '🦺', iconBg: 'var(--r10)',
-  },
-  {
-    id: 'a2', collaboratorId: '2', collaboratorName: 'Ana Paula Silva', setor: 'Manutenção', activity: 'Inspeção de equipamentos',
-    date: '26/05/2026', time: '08:15', score: 54, risk: 'medio', rula: 4, reba: 7,
-    angles: { lombar: 18, dorso: 22, ombroD: 95, pescoco: 15, cotovelo: 72, maoD: 142, quadril: 105, joelhoD: 95, tornozeloD: 98, repeticao: 5 },
-    mode: 'complete', synced: true, icon: '⚙️', iconBg: 'var(--a10)',
-  },
-  {
-    id: 'a3', collaboratorId: '3', collaboratorName: 'Roberto Nascimento', setor: 'Logística', activity: 'Movimentação de material',
-    date: '25/05/2026', time: '14:22', score: 22, risk: 'baixo', rula: 2, reba: 3,
-    angles: { lombar: 8, dorso: 12, ombroD: 45, pescoco: 10, cotovelo: 90, maoD: 128, quadril: 165, joelhoD: 172, tornozeloD: 100, repeticao: 3 },
-    mode: 'offline', synced: true, icon: '👷', iconBg: 'var(--g10)',
-  },
-  {
-    id: 'a4', collaboratorId: '5', collaboratorName: 'Fernanda Costa', setor: 'Soldagem', activity: 'Soldagem MIG',
-    date: '25/05/2026', time: '11:05', score: 68, risk: 'alto', rula: 5, reba: 9,
-    angles: { lombar: 25, dorso: 30, ombroD: 110, pescoco: 30, cotovelo: 65, maoD: 160, quadril: 72, joelhoD: 62, tornozeloD: 68, repeticao: 12 },
-    mode: 'complete', synced: true, icon: '🔧', iconBg: 'var(--o10)',
-  },
-  {
-    id: 'a5', collaboratorId: '4', collaboratorName: 'Marcos Oliveira', setor: 'Elétrica', activity: 'Manutenção elétrica',
-    date: '25/05/2026', time: '09:48', score: 31, risk: 'baixo', rula: 3, reba: 4,
-    angles: { lombar: 12, dorso: 15, ombroD: 60, pescoco: 18, cotovelo: 85, maoD: 135, quadril: 158, joelhoD: 168, tornozeloD: 102, repeticao: 4 },
-    mode: 'offline', synced: true, icon: '👨‍🔧', iconBg: 'var(--c10)',
-  },
-];
+export const DEFAULT_COLLABORATORS: Collaborator[] = [];
+
+export const DEFAULT_ANALYSES: Analysis[] = [];
 
 export const DEFAULT_REPORTS: Report[] = [];
 

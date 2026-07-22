@@ -343,7 +343,7 @@ export function SettingsScreen() {
       showToast('Informe seu nome', 'warn');
       return;
     }
-    updateSession({ name: profileName.trim(), location: profileLocation.trim() || session?.location || 'Carajás' });
+    updateSession({ name: profileName.trim(), location: profileLocation.trim() || session?.location || '' });
     setProfileOpen(false);
     showToast('Perfil atualizado', 'success');
   };
@@ -377,9 +377,9 @@ export function SettingsScreen() {
             👤
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: 'var(--fd)', fontSize: 19, fontWeight: 800, color: 'var(--t0)' }}>{session?.name ?? 'Lucas Andrade'}</div>
+            <div style={{ fontFamily: 'var(--fd)', fontSize: 19, fontWeight: 800, color: 'var(--t0)' }}>{session?.name || 'Usuário'}</div>
             <div style={{ fontSize: 12, color: 'var(--t1)' }}>
-              {session?.role ?? 'Ergonomista Sênior'} · {selectedCompany.name}
+              {session?.role || '—'} · {selectedCompany.name}
             </div>
             <div className="badge bm mt4" style={{ fontSize: 9 }}>
               {roleBadge}
@@ -554,7 +554,7 @@ export function SettingsScreen() {
               <label className="lbl">Nome completo</label>
               <input className="inp" value={profileName} onChange={(e) => setProfileName(e.target.value)} placeholder="Seu nome" />
               <label className="lbl">Localização</label>
-              <input className="inp" value={profileLocation} onChange={(e) => setProfileLocation(e.target.value)} placeholder="Ex.: Carajás" />
+              <input className="inp" value={profileLocation} onChange={(e) => setProfileLocation(e.target.value)} placeholder="Ex.: unidade / cidade" />
               <label className="lbl">E-mail</label>
               <input className="inp" value={session?.email ?? ''} readOnly style={{ opacity: 0.6 }} />
             </div>

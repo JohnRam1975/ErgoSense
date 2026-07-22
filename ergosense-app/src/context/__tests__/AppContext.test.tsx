@@ -202,7 +202,7 @@ describe('AppContext', () => {
     const { result } = renderHook(() => useApp(), { wrapper });
     expect(result.current.screen).toBe('splash');
     await waitFor(() => expect(result.current.dbConnected).toBe(true));
-    expect(localStorage.getItem('ergosense-app-v1')).toBeTruthy();
+    expect(localStorage.getItem('ergosense-app-v2')).toBeTruthy();
   });
 
   it('login rejeita credenciais inválidas localmente', async () => {
@@ -412,7 +412,7 @@ describe('AppContext', () => {
 
   it('carrega estado salvo do localStorage', async () => {
     localStorage.setItem(
-      'ergosense-app-v1',
+      'ergosense-app-v2',
       JSON.stringify({
         session: {
           email: 'saved@test.com',

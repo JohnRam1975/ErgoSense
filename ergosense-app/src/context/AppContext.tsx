@@ -294,11 +294,11 @@ import {
   removeOfflineQueueItem,
 } from '../services/offlineSync';
 import {
-  COMPANIES,
   DEFAULT_ANALYSES,
   DEFAULT_COLLABORATORS,
   DEFAULT_REPORTS,
   DEFAULT_SETTINGS,
+  EMPTY_COMPANY,
   SELF_COLLABORATOR_MATRICULA,
   TURNOS,
 } from '../data/constants';
@@ -327,7 +327,7 @@ import { buildAetDocument } from '../services/aetDocument';
 import { createDistanceMeasurement } from '../vision/distanceTypes';
 import { measureWithArFallback } from '../vision/arDistance';
 
-const STORAGE_KEY = 'ergosense-app-v1';
+const STORAGE_KEY = 'ergosense-app-v2';
 
 export type AnalysisDraftPatch = Omit<Partial<NewAnalysisDraft>, 'loadAssessment'> & {
   loadAssessment?: {
@@ -707,7 +707,7 @@ function loadState(): StoredState {
   }
   return repairStoredState({
     session: null,
-    selectedCompanyId: 'vale',
+    selectedCompanyId: '',
     collaborators: DEFAULT_COLLABORATORS,
     analyses: DEFAULT_ANALYSES,
     reports: DEFAULT_REPORTS,
@@ -755,7 +755,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }));
   const [liveAngles, setLiveAngles] = useState<JointAngles>(EMPTY_JOINT_ANGLES);
   const [liveWorkstation, setLiveWorkstation] = useState<WorkstationMetrics>(DEFAULT_WORKSTATION);
-  const [companies, setCompanies] = useState<Company[]>(COMPANIES);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [dbConnected, setDbConnected] = useState(false);
   const [sectors, setSectors] = useState<string[]>([]);
   const [tenantMetadata, setTenantMetadata] = useState<TenantMetadata[]>([]);
@@ -848,9 +848,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [stored.session]);
 
   useEffect(() => {
-    if (dbConnected && stored.session) {
-      void apiRestoreSession();
-    }
+    if (!dbConnected || !stored.session) return;
+    void (async () => {
+      const ok = await apiRestoreSession();
+      if (!ok) {
+        setApiAuthSession(null);
+        setStored((s) => ({ ...s, session: null }));
+        setScreen('login');
+      }
+    })();
   }, [dbConnected, stored.session]);
 
   useEffect(() => {
@@ -858,7 +864,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [stored]);
 
   const selectedCompany = useMemo(
-    () => companies.find((c) => c.id === stored.selectedCompanyId) ?? companies[0] ?? COMPANIES[0],
+    () => companies.find((c) => c.id === stored.selectedCompanyId) ?? companies[0] ?? EMPTY_COMPANY,
     [companies, stored.selectedCompanyId],
   );
 
@@ -953,10 +959,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const refreshCompanies = useCallback(async () => {
     if (!dbConnected) {
-      const tid = stored.session?.tenantId;
-      if (tid && stored.session?.roleCode !== 'ADMIN_GLOBAL') {
-        setCompanies(COMPANIES.filter((c) => c.id === tid));
-      }
+      setCompanies([]);
       return;
     }
     try {
@@ -982,10 +985,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     } catch (err) {
       console.error('refreshCompanies', err);
-      const tid = stored.session?.tenantId;
-      if (tid && stored.session?.roleCode !== 'ADMIN_GLOBAL') {
-        setCompanies(COMPANIES.filter((c) => c.id === tid));
-      }
+      setCompanies([]);
     }
   }, [dbConnected, stored.session?.roleCode, stored.session?.tenantId]);
 
@@ -1255,7 +1255,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
         const targetId = allowedId ?? id;
         setStored((s) => ({ ...s, selectedCompanyId: targetId }));
-        const company = companies.find((c) => c.id === targetId) ?? COMPANIES.find((c) => c.id === targetId);
+        const company = companies.find((c) => c.id === targetId);
         showToast(`${company?.name ?? 'Empresa'} selecionada`, 'success');
         await loadTenantData(targetId);
         go('dashboard');
@@ -1474,7 +1474,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           nioshLi,
         });
 
-      const company = COMPANIES.find((c) => c.id === stored.selectedCompanyId);
+      const company = companies.find((c) => c.id === stored.selectedCompanyId);
       const traceability = buildAssessmentTraceability({
         session: stored.session,
         companyId: stored.selectedCompanyId,
@@ -1710,7 +1710,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         nioshLi,
       });
 
-      const company = COMPANIES.find((c) => c.id === stored.selectedCompanyId);
+      const company = companies.find((c) => c.id === stored.selectedCompanyId);
       const traceability = buildAssessmentTraceability({
         session: stored.session,
         companyId: stored.selectedCompanyId,

@@ -396,7 +396,7 @@ export function CompanyScreen() {
       </div>
       <div className="scroll">
         <div style={{ fontSize: 13, color: 'var(--t1)', marginBottom: 16 }}>
-          Olá, {session?.name?.split(' ')[0] ?? 'Lucas'}. Selecione o tenant para acessar:
+          Olá, {session?.name?.split(' ')[0] || 'admin'}. Selecione o tenant para acessar:
         </div>
         <input className="inp" placeholder="🔍  Buscar empresa..." value={search} onChange={(e) => setSearch(e.target.value)} />
         <div style={{ fontFamily: 'var(--fd)', fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--t1)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>

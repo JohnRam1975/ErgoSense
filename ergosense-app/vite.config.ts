@@ -26,8 +26,8 @@ export default defineConfig({
         dir: 'ltr',
         start_url: '/?source=pwa',
         scope: '/',
-        // id novo força o Windows/Chrome a buscar ícones de novo (sem cruz em cache)
-        id: '/ergosense-app-v2',
+        // id novo força cliente a buscar SW/ícones de novo após deploy
+        id: '/ergosense-app-v3',
         display: 'standalone',
         display_override: ['standalone', 'minimal-ui'],
         orientation: 'portrait-primary',
@@ -62,6 +62,9 @@ export default defineConfig({
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//, /^\/form\//],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

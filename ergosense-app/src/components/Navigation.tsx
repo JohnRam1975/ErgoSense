@@ -71,7 +71,7 @@ export function AppChrome({ screen }: { screen: ScreenId }) {
             </div>
             <div className="app-chrome-tenant">
               <div className="app-chrome-meta">{selectedCompany.name}</div>
-              <div className="app-chrome-location">{session?.location ?? 'Carajás'}</div>
+              <div className="app-chrome-location">{session?.location || '—'}</div>
               <button
                 type="button"
                 className="btn bd btn-sm btn-inline app-chrome-logout"
@@ -379,11 +379,11 @@ export function MenuDrawer() {
 
           <div>
 
-            <div className="dp-name">{session?.name ?? 'Lucas Andrade'}</div>
+            <div className="dp-name">{session?.name || 'Usuário'}</div>
 
             <div className="dp-role">
 
-              {session?.role ?? 'Ergonomista Sênior'} · {selectedCompany.name}
+              {session?.role || '—'} · {selectedCompany.name}
 
             </div>
 
@@ -535,7 +535,7 @@ export function MenuDrawer() {
               <div className="btn-rich-body">
                 <span className="btn-rich-main">{selectedCompany.name}</span>
                 <span className="btn-rich-sub">
-                  {session?.location ?? 'Carajás'}
+                  {session?.location || '—'}
                   {isGlobalAdmin ? ' · Trocar empresa' : ' · Sua empresa'}
                 </span>
               </div>

@@ -260,9 +260,9 @@ describe('AppContext — auth estendido', () => {
     });
   });
 
-  it('restoreSession falha silenciosamente quando API retorna false', async () => {
+  it('restoreSession limpa sessão quando refresh falha', async () => {
     localStorage.setItem(
-      'ergosense-app-v1',
+      'ergosense-app-v2',
       JSON.stringify({
         session: {
           email: 'saved@test.com',
@@ -283,8 +283,9 @@ describe('AppContext — auth estendido', () => {
       }),
     );
     mocks.apiRestoreSession.mockResolvedValue(false);
-    renderHook(() => useApp(), { wrapper });
+    const { result } = renderHook(() => useApp(), { wrapper });
     await waitFor(() => expect(mocks.apiRestoreSession).toHaveBeenCalled());
+    await waitFor(() => expect(result.current.session).toBeNull());
   });
 
   it('logout limpa localStorage e token', async () => {
@@ -293,7 +294,7 @@ describe('AppContext — auth estendido', () => {
     act(() => result.current.logout());
     expect(result.current.session).toBeNull();
     expect(getAccessToken()).toBeNull();
-    const stored = JSON.parse(localStorage.getItem('ergosense-app-v1') ?? '{}');
+    const stored = JSON.parse(localStorage.getItem('ergosense-app-v2') ?? '{}');
     expect(stored.session).toBeNull();
   });
 

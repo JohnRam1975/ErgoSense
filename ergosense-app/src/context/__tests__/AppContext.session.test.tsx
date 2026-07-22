@@ -189,7 +189,7 @@ describe('AppContext — sessão e onboarding', () => {
 
   it('restoreSession tenta quando há sessão salva', async () => {
     localStorage.setItem(
-      'ergosense-app-v1',
+      'ergosense-app-v2',
       JSON.stringify({
         session: {
           email: 'saved@test.com',

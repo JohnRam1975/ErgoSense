@@ -322,7 +322,7 @@ export function SettingsScreen() {
     isTenantAdmin,
     dbConnected,
   } = useApp();
-  const { canInstall, installed: pwaInstalled, downloadApp, openGuide } = usePwaInstall();
+  const { canInstall, installed: pwaInstalled, downloadApp } = usePwaInstall();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [qualityOpen, setQualityOpen] = useState(false);
@@ -485,31 +485,22 @@ export function SettingsScreen() {
               <span style={{ fontSize: 11, color: 'var(--green)', fontFamily: 'var(--fd)' }}>OK</span>
             </div>
           ) : (
-            <>
-              <button
-                type="button"
-                className="settings-row"
-                onClick={async () => {
-                  const result = await downloadApp();
-                  if (result === 'installed') showToast('App instalado', 'success');
-                }}
-              >
-                <div>
-                  <div className="settings-row-title">⬇ Baixar app</div>
-                  <div className="settings-row-sub">PC e celular · atalho na tela inicial</div>
+            <button
+              type="button"
+              className="settings-row"
+              onClick={async () => {
+                const result = await downloadApp();
+                if (result === 'installed') showToast('App instalado', 'success');
+              }}
+            >
+              <div>
+                <div className="settings-row-title">Instalar app</div>
+                <div className="settings-row-sub">
+                  {canInstall ? 'Toque para instalar neste navegador' : 'Adicionar à tela inicial'}
                 </div>
-                <span className="settings-row-chevron">›</span>
-              </button>
-              <button type="button" className="settings-row" onClick={openGuide}>
-                <div>
-                  <div className="settings-row-title">Como instalar (PC / celular)</div>
-                  <div className="settings-row-sub">
-                    {canInstall ? 'Instalação nativa disponível neste navegador' : 'Chrome, Edge, Android e Safari iOS'}
-                  </div>
-                </div>
-                <span className="settings-row-chevron">›</span>
-              </button>
-            </>
+              </div>
+              <span className="settings-row-chevron">›</span>
+            </button>
           )}
           <button type="button" className="settings-row" onClick={() => go('sync')}>
             <div>

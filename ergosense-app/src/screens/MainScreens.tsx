@@ -498,7 +498,6 @@ export function DashboardScreen() {
   return (
     <>
       <div className="scroll scroll--dashboard">
-        <PwaDownloadCard />
         {stats.critical > 0 && (
           <div style={{ background: 'var(--r10)', border: '1px solid var(--r25)', borderRadius: 14, padding: '12px 14px', marginBottom: 13, display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => go('history')}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--red)', animation: 'pr 1.6s infinite', flexShrink: 0 }} />

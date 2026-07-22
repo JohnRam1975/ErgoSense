@@ -154,7 +154,7 @@ export function MenuDrawer() {
 
   } = useApp();
 
-  const { installed: pwaInstalled, downloadApp, openGuide } = usePwaInstall();
+  const { installed: pwaInstalled, downloadApp } = usePwaInstall();
 
   useEffect(() => {
     if (FULLSCREEN_SCREENS.includes(screen) && menuOpen) closeMenu();
@@ -459,25 +459,8 @@ export function MenuDrawer() {
             >
               <div className="di-ico">⬇</div>
               <div className="di-txt">
-                <div className="di-lbl">Baixar app</div>
-                <div className="di-sub">PC e celular · instalar PWA</div>
-              </div>
-            </button>
-          )}
-
-          {!pwaInstalled && (
-            <button
-              type="button"
-              className="di"
-              onClick={() => {
-                closeMenu();
-                openGuide();
-              }}
-            >
-              <div className="di-ico">📱</div>
-              <div className="di-txt">
-                <div className="di-lbl">Como instalar</div>
-                <div className="di-sub">Chrome · Edge · Android · iPhone</div>
+                <div className="di-lbl">Instalar app</div>
+                <div className="di-sub">Tela inicial · modo app</div>
               </div>
             </button>
           )}

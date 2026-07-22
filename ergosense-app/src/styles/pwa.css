@@ -113,94 +113,26 @@
   cursor: pointer;
 }
 
-/* Card no dashboard */
-.pwa-download-card {
+/* Card no dashboard — substituído por link discreto */
+.pwa-download-link-wrap {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
-  padding: 14px;
-  border-radius: 16px;
-  border: 1px solid var(--a35);
-  background: linear-gradient(135deg, var(--a10), transparent 70%);
+  justify-content: center;
+  margin-top: 14px;
 }
 
-.pwa-download-card__icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  overflow: hidden;
-  flex-shrink: 0;
-  background: var(--bg);
+.pwa-download-link {
+  font-size: 13px !important;
 }
 
-.pwa-download-card__icon img {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.pwa-download-card__body {
-  flex: 1;
-  min-width: 140px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pwa-download-card__body strong {
-  font-family: var(--fd);
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--t0);
-}
-
-.pwa-download-card__body span {
+.pwa-guide__note {
+  margin: 10px 0 0;
   font-size: 12px;
   color: var(--t1);
+  line-height: 1.4;
 }
 
-.pwa-download-card__actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-}
-
-@media (min-width: 420px) {
-  .pwa-download-card__actions {
-    width: auto;
-    margin-left: auto;
-  }
-}
-
-.pwa-download-card__btn {
-  min-height: 44px;
-  padding: 0 16px;
-  border: none;
-  border-radius: 12px;
-  background: var(--amber);
-  color: #0a0c10;
-  font-family: var(--fd);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.pwa-download-card__link {
-  min-height: 44px;
-  padding: 0 10px;
-  border: none;
-  background: transparent;
-  color: var(--amber);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.pwa-download-card {
+  display: none;
 }
 
 /* Guia PC + celular */

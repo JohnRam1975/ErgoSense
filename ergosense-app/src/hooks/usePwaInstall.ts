@@ -95,7 +95,8 @@ export function usePwaInstall() {
   const platform = detectPlatform();
 
   const canNativeInstall = Boolean(snap.deferred) && !snap.installed;
-  const showBanner = !snap.installed && !snap.dismissed;
+  // Banner só com instalação nativa — evita ícone/explicação inútil no celular (iOS etc.)
+  const showBanner = canNativeInstall && !snap.dismissed;
 
   const install = useCallback(async () => {
     const deferred = store.deferred;

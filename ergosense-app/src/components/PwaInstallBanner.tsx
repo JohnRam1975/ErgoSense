@@ -1,19 +1,24 @@
 import { usePwaInstall } from '../hooks/usePwaInstall';
 
-/** Banner fixo: sempre oferece baixar no PC e no celular (não depende só do beforeinstallprompt). */
-export function PwaInstallBanner() {
-  const { showBanner, downloadApp, dismiss, openGuide } = usePwaInstall();
+function platformCtaLabel(platform: 'ios' | 'android' | 'desktop', canInstall: boolean) {
+  if (canInstall) return 'Instalar';
+  if (platform === 'ios') return 'Adicionar à tela';
+  if (platform === 'android') return 'Instalar app';
+  return 'Instalar no PC';
+}
 
-  if (!showBanner) return null;
+/** Banner flutuante: só quando o navegador oferece instalação nativa (Chrome/Edge). */
+export function PwaInstallBanner() {
+  const { showBanner, canInstall, downloadApp, dismiss, platform } = usePwaInstall();
+
+  // Sem beforeinstallprompt (iOS / Safari / etc.) o banner vira só “explicação” — não mostrar.
+  if (!showBanner || !canInstall) return null;
 
   return (
-    <div className="pwa-install" role="region" aria-label="Baixar aplicativo">
-      <div className="pwa-install__icon" aria-hidden>
-        <img src="/ergosense-192.png" alt="" width={40} height={40} />
-      </div>
+    <div className="pwa-install" role="region" aria-label="Instalar aplicativo">
       <div className="pwa-install__copy">
-        <strong>Baixar ErgoSense</strong>
-        <span>PC e celular · atalho + modo offline</span>
+        <strong>Instalar ErgoSense</strong>
+        <span>Abrir como app · tela cheia</span>
       </div>
       <button
         type="button"
@@ -22,10 +27,7 @@ export function PwaInstallBanner() {
           void downloadApp();
         }}
       >
-        Baixar
-      </button>
-      <button type="button" className="pwa-install__more" onClick={openGuide} aria-label="Como instalar">
-        ?
+        {platformCtaLabel(platform, true)}
       </button>
       <button type="button" className="pwa-install__close" onClick={dismiss} aria-label="Agora não">
         ×
@@ -34,7 +36,7 @@ export function PwaInstallBanner() {
   );
 }
 
-/** Guia de instalação para PC (Chrome/Edge) e celular (Android/iOS). */
+/** Guia curto: só o sistema atual (sem poluir com PC+Android+iOS juntos). */
 export function PwaInstallGuide() {
   const { guideOpen, closeGuide, canInstall, install, installed, platform } = usePwaInstall();
 
@@ -52,12 +54,11 @@ export function PwaInstallGuide() {
     >
       <div className="pwa-guide">
         <div className="pwa-guide__head">
-          <h2 id="pwa-guide-title">Baixar o app</h2>
+          <h2 id="pwa-guide-title">Instalar ErgoSense</h2>
           <button type="button" className="pwa-guide__x" onClick={closeGuide} aria-label="Fechar">
             ×
           </button>
         </div>
-        <p className="pwa-guide__lead">Instale o ErgoSense no computador ou no celular — funciona como app nativo.</p>
 
         {canInstall && (
           <button
@@ -69,68 +70,63 @@ export function PwaInstallGuide() {
               });
             }}
           >
-            ⬇ Instalar agora (navegador)
+            Instalar agora
           </button>
         )}
 
-        <div className={`pwa-guide__card${platform === 'desktop' ? ' pwa-guide__card--focus' : ''}`}>
-          <div className="pwa-guide__kicker">Computador (PC)</div>
-          <ol>
-            <li>Abra no <strong>Chrome</strong> ou <strong>Edge</strong> (localhost ou HTTPS).</li>
-            <li>Clique no ícone <strong>⊕ Instalar</strong> na barra de endereço — ou menu ⋮ → <strong>Instalar ErgoSense</strong>.</li>
-            <li>Confirme. O app abre em janela própria.</li>
-          </ol>
-        </div>
+        {platform === 'desktop' && (
+          <div className="pwa-guide__card pwa-guide__card--focus">
+            <div className="pwa-guide__kicker">Computador</div>
+            <ol>
+              <li>Use <strong>Chrome</strong> ou <strong>Edge</strong> em HTTPS.</li>
+              <li>Ícone <strong>Instalar</strong> na barra de endereço — ou menu ⋮ → <strong>Instalar ErgoSense</strong>.</li>
+              <li>Confirme. O app abre em janela própria.</li>
+            </ol>
+          </div>
+        )}
 
-        <div className={`pwa-guide__card${platform === 'android' ? ' pwa-guide__card--focus' : ''}`}>
-          <div className="pwa-guide__kicker">Celular Android</div>
-          <ol>
-            <li>Abra no <strong>Chrome</strong>.</li>
-            <li>Menu ⋮ → <strong>Instalar app</strong> / <strong>Adicionar à tela inicial</strong>.</li>
-            <li>Ou toque em <strong>Baixar</strong> no banner do app.</li>
-          </ol>
-        </div>
+        {platform === 'android' && (
+          <div className="pwa-guide__card pwa-guide__card--focus">
+            <div className="pwa-guide__kicker">Android (Chrome)</div>
+            <ol>
+              <li>Abra este site no <strong>Chrome</strong>.</li>
+              <li>Menu <strong>⋮</strong> → <strong>Instalar app</strong> ou <strong>Adicionar à tela inicial</strong>.</li>
+              <li>Confirme. O ícone aparece na tela inicial.</li>
+            </ol>
+          </div>
+        )}
 
-        <div className={`pwa-guide__card${platform === 'ios' ? ' pwa-guide__card--focus' : ''}`}>
-          <div className="pwa-guide__kicker">iPhone / iPad (Safari)</div>
-          <ol>
-            <li>Abra no <strong>Safari</strong> (obrigatório no iOS).</li>
-            <li>Toque em <strong>Compartilhar</strong> (□↑).</li>
-            <li>Escolha <strong>Adicionar à Tela de Início</strong> → Adicionar.</li>
-          </ol>
-        </div>
+        {platform === 'ios' && (
+          <div className="pwa-guide__card pwa-guide__card--focus">
+            <div className="pwa-guide__kicker">iPhone / iPad</div>
+            <ol>
+              <li>Abra no <strong>Safari</strong> (obrigatório).</li>
+              <li>Toque em <strong>Compartilhar</strong> (□↑).</li>
+              <li><strong>Adicionar à Tela de Início</strong> → Adicionar.</li>
+            </ol>
+            <p className="pwa-guide__note">No iPhone o Safari não mostra botão “Baixar” — só este fluxo.</p>
+          </div>
+        )}
 
         <button type="button" className="btn bp" onClick={closeGuide}>
-          Entendi
+          Fechar
         </button>
       </div>
     </div>
   );
 }
 
-/** Card compacto para dashboard / settings. */
+/** Link discreto (login) — sem card/ícone poluindo a tela. */
 export function PwaDownloadCard() {
-  const { installed, downloadApp, openGuide } = usePwaInstall();
+  const { installed, downloadApp, canInstall, platform } = usePwaInstall();
 
   if (installed) return null;
 
   return (
-    <div className="pwa-download-card">
-      <div className="pwa-download-card__icon" aria-hidden>
-        <img src="/ergosense-192.png" alt="" width={44} height={44} />
-      </div>
-      <div className="pwa-download-card__body">
-        <strong>Baixar o app</strong>
-        <span>Disponível no PC e no celular</span>
-      </div>
-      <div className="pwa-download-card__actions">
-        <button type="button" className="pwa-download-card__btn" onClick={() => void downloadApp()}>
-          Baixar
-        </button>
-        <button type="button" className="pwa-download-card__link" onClick={openGuide}>
-          Como instalar
-        </button>
-      </div>
+    <div className="pwa-download-link-wrap">
+      <button type="button" className="login-text-link pwa-download-link" onClick={() => void downloadApp()}>
+        {platformCtaLabel(platform, canInstall)}
+      </button>
     </div>
   );
 }

@@ -402,7 +402,7 @@ interface AppContextValue {
   screenInstant: boolean;
   exitGlobalSupport: () => void;
   logout: () => void;
-  selectCompany: (id: string) => void;
+  selectCompany: (id: string) => void | Promise<boolean>;
   saveCollaborator: (data: Omit<Collaborator, 'id' | 'risk' | 'icon' | 'iconBg'> & { id?: string }) => void;
   /** Garante colaborador implícito "eu mesmo" (autônomo / sem equipe) */
   ensureSelfCollaborator: () => Promise<Collaborator>;
@@ -1282,9 +1282,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const selectCompany = useCallback(
-    (id: string) => {
-      void accessTenantWithSupport(id);
-    },
+    (id: string) => accessTenantWithSupport(id),
     [accessTenantWithSupport],
   );
 

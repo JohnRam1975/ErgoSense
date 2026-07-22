@@ -320,7 +320,7 @@ async function loginAsErgonomist(result: { current: ReturnType<typeof useApp> })
   await act(async () => {
     await result.current.login('ergo@test.com', 'password1234');
   });
-  act(() => result.current.selectCompany('vale'));
+  await act(async () => { await await result.current.selectCompany('acme'); });
 }
 
 function setupMocks() {
@@ -469,7 +469,7 @@ describe('AppContext — eSocial transmissão', () => {
     mocks.isApiAvailable.mockResolvedValue(false);
     const { result } = renderHook(() => useApp(), { wrapper });
     await waitFor(() => expect(result.current.dbConnected).toBe(false));
-    act(() => result.current.selectCompany('vale'));
+    await act(async () => { await await result.current.selectCompany('acme'); });
     await act(async () => {
       await result.current.transmitEsocialEvent('ev-1');
     });
@@ -536,7 +536,7 @@ describe('AppContext — Compliance estendido', () => {
       await result.current.generateComplianceReport();
       await result.current.updateComplianceSchedule({ active: true, intervalHours: 24 });
     });
-    expect(mocks.apiMarkComplianceAlertRead).toHaveBeenCalledWith('vale', 'alert-1');
+    expect(mocks.apiMarkComplianceAlertRead).toHaveBeenCalledWith('acme', 'alert-1');
     expect(result.current.toast?.type).toBe('success');
   });
 
@@ -544,7 +544,7 @@ describe('AppContext — Compliance estendido', () => {
     mocks.isApiAvailable.mockResolvedValue(false);
     const { result } = renderHook(() => useApp(), { wrapper });
     await waitFor(() => expect(result.current.dbConnected).toBe(false));
-    act(() => result.current.selectCompany('vale'));
+    await act(async () => { await await result.current.selectCompany('acme'); });
     await act(async () => {
       await result.current.generateComplianceReport();
     });
@@ -621,14 +621,14 @@ describe('AppContext — organização', () => {
       ok = await result.current.createOrgEntity('unidade', '', 'Nova Unidade');
     });
     expect(ok).toBe(true);
-    expect(mocks.apiCreateOrgUnit).toHaveBeenCalledWith('vale', { name: 'Nova Unidade' });
+    expect(mocks.apiCreateOrgUnit).toHaveBeenCalledWith('acme', { name: 'Nova Unidade' });
   });
 
   it('createOrgEntity offline retorna false', async () => {
     mocks.isApiAvailable.mockResolvedValue(false);
     const { result } = renderHook(() => useApp(), { wrapper });
     await waitFor(() => expect(result.current.dbConnected).toBe(false));
-    act(() => result.current.selectCompany('vale'));
+    await act(async () => { await await result.current.selectCompany('acme'); });
     let ok = true;
     await act(async () => {
       ok = await result.current.createOrgEntity('unidade', '', 'X');
@@ -669,7 +669,7 @@ describe('AppContext — denúncias, psico e análises', () => {
     expect(result.current.modal.open).toBe(true);
     act(() => result.current.modal.onConfirm?.());
     expect(result.current.analyses.find((a) => a.id === '999')).toBeUndefined();
-    expect(mocks.apiDeleteAnalysis).toHaveBeenCalledWith('vale', '999');
+    expect(mocks.apiDeleteAnalysis).toHaveBeenCalledWith('acme', '999');
   });
 
   it('openDenunciaDetail e integrateDenuncia', async () => {

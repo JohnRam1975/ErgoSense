@@ -224,7 +224,7 @@ async function loginAsErgonomist(result: { current: ReturnType<typeof useApp> })
   await act(async () => {
     await result.current.login('ergo@test.com', 'password1234');
   });
-  act(() => result.current.selectCompany('vale'));
+  await act(async () => { await await result.current.selectCompany('acme'); });
 }
 
 describe('AppContext — auth estendido', () => {
@@ -355,7 +355,7 @@ describe('AppContext — eSocial e Compliance', () => {
     await act(async () => {
       await result.current.refreshEsocialData();
     });
-    expect(mocks.apiGetEsocialDashboard).toHaveBeenCalledWith('vale');
+    expect(mocks.apiGetEsocialDashboard).toHaveBeenCalledWith('acme');
     expect(mocks.apiGetEsocialConfig).toHaveBeenCalled();
   });
 
@@ -416,7 +416,7 @@ describe('AppContext — eSocial e Compliance', () => {
     await act(async () => {
       await result.current.refreshComplianceData();
     });
-    expect(mocks.apiGetComplianceDashboard).toHaveBeenCalledWith('vale');
+    expect(mocks.apiGetComplianceDashboard).toHaveBeenCalledWith('acme');
   });
 
   it('runComplianceScan sucesso', async () => {
@@ -432,7 +432,7 @@ describe('AppContext — eSocial e Compliance', () => {
   it('runComplianceScan offline', async () => {
     const { result } = renderHook(() => useApp(), { wrapper });
     await waitFor(() => expect(result.current.dbConnected).toBe(true));
-    act(() => result.current.selectCompany('vale'));
+    await act(async () => { await await result.current.selectCompany('acme'); });
     mocks.isApiAvailable.mockResolvedValue(false);
     await act(async () => {
       await result.current.runComplianceScan();
@@ -483,7 +483,7 @@ describe('AppContext — suporte e global admin', () => {
       const ok = await result.current.authorizeSupport('24h', 'Auditoria P10');
       expect(ok).toBe(true);
     });
-    expect(mocks.apiAuthorizeSupport).toHaveBeenCalledWith('vale', '24h', 'Auditoria P10');
+    expect(mocks.apiAuthorizeSupport).toHaveBeenCalledWith('acme', '24h', 'Auditoria P10');
   });
 
   it('revokeSupport sucesso', async () => {
@@ -518,7 +518,7 @@ describe('AppContext — suporte e global admin', () => {
       await result.current.login('admin@ergosense.com', 'password1234');
     });
     await act(async () => {
-      const ok = await result.current.accessTenantWithSupport('vale');
+      const ok = await result.current.accessTenantWithSupport('acme');
       expect(ok).toBe(false);
     });
   });

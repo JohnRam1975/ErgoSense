@@ -134,6 +134,7 @@ vi.mock('../screens/TenantOnboardingScreens', () => ({
   TenantRequestAccessScreen: () => null,
   AutonomoRequestAccessScreen: () => null,
   ActivateAccountScreen: () => null,
+  ContactSupportScreen: () => null,
   AdminTenantRequestsScreen: () => null,
   AdminTenantRequestDetailScreen: () => null,
   AdminTenantsListScreen: () => null,

@@ -64,7 +64,7 @@ describe('useCollaboratorActions', () => {
     });
 
     await vi.waitFor(() => expect(mocks.save).toHaveBeenCalled());
-    expect(loadTenant).toHaveBeenCalledWith('vale');
+    expect(loadTenant).toHaveBeenCalledWith('acme');
   });
 
   it('erro API exibe toast warn', async () => {

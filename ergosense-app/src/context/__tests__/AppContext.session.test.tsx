@@ -181,10 +181,10 @@ describe('AppContext — sessão e onboarding', () => {
     const { result } = renderHook(() => useApp(), { wrapper });
     await waitFor(() => expect(result.current.dbConnected).toBe(true));
     await act(async () => {
-      result.current.selectCompany('vale');
+      await result.current.selectCompany('acme');
     });
-    expect(result.current.selectedCompanyId).toBe('vale');
-    await waitFor(() => expect(mockFetchTenantDataBundle).toHaveBeenCalledWith('vale'));
+    expect(result.current.selectedCompanyId).toBe('acme');
+    await waitFor(() => expect(mockFetchTenantDataBundle).toHaveBeenCalledWith('acme'));
   });
 
   it('restoreSession tenta quando há sessão salva', async () => {

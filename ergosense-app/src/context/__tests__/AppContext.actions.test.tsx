@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+﻿import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { AppProvider, useApp } from '../AppContext';
@@ -188,7 +188,7 @@ describe('AppContext — ações de domínio', () => {
     vi.clearAllMocks();
     localStorage.clear();
     mocks.isApiAvailable.mockResolvedValue(true);
-    mocks.apiGetTenants.mockResolvedValue([{ id: 'vale', name: 'Vale', industry: 'Mining' }]);
+    mocks.apiGetTenants.mockResolvedValue([{ id: 'acme', name: 'Acme', industry: 'Mining' }]);
     mocks.fetchBundle.mockResolvedValue(createMinimalTenantBundle());
     mocks.apiGetRiskInventory.mockResolvedValue([]);
     mocks.apiGetRiskInventorySummary.mockResolvedValue(null);
@@ -210,7 +210,9 @@ describe('AppContext — ações de domínio', () => {
     const { result } = renderHook(() => useApp(), { wrapper });
     await waitFor(() => expect(result.current.dbConnected).toBe(true));
     await act(async () => {
-      result.current.selectCompany('vale');
+      await result.current.selectCompany('acme');
+    });
+    await act(async () => {
       await result.current.refreshRiskInventory();
     });
     expect(mocks.apiGetRiskInventory).toHaveBeenCalled();
@@ -220,7 +222,9 @@ describe('AppContext — ações de domínio', () => {
     const { result } = renderHook(() => useApp(), { wrapper });
     await waitFor(() => expect(result.current.dbConnected).toBe(true));
     await act(async () => {
-      result.current.selectCompany('vale');
+      await result.current.selectCompany('acme');
+    });
+    await act(async () => {
       await result.current.refreshDenuncias();
       await result.current.refreshGroData();
       await result.current.refreshPgrData();
@@ -247,8 +251,10 @@ describe('AppContext — ações de domínio', () => {
   it('selectCompany altera empresa ativa', async () => {
     const { result } = renderHook(() => useApp(), { wrapper });
     await waitFor(() => expect(result.current.dbConnected).toBe(true));
-    act(() => result.current.selectCompany('vale'));
-    expect(result.current.selectedCompanyId).toBe('vale');
+    await act(async () => {
+      await result.current.selectCompany('acme');
+    });
+    expect(result.current.selectedCompanyId).toBe('acme');
   });
 
   it('setAnalysisDraft patch parcial', async () => {

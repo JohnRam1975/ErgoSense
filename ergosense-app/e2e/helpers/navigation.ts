@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { openMenu, waitForAppBoot } from './login';
+import { waitForAppBoot } from './login';
 import { type AllScreenId } from '../screen-ids';
 
 export async function expectScreenActive(page: Page, screenId: string) {

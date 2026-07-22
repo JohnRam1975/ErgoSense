@@ -1,10 +1,18 @@
 import { lazy, type ComponentType } from 'react';
 
-function lazyNamed<T extends Record<string, ComponentType<object>>>(
-  factory: () => Promise<T>,
-  name: keyof T,
+function lazyNamed(
+  factory: () => Promise<Record<string, unknown>>,
+  name: string,
 ) {
-  return lazy(() => factory().then((mod) => ({ default: mod[name] as ComponentType<object> })));
+  return lazy(() =>
+    factory().then((mod) => {
+      const Comp = mod[name];
+      if (typeof Comp !== 'function') {
+        throw new Error(`lazyNamed: export "${name}" is not a component`);
+      }
+      return { default: Comp as ComponentType<object> };
+    }),
+  );
 }
 
 /** Telas com dependências pesadas (pose IA, PDF, vídeo) — carregadas sob demanda */

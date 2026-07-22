@@ -1310,7 +1310,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const nome =
       stored.session?.name?.trim() ||
-      stored.companies.find((c) => c.id === stored.selectedCompanyId)?.name ||
+      companies.find((c) => c.id === stored.selectedCompanyId)?.name ||
       'Avaliação própria';
     const payload = {
       nome,
@@ -1353,7 +1353,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setStored((s) => ({ ...s, collaborators: [local, ...s.collaborators] }));
     setDraft((d) => ({ ...d, collaboratorId: local.id, setor: d.setor || 'Geral' }));
     return local;
-  }, [dbConnected, stored.collaborators, stored.companies, stored.selectedCompanyId, stored.session?.name, setStored]);
+  }, [companies, dbConnected, stored.collaborators, stored.selectedCompanyId, stored.session?.name, setStored]);
 
   const captureAnalysis = useCallback(
     async (
@@ -1643,7 +1643,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         })();
       }
     },
-    [analysisDraft, dbConnected, ensureSelfCollaborator, go, showToast, stored.analysisMode, stored.collaborators, stored.selectedCompanyId, stored.session, liveWorkstation],
+    [analysisDraft, companies, dbConnected, ensureSelfCollaborator, go, showToast, stored.analysisMode, stored.collaborators, stored.selectedCompanyId, stored.session, liveWorkstation],
   );
 
   const captureVideoAnalysis = useCallback(
@@ -1807,7 +1807,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         })();
       }
     },
-    [analysisDraft, dbConnected, liveWorkstation, showToast, stored.collaborators, stored.analysisMode, stored.selectedCompanyId, stored.session],
+    [analysisDraft, companies, dbConnected, liveWorkstation, showToast, stored.collaborators, stored.analysisMode, stored.selectedCompanyId, stored.session],
   );
 
   const startSync = useCallback(() => {

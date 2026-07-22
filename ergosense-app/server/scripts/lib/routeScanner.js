@@ -21,9 +21,8 @@ const PUBLIC_EXACT = new Set([
 
 export function isPublicRoute(method, routePath) {
   if (PUBLIC_EXACT.has(routePath)) return true;
+  if (routePath.startsWith('/api/public/')) return true;
   if (routePath === '/api/access-requests' && method === 'post') return true;
-  if (routePath === '/api/public/tenant-request' && method === 'post') return true;
-  if (routePath === '/api/public/plans' && method === 'get') return true;
   if (routePath === '/api/auth/activate-account/preview' && method === 'get') return true;
   if (routePath.startsWith('/api/denuncias/public')) return true;
   if (routePath.startsWith('/api/psico/public/')) return true;
@@ -92,7 +91,7 @@ export function scanAllRoutes() {
   return items.sort((a, b) => a.path.localeCompare(b.path) || a.method.localeCompare(b.method));
 }
 
-export function materializePath(routePath, tenantId = 'vale', { notFound = false } = {}) {
+export function materializePath(routePath, tenantId = 'acme', { notFound = false } = {}) {
   const numericId = notFound ? '999999999' : '1';
   const fakeCode = notFound ? 'ZZZ_NOT_FOUND' : 'SMOKE_CODE';
   const fakeToken = notFound ? 'invalid-not-found-token' : 'smoke-token-invalid';

@@ -96,20 +96,20 @@ export const tenantRequestPublicSchema = z
       if (cepDigits.length !== 8) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'CEP inválido', path: ['cep'] });
       }
-      if (!data.password || data.password.length < 8) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Senha obrigatória (mín. 8 caracteres)',
-          path: ['password'],
-        });
-      } else if (data.password !== data.confirmPassword) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Senhas não conferem', path: ['confirmPassword'] });
-      }
     } else {
       const cnpjDigits = String(data.cnpj ?? '').replace(/\D/g, '');
       if (cnpjDigits.length < 14) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'CNPJ obrigatório', path: ['cnpj'] });
       }
+    }
+    if (!data.password || data.password.length < 8) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Senha obrigatória (mín. 8 caracteres)',
+        path: ['password'],
+      });
+    } else if (data.password !== data.confirmPassword) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Senhas não conferem', path: ['confirmPassword'] });
     }
   });
 

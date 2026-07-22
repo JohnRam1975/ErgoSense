@@ -52,8 +52,8 @@ export function SplashScreen() {
 
 export function LoginScreen() {
   const { login, verifyMfaLogin, showToast, showModal, go } = useApp();
-  const [email, setEmail] = useState('lucas@vale.com.br');
-  const [password, setPassword] = useState('ergo1234');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [mfaPending, setMfaPending] = useState<{ token: string; email: string; name: string } | null>(null);
   const [mfaCode, setMfaCode] = useState('');
 

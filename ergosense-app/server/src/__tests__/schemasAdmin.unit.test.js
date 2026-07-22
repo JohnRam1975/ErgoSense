@@ -59,8 +59,21 @@ test('tenantRequestPublicSchema — CNPJ e email', () => {
       responsavelNome: 'João Silva',
       email: 'joao@empresa.com',
       telefone: '11999998888',
+      password: 'Senha123',
+      confirmPassword: 'Senha123',
     }).success,
     true,
+  );
+  assert.equal(
+    tenantRequestPublicSchema.safeParse({
+      razaoSocial: 'Empresa Teste LTDA',
+      cnpj: '11.222.333/0001-81',
+      segmento: 'Mineração',
+      responsavelNome: 'João Silva',
+      email: 'joao@empresa.com',
+      telefone: '11999998888',
+    }).success,
+    false,
   );
 });
 

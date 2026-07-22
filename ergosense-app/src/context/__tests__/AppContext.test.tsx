@@ -286,16 +286,16 @@ describe('AppContext', () => {
     });
   });
 
-  it('login offline sem API', async () => {
+  it('login sem API não cria sessão demo', async () => {
     mockIsApiAvailable.mockResolvedValue(false);
+    mockApiLogin.mockRejectedValue(new Error('Failed to fetch'));
     const { result } = renderHook(() => useApp(), { wrapper });
     await waitFor(() => expect(result.current.dbConnected).toBe(false));
     await act(async () => {
       const ok = await result.current.login('offline@test.com', 'password1234');
-      expect(ok).toBe(true);
+      expect(ok).toBe(false);
     });
-    expect(result.current.screen).toBe('dashboard');
-    expect(result.current.session?.email).toBe('offline@test.com');
+    expect(result.current.session).toBeNull();
   });
 
   it('login ADMIN_GLOBAL navega para global-admin', async () => {

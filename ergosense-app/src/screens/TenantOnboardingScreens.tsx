@@ -43,6 +43,8 @@ export function TenantRequestAccessScreen() {
     responsavelNome: '',
     email: '',
     telefone: '',
+    password: '',
+    confirmPassword: '',
   });
   const [protocolo, setProtocolo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -58,10 +60,23 @@ export function TenantRequestAccessScreen() {
       showToast('Preencha responsável, e-mail e telefone', 'warn');
       return;
     }
+    if (form.password.length < 8) {
+      showToast('Senha deve ter ao menos 8 caracteres', 'warn');
+      return;
+    }
+    if (!/[A-Z]/.test(form.password) || !/[a-z]/.test(form.password) || !/\d/.test(form.password)) {
+      showToast('Senha deve conter maiúscula, minúscula e número', 'warn');
+      return;
+    }
+    if (form.password !== form.confirmPassword) {
+      showToast('Senhas não conferem', 'warn');
+      return;
+    }
     void (async () => {
       setLoading(true);
       try {
         const res = await apiSubmitTenantRequest({
+          tipoCadastro: 'EMPRESA',
           razaoSocial: form.razaoSocial.trim(),
           nomeFantasia: form.nomeFantasia.trim() || form.razaoSocial.trim(),
           cnpj: form.cnpj,
@@ -70,6 +85,8 @@ export function TenantRequestAccessScreen() {
           responsavelNome: form.responsavelNome.trim(),
           email: form.email.trim(),
           telefone: form.telefone.trim(),
+          password: form.password,
+          confirmPassword: form.confirmPassword,
         });
         setProtocolo(res.protocolo);
         showToast('Solicitação registrada!', 'success');
@@ -88,7 +105,9 @@ export function TenantRequestAccessScreen() {
           <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
           <p>Protocolo:</p>
           <div style={{ fontFamily: 'var(--fm)', fontSize: 20, color: 'var(--amber)', margin: '12px 0' }}>{protocolo}</div>
-          <p className="access-form-intro">Nossa equipe analisará seu cadastro. Você receberá um e-mail com instruções de ativação após aprovação.</p>
+          <p className="access-form-intro">
+            Após a aprovação, use o e-mail e a senha cadastrados. Você receberá um link para ativar a conta.
+          </p>
           <button type="button" className="btn bp mt12" onClick={() => go('login')}>Voltar ao login</button>
         </div>
       </PublicFormShell>
@@ -111,9 +130,23 @@ export function TenantRequestAccessScreen() {
       <label className="lbl">Nome do Responsável *</label>
       <input className="inp" value={form.responsavelNome} onChange={(e) => set('responsavelNome', e.target.value)} />
       <label className="lbl">E-mail *</label>
-      <input className="inp" type="email" value={form.email} onChange={(e) => set('email', e.target.value)} />
+      <input className="inp" type="email" value={form.email} onChange={(e) => set('email', e.target.value)} autoComplete="email" />
       <label className="lbl">Telefone *</label>
       <input className="inp" value={form.telefone} onChange={(e) => set('telefone', formatPhoneInput(e.target.value))} placeholder="(11) 99999-9999" />
+      <label className="lbl">Senha de acesso *</label>
+      <PasswordField
+        value={form.password}
+        onChange={(e) => set('password', e.target.value)}
+        placeholder="Mín. 8 · maiúscula, minúscula e número"
+        autoComplete="new-password"
+      />
+      <label className="lbl">Confirmar senha *</label>
+      <PasswordField
+        value={form.confirmPassword}
+        onChange={(e) => set('confirmPassword', e.target.value)}
+        placeholder="Repita a senha"
+        autoComplete="new-password"
+      />
       <button type="button" className="btn bp mt12" disabled={loading} onClick={handleSubmit}>
         {loading ? 'Enviando…' : 'Enviar solicitação'}
       </button>
@@ -740,16 +773,72 @@ export function AdminTenantRequestDetailScreen() {
           <div key={k} style={{ marginBottom: 8 }}><span className="lbl">{k}</span><div>{v ?? '—'}</div></div>
         ))}
       </div>
-      {['PENDENTE', 'EM_ANALISE'].includes(item.status) && (
+      {['PENDENTE', 'EM_ANALISE', 'REJEITADO'].includes(item.status) && (
         <div className="admin-actions mt12">
-          <button type="button" className="btn bp btn-sm btn-inline" onClick={() => void apiApproveTenantRequest(item.id).then((r) => {
-            showToast(`Aprovado! Tenant: ${r.tenantId}`, 'success');
-            go('admin-tenant-requests');
-          }).catch((e) => showToast(e.message, 'warn'))}>Aprovar</button>
-          <input className="inp mt8" placeholder="Motivo rejeição" value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} />
-          <button type="button" className="btn br btn-sm btn-inline mt8" onClick={() => void apiRejectTenantRequest(item.id, rejectReason).then(() => go('admin-tenant-requests'))}>Rejeitar</button>
-          <input className="inp mt8" placeholder="Mensagem de ajuste" value={adjustMsg} onChange={(e) => setAdjustMsg(e.target.value)} />
-          <button type="button" className="btn bs btn-sm btn-inline mt8" onClick={() => void apiRequestTenantAdjustment(item.id, adjustMsg).then(() => showToast('Ajuste solicitado', 'success'))}>Solicitar ajuste</button>
+          {item.status === 'REJEITADO' && (
+            <p className="access-form-intro">
+              Solicitação rejeitada. Após as correções, aprove diretamente ou reabra para análise.
+            </p>
+          )}
+          <button
+            type="button"
+            className="btn bp btn-sm btn-inline"
+            onClick={() =>
+              void apiApproveTenantRequest(item.id)
+                .then((r) => {
+                  showToast(`Aprovado! Tenant: ${r.tenantId}`, 'success');
+                  go('admin-tenant-requests');
+                })
+                .catch((e) => showToast(e instanceof Error ? e.message : 'Erro ao aprovar', 'warn'))
+            }
+          >
+            {item.status === 'REJEITADO' ? 'Aceitar após correção' : 'Aprovar'}
+          </button>
+          {['PENDENTE', 'EM_ANALISE'].includes(item.status) && (
+            <>
+              <input
+                className="inp mt8"
+                placeholder="Motivo rejeição"
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+              />
+              <button
+                type="button"
+                className="btn br btn-sm btn-inline mt8"
+                onClick={() =>
+                  void apiRejectTenantRequest(item.id, rejectReason)
+                    .then(() => go('admin-tenant-requests'))
+                    .catch((e) => showToast(e instanceof Error ? e.message : 'Erro ao rejeitar', 'warn'))
+                }
+              >
+                Rejeitar
+              </button>
+            </>
+          )}
+          <input
+            className="inp mt8"
+            placeholder={item.status === 'REJEITADO' ? 'Mensagem ao reabrir (opcional)' : 'Mensagem de ajuste'}
+            value={adjustMsg}
+            onChange={(e) => setAdjustMsg(e.target.value)}
+          />
+          <button
+            type="button"
+            className="btn bs btn-sm btn-inline mt8"
+            onClick={() =>
+              void apiRequestTenantAdjustment(
+                item.id,
+                adjustMsg || (item.status === 'REJEITADO' ? 'Reaberta após correções' : 'Ajuste solicitado'),
+              )
+                .then(() => apiAdminTenantRequestDetail(item.id))
+                .then((updated) => {
+                  setItem(updated);
+                  showToast(item.status === 'REJEITADO' ? 'Solicitação reaberta' : 'Ajuste solicitado', 'success');
+                })
+                .catch((e) => showToast(e instanceof Error ? e.message : 'Erro', 'warn'))
+            }
+          >
+            {item.status === 'REJEITADO' ? 'Reabrir análise' : 'Solicitar ajuste'}
+          </button>
         </div>
       )}
     </AdminTenantShell>

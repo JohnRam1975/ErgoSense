@@ -297,16 +297,15 @@ describe('AppContext — auth estendido', () => {
     expect(stored.session).toBeNull();
   });
 
-  it('API offline — login offline sem tenantId', async () => {
+  it('API offline — login não cria sessão demo', async () => {
     mocks.isApiAvailable.mockResolvedValue(false);
+    mocks.apiLogin.mockRejectedValue(new Error('Failed to fetch'));
     const { result } = renderHook(() => useApp(), { wrapper });
     await waitFor(() => expect(result.current.dbConnected).toBe(false));
     await act(async () => {
-      expect(await result.current.login('offline@test.com', 'password1234')).toBe(true);
+      expect(await result.current.login('offline@test.com', 'password1234')).toBe(false);
     });
-    expect(result.current.session?.email).toBe('offline@test.com');
-    expect(result.current.session?.tenantId).toBe('vale');
-    expect(result.current.screen).toBe('dashboard');
+    expect(result.current.session).toBeNull();
   });
 
   it('bootstrap tenants com erro não quebra app', async () => {

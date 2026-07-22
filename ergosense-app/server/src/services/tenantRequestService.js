@@ -179,21 +179,19 @@ export async function createTenantRequest(body, req) {
       : sanitizePlainText(body.responsavelNome, 255);
 
   let senhaHash = null;
-  if (tipoCadastro === 'AUTONOMO') {
-    if (body.password !== body.confirmPassword) {
-      const err = new Error('Senhas não conferem');
-      err.status = 400;
-      throw err;
-    }
-    const pwdCheck = validatePassword(body.password);
-    if (!pwdCheck.ok) {
-      const err = new Error(pwdCheck.error);
-      err.status = 400;
-      throw err;
-    }
-    const hashResult = await query(`SELECT crypt($1, gen_salt('bf', 10)) AS hash`, [body.password]);
-    senhaHash = hashResult.rows[0]?.hash ?? null;
+  if (body.password !== body.confirmPassword) {
+    const err = new Error('Senhas não conferem');
+    err.status = 400;
+    throw err;
   }
+  const pwdCheck = validatePassword(body.password);
+  if (!pwdCheck.ok) {
+    const err = new Error(pwdCheck.error);
+    err.status = 400;
+    throw err;
+  }
+  const hashResult = await query(`SELECT crypt($1, gen_salt('bf', 10)) AS hash`, [body.password]);
+  senhaHash = hashResult.rows[0]?.hash ?? null;
 
   const { rows } = await query(
     `INSERT INTO tenant_requests (
@@ -299,7 +297,7 @@ export async function approveTenantRequest(id, adminUser, req, options = {}) {
     err.status = 404;
     throw err;
   }
-  if (!['PENDENTE', 'EM_ANALISE'].includes(request.status)) {
+  if (!['PENDENTE', 'EM_ANALISE', 'REJEITADO'].includes(request.status)) {
     const err = new Error(`Solicitação não pode ser aprovada (status: ${request.status})`);
     err.status = 400;
     throw err;
@@ -404,7 +402,8 @@ export async function approveTenantRequest(id, adminUser, req, options = {}) {
     await client.query(
       `UPDATE tenant_requests SET
          status = 'APROVADO', tenant_id = $2, aprovado_por = $3,
-         data_aprovacao = NOW(), observacoes = COALESCE($4, observacoes),
+         data_aprovacao = NOW(), data_rejeicao = NULL,
+         observacoes = COALESCE($4, observacoes),
          senha_hash = NULL, updated_at = NOW()
        WHERE id = $1`,
       [id, tenantId, adminUser.id, options.note ?? null],
@@ -490,9 +489,15 @@ export async function requestAdjustment(id, adminUser, req, { message } = {}) {
     err.status = 404;
     throw err;
   }
+  if (!['PENDENTE', 'EM_ANALISE', 'REJEITADO'].includes(rows[0].status)) {
+    const err = new Error(`Solicitação não pode ser reaberta (status: ${rows[0].status})`);
+    err.status = 400;
+    throw err;
+  }
 
   await query(
-    `UPDATE tenant_requests SET status = 'EM_ANALISE', observacoes = $2, updated_at = NOW() WHERE id = $1`,
+    `UPDATE tenant_requests SET status = 'EM_ANALISE', data_rejeicao = NULL,
+       observacoes = $2, updated_at = NOW() WHERE id = $1`,
     [id, sanitizePlainText(message ?? 'Ajuste solicitado', 2000)],
   );
 

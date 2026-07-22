@@ -1,0 +1,5 @@
+# Override local: publica Postgres na porta 5433 para API/Vite no host
+services:
+  db:
+    ports:
+      - "5433:5432"

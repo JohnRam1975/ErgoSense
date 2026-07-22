@@ -1129,44 +1129,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
         showToast('Credenciais inválidas', 'warn');
         return false;
       }
-      if (dbConnected) {
-        try {
-          const result = await apiLogin(email, password);
-          if ('mfaRequired' in result && result.mfaRequired) {
-            return {
-              mfaRequired: true as const,
-              mfaToken: result.mfaToken,
-              email: result.user.email,
-              name: result.user.name,
-            };
-          }
-          const success = result as ApiLoginSuccess;
-          await finalizeApiLogin(success.user);
-          return true;
-        } catch {
-          showToast('Credenciais inválidas', 'warn');
-          return false;
+      try {
+        const result = await apiLogin(email, password);
+        if (!dbConnected) setDbConnected(true);
+        if ('mfaRequired' in result && result.mfaRequired) {
+          return {
+            mfaRequired: true as const,
+            mfaToken: result.mfaToken,
+            email: result.user.email,
+            name: result.user.name,
+          };
         }
+        const success = result as ApiLoginSuccess;
+        await finalizeApiLogin(success.user);
+        return true;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : '';
+        if (/404|indispon|fetch|network|Failed to fetch|Serviço não encontrado/i.test(msg)) {
+          showToast(msg || 'Servidor indisponível. Verifique a conexão e tente de novo.', 'warn');
+        } else {
+          showToast('Credenciais inválidas', 'warn');
+        }
+        return false;
       }
-      const name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-      setStored((s) => ({
-        ...s,
-        session: {
-          email,
-          name: name || 'Lucas Andrade',
-          role: 'Ergonomista Sênior',
-          roleCode: 'ERGONOMISTA',
-          company: 'Vale S.A.',
-          location: 'Carajás',
-          tenantId: 'vale',
-        },
-        selectedCompanyId: 'vale',
-      }));
-      setCompanies(COMPANIES.filter((c) => c.id === 'vale'));
-      go('dashboard');
-      return true;
     },
-    [dbConnected, finalizeApiLogin, go, showToast],
+    [dbConnected, finalizeApiLogin, showToast],
   );
 
   const verifyMfaLogin = useCallback(

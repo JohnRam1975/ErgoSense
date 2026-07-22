@@ -158,6 +158,8 @@ export function getRouteContract(route) {
         : [404, 400, 403],
     forbiddenOk: [401, 403, 400],
     adminForbiddenBody: adminForbiddenPayload(route.path, route.method),
+    // IA sem chave no CI retorna 503 de propósito (não é crash 500).
+    serviceUnavailableOk: route.path.startsWith('/api/ai/'),
   };
 }
 
@@ -178,6 +180,9 @@ export function classifyFailure(route, check, detail, contract) {
   }
   if ((check === 'invalid_payload_400' || check === 'empty_payload_400') && contract.bodyOptional) {
     return { classification: 'FALSO_POSITIVO_HEURISTICA', reason: 'Body opcional / sem validateBody' };
+  }
+  if (check === 'success_auth' && contract.serviceUnavailableOk && status === 503) {
+    return { classification: 'COMPORTAMENTO_ESPERADO', reason: 'IA sem provedor configurado → 503' };
   }
   if (check === 'wrong_tenant_403' && !contract.tenantScoped) {
     return { classification: 'FALSO_POSITIVO_HEURISTICA', reason: 'Rota tenant-agnostic' };

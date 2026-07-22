@@ -77,6 +77,12 @@ async function request(method, path, { token, body } = {}) {
   }
 }
 
+function statusOk(status, contract = {}) {
+  if (!(status > 0)) return false;
+  if (status < 500) return true;
+  return Boolean(contract.serviceUnavailableOk && status === 503);
+}
+
 async function main() {
   console.log(`\n=== ENDPOINT SMOKE → ${BASE} ===\n`);
 
@@ -106,7 +112,8 @@ async function main() {
     if (route.auth === 'public') {
       if (route.method === 'GET') {
         const r = await request('GET', pathReady);
-        const ok = r.status > 0 && r.status < 500;
+        const contract = getRouteContract(route);
+        const ok = statusOk(r.status, contract);
         record(route.tag, `${name} [public GET]`, ok, `HTTP ${r.status}`);
       } else if (route.method === 'POST') {
         const r = await request('POST', pathReady, { body: {} });
@@ -129,16 +136,16 @@ async function main() {
       continue;
     }
 
+    const contract = getRouteContract(route);
     if (route.method === 'GET') {
       const r = await request('GET', pathReady, { token: useToken });
-      const ok = r.status > 0 && r.status < 500;
+      const ok = statusOk(r.status, contract);
       record(route.tag, `${name} [auth GET <500]`, ok, `HTTP ${r.status} ${r.ms}ms`);
     } else if (route.method === 'POST') {
-      const contract = getRouteContract(route);
       const r = await request('POST', pathReady, { token: useToken, body: {} });
-      // Ações sem body (advance, gerar, scan…) podem retornar 2xx/4xx; creates validados devem ser 4xx.
+      // Ações sem body (advance, gerar, scan…) podem retornar 2xx/4xx/503(IA); creates validados devem ser 4xx.
       const ok = contract.bodyOptional
-        ? r.status > 0 && r.status < 500
+        ? statusOk(r.status, contract)
         : r.status >= 400 && r.status < 500;
       record(
         route.tag,
@@ -148,7 +155,7 @@ async function main() {
       );
     } else if (route.method === 'DELETE') {
       const r = await request('DELETE', pathReady, { token: useToken });
-      const ok = r.status > 0 && r.status < 500;
+      const ok = statusOk(r.status, contract);
       record(route.tag, `${name} [auth DELETE <500]`, ok, `HTTP ${r.status}`);
     } else {
       record(route.tag, name, 'skip', `${route.method} não smokeado`);

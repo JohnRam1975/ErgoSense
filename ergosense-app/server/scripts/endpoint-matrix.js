@@ -37,6 +37,12 @@ function invalidPayload() {
   return { __invalid: true, nested: { bad: null } };
 }
 
+function statusOk(status, contract = {}) {
+  if (!(status > 0)) return false;
+  if (status < 500) return true;
+  return Boolean(contract.serviceUnavailableOk && status === 503);
+}
+
 function record(matrix, route, check, ok, detail, contract, classification = null) {
   const key = `${route.method} ${route.path}`;
   matrix.routes[key] ??= {
@@ -248,7 +254,7 @@ async function main() {
     if (route.auth === 'public') {
       if (route.method === 'GET') {
         const r = await request('GET', pathReady, { tenantId: false, retries: 2 });
-        record(matrix, route, 'success_auth', r.status > 0 && r.status < 500, `HTTP ${r.status}`, contract);
+        record(matrix, route, 'success_auth', statusOk(r.status, contract), `HTTP ${r.status}`, contract);
         record(matrix, route, 'schema_valid', schemaOk(r.json, r.status), `HTTP ${r.status}`, contract);
         record(matrix, route, 'no_sensitive_leak', !hasSensitiveLeak(r.text, route.path), 'OK', contract);
       } else if (['POST', 'PUT', 'PATCH'].includes(route.method)) {
@@ -257,7 +263,7 @@ async function main() {
         if (contract.validated) {
           record(matrix, route, 'invalid_payload_400', r.status >= 400 && r.status < 500, `HTTP ${r.status}`, contract);
         } else {
-          record(matrix, route, 'success_auth', r.status > 0 && r.status < 500, `HTTP ${r.status}`, contract);
+          record(matrix, route, 'success_auth', statusOk(r.status, contract), `HTTP ${r.status}`, contract);
           record(matrix, route, 'schema_valid', schemaOk(r.json, r.status), `HTTP ${r.status}`, contract);
         }
         record(matrix, route, 'no_sensitive_leak', !hasSensitiveLeak(r.text, route.path), 'OK', contract);
@@ -362,7 +368,7 @@ async function main() {
         retries: 2,
       });
     }
-    record(matrix, route, 'success_auth', authed.status > 0 && authed.status < 500, `HTTP ${authed.status} ${authed.ms}ms`, contract);
+    record(matrix, route, 'success_auth', statusOk(authed.status, contract), `HTTP ${authed.status} ${authed.ms}ms`, contract);
     record(matrix, route, 'schema_valid', authed.status === 0 ? false : schemaOk(authed.json, authed.status), `HTTP ${authed.status}`, contract);
     record(matrix, route, 'no_sensitive_leak', !hasSensitiveLeak(authed.text, route.path), 'OK', contract);
 

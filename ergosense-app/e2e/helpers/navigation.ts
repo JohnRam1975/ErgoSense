@@ -53,9 +53,7 @@ export async function navigateToScreen(page: Page, screenId: AllScreenId) {
       return;
 
     case 'new-collab':
-      await e2eGo(page, 'collabs');
-      await page.getByRole('button', { name: /Novo Colaborador/i }).click();
-      await expectScreenActive(page, 'new-collab');
+      await e2eGo(page, 'new-collab');
       await page.evaluate(() => window.__ERGOSENSE_E2E__?.go('dashboard'));
       await expectScreenActive(page, 'dashboard');
       return;

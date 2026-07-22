@@ -101,7 +101,14 @@ async function main() {
     }),
   });
 
-  console.log('5. Login tenant admin + MFA…');
+  console.log('5. Liberar acesso comercial (admin global)…');
+  await api(`/api/admin/tenants/${encodeURIComponent(approved.tenantId)}/grant-access`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ confirm: true, paymentNote: 'CI onboarding' }),
+  });
+
+  console.log('6. Login tenant admin + MFA…');
   const login = await api('/api/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),

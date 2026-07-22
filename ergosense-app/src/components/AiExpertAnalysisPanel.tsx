@@ -9,7 +9,8 @@ interface Props {
   analysis: Analysis;
 }
 
-export function AiExpertAnalysisPanel(_props: Props) {
+export function AiExpertAnalysisPanel(props: Props) {
+  void props;
   return (
     <ComingSoonPanel
       title="ErgoSense AI Expert"

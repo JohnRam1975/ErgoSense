@@ -1,7 +1,7 @@
 /**
  * PsicossocialScreens.tsx — dados persistidos (PostgreSQL / LGPD)
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import {
   CBI_PERGUNTAS,

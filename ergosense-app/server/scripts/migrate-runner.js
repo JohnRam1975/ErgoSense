@@ -2,13 +2,14 @@
  * Migration runner — ordem determinística com schema_migrations
  */
 import { spawnSync } from 'node:child_process';
-import { readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pool } from '../src/db.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SCRIPTS_DIR = __dirname;
+const BASE_SCHEMA = join(__dirname, '../../../docs/database/postgresql-schema-full.sql');
 
 const ORDERED_MIGRATIONS = [
   'migrate-security.js',
@@ -53,6 +54,19 @@ async function ensureMigrationTable(client) {
   `);
 }
 
+/** Aplica schema base se o banco estiver vazio (CI / Postgres alpine sem initdb seed). */
+async function ensureBaseSchema(client) {
+  const { rows } = await client.query(`SELECT to_regclass('public.usuarios') AS rel`);
+  if (rows[0]?.rel) return;
+  if (!existsSync(BASE_SCHEMA)) {
+    throw new Error(`Schema base não encontrado: ${BASE_SCHEMA}`);
+  }
+  console.log('RUN: postgresql-schema-full.sql (base)');
+  const sql = readFileSync(BASE_SCHEMA, 'utf8');
+  await client.query(sql);
+  console.log('OK: postgresql-schema-full.sql');
+}
+
 async function isApplied(client, name) {
   const { rows } = await client.query(`SELECT 1 FROM schema_migrations WHERE name = $1`, [name]);
   return rows.length > 0;
@@ -79,6 +93,7 @@ async function main() {
   const client = await pool.connect();
 
   try {
+    await ensureBaseSchema(client);
     await ensureMigrationTable(client);
 
     for (const name of ORDERED_MIGRATIONS) {

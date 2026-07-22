@@ -111,6 +111,7 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL }}
           AUDIT_EMAIL: auditor@ergosense.test
           AUDIT_PASS: AuditTest!2026
+          AUDIT_TENANT: acme
       - run: npm run test:db
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
@@ -118,13 +119,20 @@ jobs:
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
           PORT: 3001
+          PURGE_DEMO_TENANTS: "false"
       - run: npx wait-on http://localhost:3001/api/health -t 60000
       - run: npm run test:security:smoke
         env:
           API_URL: http://localhost:3001
+          AUDIT_EMAIL: auditor@ergosense.test
+          AUDIT_PASS: AuditTest!2026
+          AUDIT_TENANT: acme
       - run: npm run test:operational
         env:
           AUDIT_API_URL: http://localhost:3001
+          AUDIT_EMAIL: auditor@ergosense.test
+          AUDIT_PASS: AuditTest!2026
+          AUDIT_TENANT: acme
       - run: npm run test:onboarding
         env:
           API_URL: http://localhost:3001
@@ -133,23 +141,32 @@ jobs:
           API_URL: http://localhost:3001
           AUDIT_EMAIL: auditor@ergosense.test
           AUDIT_PASS: AuditTest!2026
+          AUDIT_TENANT: acme
       - run: npm run test:matrix
         env:
           API_URL: http://localhost:3001
           AUDIT_EMAIL: auditor@ergosense.test
           AUDIT_PASS: AuditTest!2026
+          AUDIT_TENANT: acme
       - run: npm run test:openapi
       - run: npm run test:security:advanced
         env:
           API_URL: http://localhost:3001
           AUDIT_EMAIL: auditor@ergosense.test
           AUDIT_PASS: AuditTest!2026
+          AUDIT_TENANT: acme
       - run: npm run test:load
         env:
           AUDIT_API_URL: http://localhost:3001
+          AUDIT_EMAIL: auditor@ergosense.test
+          AUDIT_PASS: AuditTest!2026
+          AUDIT_TENANT: acme
       - run: npm run test:resilience
         env:
           AUDIT_API_URL: http://localhost:3001
+          AUDIT_EMAIL: auditor@ergosense.test
+          AUDIT_PASS: AuditTest!2026
+          AUDIT_TENANT: acme
 
   e2e:
     runs-on: ubuntu-latest

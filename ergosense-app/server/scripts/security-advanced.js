@@ -10,7 +10,8 @@ import { fileURLToPath } from 'url';
 const BASE = process.env.API_URL ?? `http://localhost:${process.env.PORT ?? 3001}`;
 const EMAIL = process.env.AUDIT_EMAIL ?? 'auditor@ergosense.test';
 const PASS = process.env.AUDIT_PASS ?? 'AuditTest!2026';
-const OTHER_TENANT = process.env.OTHER_TENANT ?? 'gerdau';
+const TENANT = process.env.AUDIT_TENANT ?? 'acme';
+const OTHER_TENANT = process.env.OTHER_TENANT ?? 'othercorp';
 
 const findings = [];
 
@@ -83,7 +84,7 @@ async function main() {
   // XSS stored probe (sanitização)
   if (token) {
     const xssName = '<script>alert(1)</script>';
-    const post = await fetchJson(`/api/collaborators?tenantId=vale`, {
+    const post = await fetchJson(`/api/collaborators?tenantId=${TENANT}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -96,7 +97,7 @@ async function main() {
       }),
     });
     if (post.status === 201 || post.status === 200) {
-      const list = await fetchJson(`/api/collaborators?tenantId=vale`, {
+      const list = await fetchJson(`/api/collaborators?tenantId=${TENANT}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const raw = JSON.stringify(list.body);
@@ -112,7 +113,7 @@ async function main() {
 
   // CSRF — POST sem cookie mas com Bearer (API stateless OK)
   {
-    const { status } = await fetchJson('/api/collaborators?tenantId=vale', {
+    const { status } = await fetchJson(`/api/collaborators?tenantId=${TENANT}`, {
       method: 'GET',
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
@@ -188,7 +189,7 @@ async function main() {
 
   // Token inválido
   {
-    const bad = await fetchJson('/api/collaborators?tenantId=vale', {
+    const bad = await fetchJson(`/api/collaborators?tenantId=${TENANT}`, {
       headers: { Authorization: 'Bearer invalid.token.here' },
     });
     if (bad.status === 401) add('BAIXO', 'Auth', 'Token inválido → 401', '');

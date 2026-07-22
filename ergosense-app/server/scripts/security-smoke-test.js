@@ -4,9 +4,10 @@
  * Requer API em execução (PORT ou 3001) e credenciais de seed.
  */
 const BASE = process.env.API_URL ?? `http://localhost:${process.env.PORT ?? 3001}`;
-const TEST_EMAIL = process.env.TEST_EMAIL ?? 'lucas@vale.com.br';
-const TEST_PASSWORD = process.env.TEST_PASSWORD ?? 'ergo1234';
-const OTHER_TENANT = process.env.OTHER_TENANT ?? 'gerdau';
+const TEST_EMAIL = process.env.TEST_EMAIL ?? process.env.AUDIT_EMAIL ?? 'auditor@ergosense.test';
+const TEST_PASSWORD = process.env.TEST_PASSWORD ?? process.env.AUDIT_PASS ?? 'AuditTest!2026';
+const TENANT = process.env.AUDIT_TENANT ?? 'acme';
+const OTHER_TENANT = process.env.OTHER_TENANT ?? 'othercorp';
 
 const results = [];
 
@@ -43,18 +44,18 @@ async function main() {
 
   // 1. Sem auth → 401
   {
-    const { res } = await fetchJson('/api/collaborators?tenantId=vale');
+    const { res } = await fetchJson(`/api/collaborators?tenantId=${TENANT}`);
     if (res.status === 401) pass('GET /api/collaborators sem auth → 401');
     else fail('GET /api/collaborators sem auth → 401', `status ${res.status}`);
   }
 
   // 2. Header spoof → 401 (auditoria crítica)
   {
-    const { res } = await fetchJson('/api/collaborators?tenantId=vale', {
+    const { res } = await fetchJson(`/api/collaborators?tenantId=${TENANT}`, {
       headers: {
-        'X-ErgoSense-Email': 'lucas@vale.com.br',
+        'X-ErgoSense-Email': TEST_EMAIL,
         'X-ErgoSense-Role': 'ADMIN_EMPRESA',
-        'X-ErgoSense-Tenant': 'vale',
+        'X-ErgoSense-Tenant': TENANT,
       },
     });
     if (res.status === 401) pass('Spoof X-ErgoSense-* → 401');
@@ -104,7 +105,7 @@ async function main() {
 
   // 5. Com JWT → 200 no próprio tenant
   {
-    const { res } = await fetchJson('/api/collaborators?tenantId=vale', { headers: authHeaders });
+    const { res } = await fetchJson(`/api/collaborators?tenantId=${TENANT}`, { headers: authHeaders });
     if (res.status === 200) pass('JWT válido → GET colaboradores 200');
     else fail('JWT válido → GET colaboradores 200', `status ${res.status}`);
   }

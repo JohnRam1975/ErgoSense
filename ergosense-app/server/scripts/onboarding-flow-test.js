@@ -61,6 +61,8 @@ async function main() {
       email,
       telefone: '11988887777',
       plano: 'STARTER',
+      password,
+      confirmPassword: password,
     }),
   });
   console.log(`   protocolo=${created.protocolo} id=${created.id}`);
@@ -88,15 +90,13 @@ async function main() {
   const activationToken = approved.activationToken;
   console.log(`   tenantId=${approved.tenantId}`);
 
-  console.log('4. Preview + ativar conta (MFA)…');
+  console.log('4. Preview + ativar conta (MFA; senha já definida no cadastro)…');
   const preview = await api(`/api/auth/activate-account/preview?token=${encodeURIComponent(activationToken)}`);
   const mfaCode = totpFromUrl(preview.otpauthUrl);
   await api('/api/auth/activate-account', {
     method: 'POST',
     body: JSON.stringify({
       token: activationToken,
-      password,
-      confirmPassword: password,
       mfaCode,
     }),
   });

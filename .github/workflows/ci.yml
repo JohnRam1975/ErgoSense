@@ -112,6 +112,12 @@ jobs:
           AUDIT_EMAIL: auditor@ergosense.test
           AUDIT_PASS: AuditTest!2026
           AUDIT_TENANT: acme
+      - name: Seed admin global
+        run: node scripts/seed-global-admin.js
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+          SEED_GLOBAL_ADMIN_EMAIL: ergosense@dejohn.com.br
+          SEED_GLOBAL_ADMIN_PASSWORD: "@Ergo!2026/Adm"
       - run: npm run test:db
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
@@ -136,6 +142,8 @@ jobs:
       - run: npm run test:onboarding
         env:
           API_URL: http://localhost:3001
+          E2E_GLOBAL_EMAIL: ergosense@dejohn.com.br
+          E2E_GLOBAL_PASSWORD: "@Ergo!2026/Adm"
       - run: npm run test:endpoints
         env:
           API_URL: http://localhost:3001

@@ -24,9 +24,13 @@ function generateValidCnpj() {
 }
 
 async function api(path, options = {}) {
+  const { headers: extraHeaders, ...rest } = options;
   const res = await fetch(`${API}${path}`, {
-    headers: { 'Content-Type': 'application/json; charset=utf-8', ...(options.headers ?? {}) },
-    ...options,
+    ...rest,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      ...(extraHeaders ?? {}),
+    },
   });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) {

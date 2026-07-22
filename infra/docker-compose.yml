@@ -2,6 +2,9 @@
 # Deploy recomendado: Compose from URL
 #   https://raw.githubusercontent.com/JohnRam1975/ErgoSense/main/infra/docker-compose.yml
 #
+# IMPORTANTE: após atualizar o compose, faça PULL das imagens (não só Restart).
+# Tag pinada abaixo — se o .env ainda tiver :latest antigo, o container não muda.
+#
 # Se a porta 80 já estiver com o FinCare (fincare-proxy), use PUBLIC_HTTP_PORT=8088 no .env
 # e aponte o domínio SSL para essa porta (ou reverse proxy).
 
@@ -9,7 +12,7 @@ name: ergosense
 
 services:
   db:
-    image: ${ERGOSENSE_POSTGRES_IMAGE:-ghcr.io/johnram1975/ergosense-postgres:latest}
+    image: ${ERGOSENSE_POSTGRES_IMAGE:-ghcr.io/johnram1975/ergosense-postgres:20260722-cleancache}
     container_name: ergosense-db
     restart: unless-stopped
     environment:
@@ -56,7 +59,7 @@ services:
       - ergosense
 
   backend:
-    image: ${ERGOSENSE_API_IMAGE:-ghcr.io/johnram1975/ergosense-api:latest}
+    image: ${ERGOSENSE_API_IMAGE:-ghcr.io/johnram1975/ergosense-api:20260722-cleancache}
     container_name: ergosense-backend
     restart: unless-stopped
     depends_on:
@@ -115,7 +118,7 @@ services:
       - ergosense
 
   frontend:
-    image: ${ERGOSENSE_WEB_IMAGE:-ghcr.io/johnram1975/ergosense-web:latest}
+    image: ${ERGOSENSE_WEB_IMAGE:-ghcr.io/johnram1975/ergosense-web:20260722-cleancache}
     container_name: ergosense-frontend
     restart: unless-stopped
     depends_on:

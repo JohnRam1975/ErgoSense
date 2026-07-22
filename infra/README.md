@@ -4,9 +4,11 @@ Use **apenas** `infra/docker-compose.yml` + `.env` (a partir de `.env.example`).
 
 ## Imagens (GHCR — grátis)
 
-- `ghcr.io/johnram1975/ergosense-postgres:latest`
-- `ghcr.io/johnram1975/ergosense-api:latest`
-- `ghcr.io/johnram1975/ergosense-web:latest`
+Tag pinada atual (obrigatório no Hostinger — `:latest` sozinho não atualiza sem pull):
+
+- `ghcr.io/johnram1975/ergosense-postgres:20260722-cleancache`
+- `ghcr.io/johnram1975/ergosense-api:20260722-cleancache`
+- `ghcr.io/johnram1975/ergosense-web:20260722-cleancache`
 
 (+ `redis:7-alpine` e `minio/minio:latest` públicos)
 
@@ -15,7 +17,7 @@ Use **apenas** `infra/docker-compose.yml` + `.env` (a partir de `.env.example`).
 ## Publicar imagens novas (PC)
 
 ```powershell
-powershell -File infra/docker-publish.ps1 -Tag latest
+powershell -File infra/docker-publish.ps1 -Tag 20260722-cleancache
 ```
 
 Depois: https://github.com/users/JohnRam1975/packages → cada package ErgoSense → Package settings → Change visibility → **Public**.
@@ -29,8 +31,10 @@ https://raw.githubusercontent.com/JohnRam1975/ErgoSense/main/infra/docker-compos
 ```
 
 1. Projeto: **`ergosense`**
-2. Cole o `.env` (base: `.env.example`) com senhas reais
-3. Deploy
+2. No `.env`, as 3 linhas `ERGOSENSE_*_IMAGE` devem usar a tag pinada (veja `.env.example`) — **não deixe `:latest` antigo**
+3. Deploy com **Pull images** / recreate (Restart sozinho **não** troca o frontend)
+4. Confirme no browser (aba Network): JS deve ser `AppContext-CAofgwBP.js` (ou outro hash novo), **nunca** `AppContext-6Q0hDcEx.js`
+5. `sw.js` deve vir com `Cache-Control: no-cache` (não `immutable`)
 
 ## DNS (Hostinger)
 

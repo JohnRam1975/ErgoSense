@@ -2,8 +2,8 @@ import { expect, type Page } from '@playwright/test';
 
 const EMAIL = process.env.E2E_EMAIL ?? process.env.AUDIT_EMAIL ?? 'auditor@ergosense.test';
 const PASSWORD = process.env.E2E_PASSWORD ?? process.env.AUDIT_PASS ?? 'AuditTest!2026';
-const FALLBACK_EMAIL = process.env.AUDIT_LEGACY_EMAIL ?? 'lucas@vale.com.br';
-const FALLBACK_PASSWORD = process.env.AUDIT_LEGACY_PASS ?? 'ergo1234';
+const FALLBACK_EMAIL = process.env.AUDIT_LEGACY_EMAIL ?? EMAIL;
+const FALLBACK_PASSWORD = process.env.AUDIT_LEGACY_PASS ?? PASSWORD;
 const GLOBAL_EMAIL = process.env.E2E_GLOBAL_EMAIL ?? 'ergosense@dejohn.com.br';
 const GLOBAL_PASSWORD = process.env.E2E_GLOBAL_PASSWORD ?? '@Ergo!2026/Adm';
 

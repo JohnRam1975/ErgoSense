@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Seed usuário dedicado para auditoria automatizada
  */
 import 'dotenv/config';
@@ -6,7 +6,7 @@ import { query } from '../src/db.js';
 
 const AUDIT_EMAIL = process.env.AUDIT_EMAIL ?? 'auditor@ergosense.test';
 const AUDIT_PASS = process.env.AUDIT_PASS ?? 'AuditTest!2026';
-const TENANT = process.env.AUDIT_TENANT ?? 'vale';
+const TENANT = process.env.AUDIT_TENANT ?? 'acme';
 
 async function main() {
   const { rows: tenants } = await query(`SELECT tenant_id FROM tenants WHERE tenant_id = $1`, [TENANT]);

@@ -33,10 +33,9 @@ npm run dev
 
 API em **http://localhost:3001**
 
-### Login demo
+### Login
 
-- E-mail: `lucas@vale.com.br`
-- Senha: `ergo1234`
+Admin global: `ergosense@dejohn.com.br` (senha `SEED_GLOBAL_ADMIN_PASSWORD`). Sem credenciais demo industriais.
 
 ### Build (validar antes de deploy)
 

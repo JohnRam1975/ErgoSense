@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+﻿import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { AppProvider, useApp } from '../AppContext';
@@ -102,7 +102,7 @@ describe('AppContext — sessão e onboarding', () => {
     vi.clearAllMocks();
     localStorage.clear();
     mockIsApiAvailable.mockResolvedValue(true);
-    mockApiGetTenants.mockResolvedValue([{ id: 'vale', name: 'Vale', industry: 'Mining' }]);
+    mockApiGetTenants.mockResolvedValue([{ id: 'acme', name: 'Acme', industry: 'Services' }]);
     mockFetchTenantDataBundle.mockResolvedValue(createMinimalTenantBundle());
     mockApiRestoreSession.mockResolvedValue(false);
   });
@@ -198,9 +198,9 @@ describe('AppContext — sessão e onboarding', () => {
           roleCode: 'OPERADOR',
           company: 'Co',
           location: 'HQ',
-          tenantId: 'vale',
+          tenantId: 'acme',
         },
-        selectedCompanyId: 'vale',
+        selectedCompanyId: 'acme',
         collaborators: [],
         analyses: [],
         reports: [],

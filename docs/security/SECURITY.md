@@ -77,7 +77,7 @@ public AnalysisDto createAnalysis(String tenantId, AnalysisRequest req) { ... }
 
 ```
 Authorization: Bearer {access_token}
-X-Tenant-Id: vale_sa
+X-Tenant-Id: <tenant_id>
 X-Device-Id: {uuid}
 X-App-Version: 1.0.0
 ```

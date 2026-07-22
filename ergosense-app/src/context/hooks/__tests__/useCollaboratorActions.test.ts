@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+﻿import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useCollaboratorActions } from '../useCollaboratorActions';
@@ -42,7 +42,7 @@ describe('useCollaboratorActions', () => {
     const { result } = renderHook(() =>
       useCollaboratorActions({
         dbConnected: true,
-        selectedCompanyId: 'vale',
+        selectedCompanyId: 'acme',
         setStored,
         go,
         showToast,
@@ -76,7 +76,7 @@ describe('useCollaboratorActions', () => {
     const { result } = renderHook(() =>
       useCollaboratorActions({
         dbConnected: true,
-        selectedCompanyId: 'vale',
+        selectedCompanyId: 'acme',
         setStored,
         go,
         showToast,
@@ -110,7 +110,7 @@ describe('useCollaboratorActions', () => {
     const { result } = renderHook(() =>
       useCollaboratorActions({
         dbConnected: false,
-        selectedCompanyId: 'vale',
+        selectedCompanyId: 'acme',
         setStored,
         go,
         showToast,

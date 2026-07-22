@@ -14,4 +14,9 @@ if [ -n "${SEED_GLOBAL_ADMIN_EMAIL:-}" ] && [ -n "${SEED_GLOBAL_ADMIN_PASSWORD:-
   node scripts/seed-global-admin.js || echo "[ergosense-api] seed skipped/failed (non-fatal)"
 fi
 
+if [ "${PURGE_DEMO_TENANTS:-true}" = "true" ]; then
+  echo "[ergosense-api] purging demo tenants (Vale/Gerdau/...)..."
+  node scripts/purge-demo-tenants.js || echo "[ergosense-api] purge skipped/failed (non-fatal)"
+fi
+
 exec node src/index.js

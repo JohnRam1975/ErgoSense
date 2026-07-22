@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+﻿import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { AppProvider, useApp } from '../AppContext';
@@ -212,9 +212,9 @@ async function loginAsErgonomist(result: { current: ReturnType<typeof useApp> })
       email: 'ergo@test.com',
       name: 'Ergonomista',
       role: 'ERGONOMISTA',
-      company: 'Vale',
+      company: 'Acme',
       location: 'HQ',
-      tenantId: 'vale',
+      tenantId: 'acme',
     },
     accessToken: 'jwt-1',
     expiresIn: 3600,
@@ -232,7 +232,7 @@ describe('AppContext — auth estendido', () => {
     vi.clearAllMocks();
     localStorage.clear();
     mocks.isApiAvailable.mockResolvedValue(true);
-    mocks.apiGetTenants.mockResolvedValue([{ id: 'vale', name: 'Vale', industry: 'Mining' }]);
+    mocks.apiGetTenants.mockResolvedValue([{ id: 'acme', name: 'Acme', industry: 'Services' }]);
     mocks.fetchBundle.mockResolvedValue(createMinimalTenantBundle());
     mocks.apiRestoreSession.mockResolvedValue(true);
     mocks.apiLogout.mockResolvedValue(undefined);
@@ -271,9 +271,9 @@ describe('AppContext — auth estendido', () => {
           roleCode: 'OPERADOR',
           company: 'Co',
           location: 'HQ',
-          tenantId: 'vale',
+          tenantId: 'acme',
         },
-        selectedCompanyId: 'vale',
+        selectedCompanyId: 'acme',
         collaborators: [],
         analyses: [],
         reports: [],
@@ -329,7 +329,7 @@ describe('AppContext — eSocial e Compliance', () => {
     vi.clearAllMocks();
     localStorage.clear();
     mocks.isApiAvailable.mockResolvedValue(true);
-    mocks.apiGetTenants.mockResolvedValue([{ id: 'vale', name: 'Vale', industry: 'Mining' }]);
+    mocks.apiGetTenants.mockResolvedValue([{ id: 'acme', name: 'Acme', industry: 'Services' }]);
     mocks.fetchBundle.mockResolvedValue(createMinimalTenantBundle());
     mocks.apiRestoreSession.mockResolvedValue(true);
     mocks.apiGetEsocialDashboard.mockResolvedValue({ total: 1 });
@@ -463,11 +463,11 @@ describe('AppContext — suporte e global admin', () => {
     vi.clearAllMocks();
     localStorage.clear();
     mocks.isApiAvailable.mockResolvedValue(true);
-    mocks.apiGetTenants.mockResolvedValue([{ id: 'vale', name: 'Vale', industry: 'Mining' }]);
+    mocks.apiGetTenants.mockResolvedValue([{ id: 'acme', name: 'Acme', industry: 'Services' }]);
     mocks.fetchBundle.mockResolvedValue(createMinimalTenantBundle());
     mocks.apiRestoreSession.mockResolvedValue(true);
     mocks.apiGetTenantMetadata.mockResolvedValue([
-      { id: 'vale', name: 'Vale', supportActive: true },
+      { id: 'acme', name: 'Acme', supportActive: true },
     ]);
     mocks.apiGetSupportStatus.mockResolvedValue({ active: true });
     mocks.apiGetSupportAudit.mockResolvedValue([]);
@@ -497,7 +497,7 @@ describe('AppContext — suporte e global admin', () => {
 
   it('accessTenantWithSupport sem autorização retorna false', async () => {
     mocks.apiGetTenantMetadata.mockResolvedValue([
-      { id: 'vale', name: 'Vale', supportActive: false },
+      { id: 'acme', name: 'Acme', supportActive: false },
     ]);
     mocks.apiLogin.mockResolvedValue({
       user: {

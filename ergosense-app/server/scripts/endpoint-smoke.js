@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Smoke de endpoints por tag — auth, status HTTP, ausência de 500
  * Uso: node scripts/endpoint-smoke.js [--tag=Psicossocial]
  */
@@ -10,9 +10,9 @@ import { materializePath, scanAllRoutes } from './lib/routeScanner.js';
 import { getRouteContract } from './lib/routeContracts.js';
 
 const BASE = process.env.API_URL ?? `http://localhost:${process.env.PORT ?? 3001}`;
-const TENANT = process.env.AUDIT_TENANT ?? 'vale';
-const EMAIL = process.env.AUDIT_EMAIL ?? 'lucas@vale.com.br';
-const PASS = process.env.AUDIT_PASS ?? 'ergo1234';
+const TENANT = process.env.AUDIT_TENANT ?? 'acme';
+const EMAIL = process.env.AUDIT_EMAIL ?? 'auditor@ergosense.test';
+const PASS = process.env.AUDIT_PASS ?? 'AuditTest!2026';
 const GLOBAL_EMAIL = process.env.E2E_GLOBAL_EMAIL ?? 'ergosense@dejohn.com.br';
 const GLOBAL_PASS = process.env.E2E_GLOBAL_PASSWORD ?? '@Ergo!2026/Adm';
 

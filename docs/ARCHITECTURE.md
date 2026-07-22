@@ -117,7 +117,7 @@ sequenceDiagram
 
     App->>API: POST /auth/login
     API->>App: JWT (tenant_id, roles, user_id)
-    App->>API: GET /analises<br/>Authorization: Bearer JWT<br/>X-Tenant-Id: vale_sa
+    App->>API: GET /analises<br/>Authorization: Bearer JWT<br/>X-Tenant-Id: &lt;tenant_id&gt;
     API->>API: TenantFilter valida JWT.tenant == header
     API->>DB: SELECT * FROM analises WHERE tenant_id = ?
     DB->>API: rows
@@ -279,5 +279,5 @@ gantt
     section Fase 4
     MediaPipe online + Dashboard    :2026-11, 2M
     section Fase 5
-    Piloto industrial Carajás       :2027-01, 2M
+    Piloto industrial                   :2027-01, 2M
 ```

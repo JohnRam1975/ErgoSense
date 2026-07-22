@@ -1,13 +1,13 @@
-/**
+﻿/**
  * Auditoria operacional — smoke, segurança, DB, carga leve
  * Uso: node scripts/operational-audit.js
  */
 import 'dotenv/config';
 
 const BASE = process.env.AUDIT_API_URL || 'http://localhost:3001';
-const TENANT = process.env.AUDIT_TENANT || 'vale';
-const EMAIL = process.env.AUDIT_EMAIL || 'lucas@vale.com.br';
-const PASS = process.env.AUDIT_PASS || 'ergo1234';
+const TENANT = process.env.AUDIT_TENANT || 'acme';
+const EMAIL = process.env.AUDIT_EMAIL || 'auditor@ergosense.test';
+const PASS = process.env.AUDIT_PASS || 'AuditTest!2026';
 
 const results = { passed: [], failed: [], warnings: [], metrics: {} };
 

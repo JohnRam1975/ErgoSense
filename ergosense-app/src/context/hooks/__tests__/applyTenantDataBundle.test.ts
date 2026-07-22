@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 import type { Dispatch, SetStateAction } from 'react';
 import { applyTenantDataBundle } from '../applyTenantDataBundle';
 import { createMinimalTenantBundle } from '../../../test/fixtures/tenantBundle';
@@ -88,7 +88,7 @@ describe('applyTenantDataBundle', () => {
         setStored: ((fn: SetStateAction<StoredState>) => {
           const base: StoredState = {
             session: null,
-            selectedCompanyId: 'vale',
+            selectedCompanyId: 'acme',
             collaborators: [],
             analyses: [],
             reports: [],

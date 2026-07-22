@@ -13,8 +13,7 @@ npm run dev:api   # API :3001
 npm run dev       # Web :5173
 ```
 
-**Login demo:** `lucas@vale.com.br` / `ergo1234`  
-**Admin global (após seed):** `ergosense@dejohn.com.br` / `@Ergo!2026/Adm`
+**Login (após seed):** `ergosense@dejohn.com.br` / senha em `SEED_GLOBAL_ADMIN_PASSWORD`
 
 ## Stack
 

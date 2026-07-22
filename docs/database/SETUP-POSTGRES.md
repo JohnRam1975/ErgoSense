@@ -59,7 +59,7 @@ cd ergosense-app
 npm run dev
 ```
 
-Login demo: `lucas@vale.com.br` / `ergo1234`
+Login: admin global via `SEED_GLOBAL_ADMIN_*` (padrão `ergosense@dejohn.com.br`). Sem tenants demo.
 
 O Vite faz proxy de `/api` → `http://localhost:3001`.
 

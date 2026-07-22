@@ -27,7 +27,7 @@ npm run db:up
 
 Banco: `ergosense` na porta **5433**.
 
-### 3. Criar tabelas e dados demo
+### 3. Criar tabelas e seed mínimo
 
 ```powershell
 $env:PGPASSWORD = "sua_senha_do_env"
@@ -74,12 +74,13 @@ API: **http://localhost:3001** · Docs: **http://localhost:3001/api/docs**
 
 ---
 
-## Login demo
+## Login
 
 | Perfil | E-mail | Senha |
 |--------|--------|-------|
-| Ergonomista | `lucas@vale.com.br` | `ergo1234` |
-| Admin global | `ergosense@dejohn.com.br` | `@Ergo!2026/Adm` |
+| Admin global | `ergosense@dejohn.com.br` | `@Ergo!2026/Adm` (ou `SEED_GLOBAL_ADMIN_PASSWORD`) |
+
+Não há mais login demo Vale/Carajás.
 
 ---
 

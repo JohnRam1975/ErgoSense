@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+﻿import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { AppProvider, useApp } from '../AppContext';
@@ -188,7 +188,7 @@ describe('AppContext', () => {
     vi.clearAllMocks();
     localStorage.clear();
     mockIsApiAvailable.mockResolvedValue(true);
-    mockApiGetTenants.mockResolvedValue([{ id: 'vale', name: 'Vale', industry: 'Mining' }]);
+    mockApiGetTenants.mockResolvedValue([{ id: 'acme', name: 'Acme', industry: 'Services' }]);
     mockFetchTenantDataBundle.mockResolvedValue(createMinimalTenantBundle());
     mockApiRestoreSession.mockResolvedValue(true);
     mockApiLogout.mockResolvedValue(undefined);
@@ -221,9 +221,9 @@ describe('AppContext', () => {
         email: 'ergo@test.com',
         name: 'Ergonomista',
         role: 'ERGONOMISTA',
-        company: 'Vale',
+        company: 'Acme',
         location: 'HQ',
-        tenantId: 'vale',
+        tenantId: 'acme',
       },
       accessToken: 'jwt-1',
       expiresIn: 3600,
@@ -262,7 +262,7 @@ describe('AppContext', () => {
         role: 'OPERADOR',
         company: 'Co',
         location: 'HQ',
-        tenantId: 'vale',
+        tenantId: 'acme',
       },
       accessToken: 'jwt-mfa',
       expiresIn: 3600,
@@ -327,9 +327,9 @@ describe('AppContext', () => {
         email: 'ergo@test.com',
         name: 'Ergonomista',
         role: 'ERGONOMISTA',
-        company: 'Vale',
+        company: 'Acme',
         location: 'HQ',
-        tenantId: 'vale',
+        tenantId: 'acme',
       },
       accessToken: 'jwt-1',
       expiresIn: 3600,
@@ -421,9 +421,9 @@ describe('AppContext', () => {
           roleCode: 'OPERADOR',
           company: 'Co',
           location: 'HQ',
-          tenantId: 'vale',
+          tenantId: 'acme',
         },
-        selectedCompanyId: 'vale',
+        selectedCompanyId: 'acme',
         collaborators: [],
         analyses: [],
         reports: [],

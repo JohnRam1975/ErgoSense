@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+﻿import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { AppProvider, useApp } from '../AppContext';
@@ -288,8 +288,8 @@ const testCollaborator = {
 
 const pgrProgram = {
   id: 'pgr-1',
-  tenantId: 'vale',
-  title: 'PGR Vale',
+  tenantId: 'acme',
+  title: 'PGR Acme',
   description: 'Programa',
   technicalResponsible: 'Eng. A',
   legalResponsible: 'Eng. B',
@@ -308,9 +308,9 @@ async function loginAsErgonomist(result: { current: ReturnType<typeof useApp> })
       email: 'ergo@test.com',
       name: 'Ergonomista',
       role: 'ERGONOMISTA',
-      company: 'Vale',
+      company: 'Acme',
       location: 'HQ',
-      tenantId: 'vale',
+      tenantId: 'acme',
     },
     accessToken: 'jwt-1',
     expiresIn: 3600,
@@ -327,7 +327,7 @@ function setupMocks() {
   vi.clearAllMocks();
   localStorage.clear();
   mocks.isApiAvailable.mockResolvedValue(true);
-  mocks.apiGetTenants.mockResolvedValue([{ id: 'vale', name: 'Vale', industry: 'Mining' }]);
+  mocks.apiGetTenants.mockResolvedValue([{ id: 'acme', name: 'Acme', industry: 'Services' }]);
   mocks.apiRestoreSession.mockResolvedValue(true);
   mocks.apiGetTenantMetadata.mockResolvedValue([]);
   mocks.apiGetSupportStatus.mockResolvedValue({ active: false });
@@ -338,7 +338,7 @@ function setupMocks() {
       pgrVers: [
         {
           id: 'v1',
-          tenantId: 'vale',
+          tenantId: 'acme',
           programId: 'pgr-1',
           number: '1',
           sequential: 1,

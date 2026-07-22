@@ -54,3 +54,8 @@ ergosense-app/server/integration-*.log
 dev-dist/
 **/dev-dist/
 
+
+# Local docker/web extract dumps
+.tmp-*/
+.tmp-web-check*/
+

@@ -6,9 +6,9 @@ Use **apenas** `infra/docker-compose.yml` + `.env` (a partir de `.env.example`).
 
 Tag pinada atual (obrigatório no Hostinger — `:latest` sozinho não atualiza sem pull):
 
-- `ghcr.io/johnram1975/ergosense-postgres:20260722-cleancache`
-- `ghcr.io/johnram1975/ergosense-api:20260722-cleancache`
-- `ghcr.io/johnram1975/ergosense-web:20260722-cleancache`
+- `ghcr.io/johnram1975/ergosense-postgres:20260722-nolegacy`
+- `ghcr.io/johnram1975/ergosense-api:20260722-nolegacy`
+- `ghcr.io/johnram1975/ergosense-web:20260722-nolegacy`
 
 (+ `redis:7-alpine` e `minio/minio:latest` públicos)
 
@@ -17,7 +17,7 @@ Tag pinada atual (obrigatório no Hostinger — `:latest` sozinho não atualiza 
 ## Publicar imagens novas (PC)
 
 ```powershell
-powershell -File infra/docker-publish.ps1 -Tag 20260722-cleancache
+powershell -File infra/docker-publish.ps1 -Tag 20260722-nolegacy
 ```
 
 Depois: https://github.com/users/JohnRam1975/packages → cada package ErgoSense → Package settings → Change visibility → **Public**.

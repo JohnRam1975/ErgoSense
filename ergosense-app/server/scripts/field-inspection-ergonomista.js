@@ -1,13 +1,13 @@
-/**
+﻿/**
  * Inspeção de campo simulada — Ergonomista Sênior
  * Executa fluxo real via API: reconhecimento → análise → NR-17 → GRO → AET
  *
  * Uso: node scripts/field-inspection-ergonomista.js
  */
 const BASE = process.env.API_URL ?? `http://localhost:${process.env.PORT ?? 3001}`;
-const EMAIL = process.env.TEST_EMAIL ?? 'lucas@vale.com.br';
-const PASSWORD = process.env.TEST_PASSWORD ?? 'ergo1234';
-const TENANT = process.env.TEST_TENANT ?? 'vale';
+const EMAIL = process.env.TEST_EMAIL ?? 'auditor@ergosense.test';
+const PASSWORD = process.env.TEST_PASSWORD ?? 'AuditTest!2026';
+const TENANT = process.env.TEST_TENANT ?? 'acme';
 
 const findings = [];
 const passes = [];

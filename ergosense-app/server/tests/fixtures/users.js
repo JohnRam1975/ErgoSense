@@ -23,9 +23,9 @@ export const FIXTURES = {
     role: 'OPERADOR',
   },
   legacy: {
-    tenantId: process.env.AUDIT_TENANT || 'vale',
-    email: process.env.AUDIT_EMAIL || 'lucas@vale.com.br',
-    password: process.env.AUDIT_PASS || 'ergo1234',
+    tenantId: process.env.AUDIT_TENANT || 'itest-active',
+    email: process.env.AUDIT_EMAIL || 'itest-active@ergosense.test',
+    password: process.env.AUDIT_PASS || 'IntegrationTest1234!',
   },
   globalAdmin: {
     email: process.env.E2E_GLOBAL_EMAIL || 'ergosense@dejohn.com.br',

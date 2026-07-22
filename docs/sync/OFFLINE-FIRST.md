@@ -111,7 +111,7 @@ POST   /api/v1/analises/{id}/fotos # Upload multipart
 
 ```json
 {
-  "tenantId": "vale_sa",
+  "tenantId": "<tenant_id>",
   "deviceId": "uuid-device",
   "batch": [
     {

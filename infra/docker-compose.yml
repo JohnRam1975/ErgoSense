@@ -12,7 +12,7 @@ name: ergosense
 
 services:
   db:
-    image: ${ERGOSENSE_POSTGRES_IMAGE:-ghcr.io/johnram1975/ergosense-postgres:20260722-nolegacy}
+    image: ${ERGOSENSE_POSTGRES_IMAGE:-ghcr.io/johnram1975/ergosense-postgres:20260722-apifix}
     container_name: ergosense-db
     restart: unless-stopped
     environment:
@@ -59,7 +59,7 @@ services:
       - ergosense
 
   backend:
-    image: ${ERGOSENSE_API_IMAGE:-ghcr.io/johnram1975/ergosense-api:20260722-nolegacy}
+    image: ${ERGOSENSE_API_IMAGE:-ghcr.io/johnram1975/ergosense-api:20260722-apifix}
     container_name: ergosense-backend
     restart: unless-stopped
     depends_on:
@@ -118,7 +118,7 @@ services:
       - ergosense
 
   frontend:
-    image: ${ERGOSENSE_WEB_IMAGE:-ghcr.io/johnram1975/ergosense-web:20260722-nolegacy}
+    image: ${ERGOSENSE_WEB_IMAGE:-ghcr.io/johnram1975/ergosense-web:20260722-apifix}
     container_name: ergosense-frontend
     restart: unless-stopped
     depends_on:

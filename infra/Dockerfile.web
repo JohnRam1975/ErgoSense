@@ -4,8 +4,9 @@ WORKDIR /app
 COPY ergosense-app/package.json ergosense-app/package-lock.json* ./
 RUN npm ci 2>/dev/null || npm install
 COPY ergosense-app/ ./
-# Evita tsc -b (erros TS legados) — artefato de produção via Vite
-ARG VITE_API_URL=/api
+# Same-origin via nginx proxy: paths already start with /api — leave base empty.
+# Setting VITE_API_URL=/api would call /api/api/... and return 404.
+ARG VITE_API_URL=
 ENV VITE_API_URL=$VITE_API_URL
 RUN npx vite build
 

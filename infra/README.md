@@ -32,6 +32,14 @@ https://raw.githubusercontent.com/JohnRam1975/ErgoSense/main/infra/docker-compos
 2. Cole o `.env` (base: `.env.example`) com senhas reais
 3. Deploy
 
+## DNS (Hostinger)
+
+Para `ergosense.dejohn.com.br` use **apenas um** registro A:
+
+`ergosense` → `195.35.18.205` (IP deste VPS)
+
+**Não** deixe um segundo A para `2.57.91.91` — esse IP não é o servidor ErgoSense e causa timeout/404 no cadastro (ex.: autônomo).
+
 ### Se aparecer `python3: can't open file '/.hstgr-....list.py'`
 
 É falha interna do painel Hostinger (não do app). Causas mais comuns:

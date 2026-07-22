@@ -49,8 +49,17 @@ function unwrapApiBody<T>(body: T & { success?: boolean; data?: unknown }): T {
 }
 
 async function parseApiError(res: Response): Promise<string> {
-  const body = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
-  return body.message ?? body.error ?? `Erro ${res.status}`;
+  const text = await res.text().catch(() => '');
+  try {
+    const body = JSON.parse(text) as { error?: string; message?: string };
+    return body.message ?? body.error ?? `Erro ${res.status}`;
+  } catch {
+    if (res.status === 404) {
+      return 'Serviço não encontrado (404). Confirme o DNS do domínio e tente de novo.';
+    }
+    if (res.status >= 500) return `Erro no servidor (${res.status}). Tente novamente.`;
+    return `Erro ${res.status}`;
+  }
 }
 
 async function request<T>(path: string, options?: RequestInit, retried = false): Promise<T> {
@@ -164,6 +173,7 @@ export async function apiSubmitTenantRequest(data: {
   cnpj?: string;
   cpf?: string;
   segmento: string;
+  industria?: string;
   quantidadeFuncionarios?: number;
   responsavelNome: string;
   email: string;

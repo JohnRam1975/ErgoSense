@@ -81,18 +81,33 @@ export default defineConfig({
             },
           },
           {
+            // API sempre na rede — nunca cache (POST/autônomo/login quebram com NetworkFirst)
             urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'ergosense-api',
-              networkTimeoutSeconds: 8,
-              expiration: { maxEntries: 64, maxAgeSeconds: 60 * 5 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
+            handler: 'NetworkOnly',
+            method: 'GET',
+          },
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
+            handler: 'NetworkOnly',
+            method: 'POST',
+          },
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
+            handler: 'NetworkOnly',
+            method: 'PUT',
+          },
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
+            handler: 'NetworkOnly',
+            method: 'PATCH',
+          },
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
+            handler: 'NetworkOnly',
+            method: 'DELETE',
           },
         ],
-      },
-      devOptions: {
+      },      devOptions: {
         // Permite instalar/testar PWA também no npm run dev (localhost)
         enabled: true,
         type: 'module',

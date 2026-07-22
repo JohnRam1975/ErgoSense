@@ -9,18 +9,20 @@ const AUDIT_PASS = process.env.AUDIT_PASS ?? 'AuditTest!2026';
 const TENANT = process.env.AUDIT_TENANT ?? 'acme';
 
 async function main() {
-  const { rows: tenants } = await query(`SELECT tenant_id FROM tenants WHERE tenant_id = $1`, [TENANT]);
-  if (!tenants.length) {
-    console.error(`Tenant ${TENANT} não encontrado`);
-    process.exit(1);
-  }
+  await query(
+    `INSERT INTO tenants (tenant_id, nome, industria, icone, cor, ativo)
+     VALUES ($1, 'Acme QA', 'Testes', '🏢', 'cyan', TRUE)
+     ON CONFLICT (tenant_id) DO UPDATE SET ativo = TRUE, deleted_at = NULL, updated_at = NOW()`,
+    [TENANT],
+  );
 
   const { rows: existing } = await query(`SELECT id FROM usuarios WHERE email = $1`, [AUDIT_EMAIL]);
 
   if (existing.length) {
     await query(
-      `UPDATE usuarios SET senha_hash = crypt($1, gen_salt('bf', 10)), ativo = TRUE, perfil = 'ERGONOMISTA', deleted_at = NULL WHERE email = $2`,
-      [AUDIT_PASS, AUDIT_EMAIL],
+      `UPDATE usuarios SET senha_hash = crypt($1, gen_salt('bf', 10)), ativo = TRUE, perfil = 'ERGONOMISTA',
+         tenant_id = $3, deleted_at = NULL, updated_at = NOW() WHERE email = $2`,
+      [AUDIT_PASS, AUDIT_EMAIL, TENANT],
     );
     console.log(`✓ Auditor atualizado: ${AUDIT_EMAIL}`);
   } else {

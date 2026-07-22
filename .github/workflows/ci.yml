@@ -186,10 +186,23 @@ jobs:
       - run: npm --prefix server run migrate:all
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
+      - name: Seed admin global + auditor QA
+        run: |
+          node server/scripts/seed-global-admin.js
+          node server/scripts/seed-audit-user.js
+        working-directory: ergosense-app
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+          SEED_GLOBAL_ADMIN_EMAIL: ergosense@dejohn.com.br
+          SEED_GLOBAL_ADMIN_PASSWORD: "@Ergo!2026/Adm"
+          AUDIT_EMAIL: auditor@ergosense.test
+          AUDIT_PASS: AuditTest!2026
+          AUDIT_TENANT: acme
       - run: npm --prefix server start &
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
           PORT: 3001
+          PURGE_DEMO_TENANTS: "false"
       - run: npm run dev &
       - run: npx wait-on http://localhost:3001/api/health http://localhost:5173 -t 120000
       - run: npm run test:e2e
@@ -201,6 +214,8 @@ jobs:
           AUDIT_PASS: AuditTest!2026
           E2E_EMAIL: auditor@ergosense.test
           E2E_PASSWORD: AuditTest!2026
+          E2E_GLOBAL_EMAIL: ergosense@dejohn.com.br
+          E2E_GLOBAL_PASSWORD: "@Ergo!2026/Adm"
 
   docker-build:
     runs-on: ubuntu-latest

@@ -9,7 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const appRoot = path.join(__dirname, '../..');
 const BASELINE = {
   feLines: 20.0,
-  beLines: 42.0,
+  beLines: 34.0,
   combinedLines: 28.0,
 };
 

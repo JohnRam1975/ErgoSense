@@ -15,6 +15,8 @@ const PUBLIC_EXACT = new Set([
   '/api/auth/refresh',
   '/api/auth/mfa/verify',
   '/api/auth/activate-account',
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password',
   '/api/openapi.json',
   '/api/docs',
 ]);
@@ -24,6 +26,7 @@ export function isPublicRoute(method, routePath) {
   if (routePath.startsWith('/api/public/')) return true;
   if (routePath === '/api/access-requests' && method === 'post') return true;
   if (routePath === '/api/auth/activate-account/preview' && method === 'get') return true;
+  if (routePath === '/api/auth/reset-password/preview' && method === 'get') return true;
   if (routePath.startsWith('/api/denuncias/public')) return true;
   if (routePath.startsWith('/api/psico/public/')) return true;
   return false;

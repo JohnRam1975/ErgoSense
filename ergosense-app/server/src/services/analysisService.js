@@ -4,6 +4,7 @@
 import { pool, query } from '../db.js';
 import { validateLoadEffortPayload } from '../loadRiskValidate.js';
 import { integrateFromAnalysis } from './riskIntegrationHub.js';
+import { createAetFromAnalysis } from './aetAutoFromAnalysis.js';
 import { storeMedia, retrieveMedia } from './storageService.js';
 import { mapAnalysis, parseDateBR, parseTimeBR } from '../mappers/coreMappers.js';
 
@@ -43,13 +44,21 @@ export function validateAnalysisPayload(a) {
   if (loadEffortPre?.weightKg != null && loadEffortPre?.distanceCm != null) {
     const v = validateLoadEffortPayload(loadEffortPre.weightKg, loadEffortPre.distanceCm);
     if (!v.ok) return v;
-  } else if (loadManualPre?.enabled && loadManualPre?.weightKg > 0) {
+  } else if (loadManualPre?.enabled) {
+    const weight = loadManualPre.weightKg ?? loadParamsPre?.weightKg;
     const dist =
-      loadManualPre.measuredDistanceCm ?? loadManualPre.distanceCmManual ?? loadParamsPre?.distanceCm;
-    if (!dist || dist <= 0) {
-      return { ok: false, error: 'Distância da carga obrigatória para salvar.' };
+      loadManualPre.measuredDistanceCm ??
+      loadManualPre.distanceCmManual ??
+      loadParamsPre?.distanceCm;
+    if (weight != null && Number(weight) > 0) {
+      if (dist == null || Number(dist) <= 0) {
+        return { ok: false, error: 'Distância da carga obrigatória para salvar.' };
+      }
+      const v = validateLoadEffortPayload(weight, dist);
+      if (!v.ok) return v;
     }
-    const v = validateLoadEffortPayload(loadManualPre.weightKg, dist);
+  } else if (loadParamsPre?.weightKg != null && loadParamsPre?.distanceCm != null) {
+    const v = validateLoadEffortPayload(loadParamsPre.weightKg, loadParamsPre.distanceCm);
     if (!v.ok) return v;
   }
 
@@ -74,16 +83,29 @@ export async function createAnalysis(tenantId, body, user) {
   const loadManualPre = a.loadManual ?? a.loadAssessment?.manual ?? null;
   const loadEffortPre = a.loadEffort ?? a.loadAssessment?.effort ?? null;
 
+  const riskLevel = String(a.risk ?? a.riskLevel ?? 'baixo').toLowerCase() || 'baixo';
+  let score =
+    typeof a.score === 'number' && Number.isFinite(a.score) ? Math.round(a.score) : null;
+  if (score == null) {
+    if (riskLevel.includes('crit') || riskLevel === 'alto') score = 75;
+    else if (riskLevel.includes('medio') || riskLevel.includes('médio')) score = 45;
+    else score = 20;
+  }
+  score = Math.max(0, Math.min(100, score));
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     const colabId = Number(a.collaboratorId);
-    if (!colabId) throw new Error('colaborador inválido');
+    if (!colabId) throw Object.assign(new Error('colaborador inválido'), { status: 400 });
 
     const setorRes = await client.query(
-      `SELECT setor_id FROM colaboradores WHERE id = $1 AND tenant_id = $2`,
+      `SELECT setor_id FROM colaboradores WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`,
       [colabId, tenantId],
     );
+    if (!setorRes.rows.length) {
+      throw Object.assign(new Error('Colaborador não encontrado'), { status: 400 });
+    }
     const setorId = setorRes.rows[0]?.setor_id ?? null;
 
     const ins = await client.query(
@@ -120,10 +142,10 @@ export async function createAnalysis(tenantId, body, user) {
       [
         tenantId,
         analiseId,
-        a.score,
-        a.risk,
-        a.rula,
-        a.reba,
+        score,
+        riskLevel,
+        a.rula ?? null,
+        a.reba ?? null,
         JSON.stringify(a.angles ?? {}),
         JSON.stringify(a.workstation ?? null),
         JSON.stringify(a.nr17Report ?? null),
@@ -145,7 +167,14 @@ export async function createAnalysis(tenantId, body, user) {
       );
     }
 
-    const vr = a.videoRecording;
+    let vr = a.videoRecording;
+    if (typeof vr === 'string' && vr.includes('base64,')) {
+      vr = {
+        data: vr,
+        mimeType: vr.startsWith('data:video/mp4') ? 'video/mp4' : 'video/webm',
+        format: vr.startsWith('data:video/mp4') ? 'mp4' : 'webm',
+      };
+    }
     if (vr?.data) {
       try {
         const raw = String(vr.data).includes('base64,')
@@ -209,7 +238,7 @@ export async function createAnalysis(tenantId, body, user) {
           tenantId,
           analiseId,
           `NR-17 · ${a.collaboratorName}`,
-          `${a.date} · Conformidade ${a.nr17Report.complianceScore}%`,
+          `${a.date} · Conformidade ${a.nr17Report.ergoIndices?.internalConformityIndex ?? a.nr17Report.complianceScore}%`,
           a.reportId ?? `r-${Date.now()}`,
         ],
       );
@@ -227,7 +256,26 @@ export async function createAnalysis(tenantId, body, user) {
     }
 
     await client.query('COMMIT');
-    return { id: String(analiseId) };
+
+    let aetMeta = null;
+    try {
+      aetMeta = await createAetFromAnalysis({
+        tenantId,
+        analiseId,
+        analysis: a,
+        user,
+        generateReport: true,
+      });
+    } catch (aetErr) {
+      console.warn(JSON.stringify({ level: 'warn', msg: 'aet_auto_from_analysis_failed', error: aetErr.message }));
+    }
+
+    return {
+      id: String(analiseId),
+      aetProcessId: aetMeta?.processId ?? null,
+      aetCreated: Boolean(aetMeta?.created),
+      aetReportGenerated: Boolean(aetMeta?.reportGenerated),
+    };
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;

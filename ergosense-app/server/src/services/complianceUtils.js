@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { query } from '../db.js';
+import { historyDetailsJson, historyUserName } from '../utils/historyLog.js';
 
 export const FONTES_PADRAO = [
   { codigo: 'MTE', nome: 'Ministério do Trabalho e Emprego', url: 'https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao/seguranca-e-saude-no-trabalho/normas-regulamentadoras' },
@@ -14,7 +15,14 @@ export async function logComplianceHistory({ tenantId, entityType, entityId, act
   await query(
     `INSERT INTO compliance_historico (tenant_id, entidade_tipo, entidade_id, acao, usuario_nome, detalhes)
      VALUES ($1,$2,$3,$4,$5,$6)`,
-    [tenantId, entityType, entityId ?? null, action, user?.name ?? user?.email ?? '', details ? JSON.stringify(details) : null],
+    [
+      tenantId,
+      entityType,
+      entityId ?? null,
+      action,
+      historyUserName(user) ?? '',
+      historyDetailsJson(details),
+    ],
   );
 }
 

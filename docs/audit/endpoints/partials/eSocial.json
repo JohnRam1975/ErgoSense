@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:36:57.219Z",
+  "generatedAt": "2026-07-23T16:50:12.575Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "GET /api/esocial/config": {
       "method": "GET",
@@ -26,7 +26,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 27ms",
+          "detail": "HTTP 200 14ms",
           "classification": null
         },
         "schema_valid": {
@@ -59,7 +59,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 50ms",
+          "detail": "HTTP 200 21ms",
           "classification": null
         },
         "schema_valid": {
@@ -97,7 +97,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 31ms",
+          "detail": "HTTP 200 17ms",
           "classification": null
         },
         "schema_valid": {
@@ -168,7 +168,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 20ms",
+          "detail": "HTTP 400 14ms",
           "classification": null
         },
         "schema_valid": {
@@ -211,12 +211,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 18ms",
+          "detail": "HTTP 200 27ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 404",
+          "detail": "HTTP 200",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -249,12 +249,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 18ms",
+          "detail": "HTTP 200 22ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 404",
+          "detail": "HTTP 200",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -268,7 +268,7 @@
       "method": "POST",
       "path": "/api/esocial/eventos/:id/assinar",
       "tag": "eSocial",
-      "contractKind": "create",
+      "contractKind": "actionPost",
       "checks": {
         "no_auth_401": {
           "ok": true,
@@ -287,12 +287,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 20ms",
+          "detail": "HTTP 400 13ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 404",
+          "detail": "HTTP 400",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -325,12 +325,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 25ms",
+          "detail": "HTTP 400 12ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 404",
+          "detail": "HTTP 400",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -363,12 +363,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 48ms",
+          "detail": "HTTP 400 26ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 404",
+          "detail": "HTTP 400",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -401,7 +401,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 34ms",
+          "detail": "HTTP 400 17ms",
           "classification": null
         },
         "schema_valid": {
@@ -439,12 +439,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 13ms",
+          "detail": "HTTP 400 38ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 404",
+          "detail": "HTTP 400",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -482,7 +482,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 10ms",
+          "detail": "HTTP 200 19ms",
           "classification": null
         },
         "schema_valid": {
@@ -563,12 +563,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 14ms",
+          "detail": "HTTP 200 42ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 404",
+          "detail": "HTTP 200",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -606,12 +606,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 9ms",
+          "detail": "HTTP 200 12ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 404",
+          "detail": "HTTP 200",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -644,7 +644,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 15ms",
+          "detail": "HTTP 200 19ms",
           "classification": null
         },
         "schema_valid": {

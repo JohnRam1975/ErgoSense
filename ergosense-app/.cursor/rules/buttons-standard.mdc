@@ -1,0 +1,30 @@
+---
+description: Padrão obrigatório de botões ErgoSense — tamanho compacto em todo o sistema
+alwaysApply: true
+---
+
+# Botões — padrão único
+
+Todo botão de ação no frontend (`ergosense-app`) deve usar a classe `.btn` e o tamanho compacto global definido em `src/styles/buttons.css`.
+
+## Obrigatório
+
+- Use `className="btn bp"` (primário), `btn bs` (secundário), `btn br` (perigo), `btn bd` quando aplicável.
+- Tamanho vem só do CSS: ~32px altura, fonte 10px, `width: auto`.
+- Para ações em header/tabela: `btn bp btn-sm btn-inline` (mesmo tamanho; inline só evita margem).
+- Ícone só: `btn bp btn-icon`.
+
+## Proibido
+
+- `style={{ width: '100%' }}`, `style={{ flex: 1 }}`, `padding`/`fontSize` inline em botões.
+- Classes `btn-cta`, `btn-block` ou qualquer CSS que force botão full-width/gigante.
+- Recriar botões com padding grande (16px+) ou `font-size` ≥ 13px para ações.
+
+## Exceções (não são botões CTA)
+
+- `.btn-list` / `.btn-rich`: linhas de menu/lista (largura 100% ok).
+- `.bn-item`, `.di`, `.settings-row`, `.cch`: navegação/cards, não CTAs.
+
+## Botões novos
+
+Qualquer botão novo ou futuro herda `buttons.css` automaticamente se usar `.btn`. Não adicione overrides de tamanho.

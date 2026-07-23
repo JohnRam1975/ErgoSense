@@ -5,7 +5,7 @@ import { AppChrome, MenuDrawer } from './components/Navigation';
 import { SupportModeBar, SupportModeCameraExit } from './components/SupportModeBar';
 import { PwaInstallBanner, PwaInstallGuide } from './components/PwaInstallBanner';
 import { useHaptic } from './hooks/useHaptic';
-import { SplashScreen, LoginScreen, RegisterCompanyScreen, CompanyScreen, DashboardScreen, CollabsScreen } from './screens/MainScreens';
+import { SplashScreen, LoginScreen, ResetPasswordScreen, RegisterCompanyScreen, CompanyScreen, DashboardScreen, CollabsScreen } from './screens/MainScreens';
 import {
   TenantRequestAccessScreen,
   AutonomoRequestAccessScreen,
@@ -108,6 +108,7 @@ const SCREENS: Record<ScreenId, React.ComponentType> = {
   'request-access': TenantRequestAccessScreen,
   'request-access-autonomo': AutonomoRequestAccessScreen,
   'activate-account': ActivateAccountScreen,
+  'reset-password': ResetPasswordScreen,
   'contact-support': ContactSupportScreen,
   'admin-tenant-requests': AdminTenantRequestsScreen,
   'admin-tenant-request-detail': AdminTenantRequestDetailScreen,
@@ -201,6 +202,7 @@ const SCREEN_CLASSES: Partial<Record<ScreenId, string>> = {
   'request-access': 'screen-login',
   'request-access-autonomo': 'screen-login',
   'activate-account': 'screen-login',
+  'reset-password': 'screen-login',
   'contact-support': 'screen-login',
   'admin-tenant-requests': 'screen-global-admin',
   'admin-tenant-request-detail': 'screen-global-admin',
@@ -243,6 +245,7 @@ export default function App() {
     screen === 'request-access' ||
     screen === 'request-access-autonomo' ||
     screen === 'activate-account' ||
+    screen === 'reset-password' ||
     screen === 'register-company' ||
     screen === 'global-admin' ||
     screen === 'admin-access-control' ||
@@ -254,6 +257,9 @@ export default function App() {
   useEffect(() => {
     if (window.location.pathname.match(/^\/activate-account\/?$/i)) {
       go('activate-account', { instant: true });
+    }
+    if (window.location.pathname.match(/^\/reset-password\/?$/i)) {
+      go('reset-password', { instant: true });
     }
     if (window.location.pathname.match(/^\/request-access\/?$/i)) {
       go('request-access', { instant: true });

@@ -9,7 +9,11 @@ RUN addgroup -g 1001 -S ergosense && adduser -S ergosense -u 1001 -G ergosense
 WORKDIR /app
 ENV NODE_ENV=production \
     PORT=3001 \
-    RUN_MIGRATIONS=true
+    RUN_MIGRATIONS=true \
+    UV_THREADPOOL_SIZE=16 \
+    API_WORKERS=4 \
+    LISTEN_BACKLOG=2048 \
+    PGPOOL_MAX=20
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY ergosense-app/server/package.json ./

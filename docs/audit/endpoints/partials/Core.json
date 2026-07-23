@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:19:10.565Z",
+  "generatedAt": "2026-07-23T16:49:17.768Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "GET /api/analyses": {
       "method": "GET",
@@ -26,7 +26,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 24ms",
+          "detail": "HTTP 200 22ms",
           "classification": null
         },
         "schema_valid": {
@@ -69,7 +69,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 13ms",
+          "detail": "HTTP 400 12ms",
           "classification": null
         },
         "schema_valid": {
@@ -107,7 +107,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 12ms",
+          "detail": "HTTP 404 9ms",
           "classification": null
         },
         "schema_valid": {
@@ -150,7 +150,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 28ms",
+          "detail": "HTTP 404 19ms",
           "classification": null
         },
         "schema_valid": {
@@ -188,7 +188,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 113ms",
+          "detail": "HTTP 200 27ms",
           "classification": null
         },
         "schema_valid": {
@@ -221,22 +221,60 @@
         },
         "invalid_payload_400": {
           "ok": true,
-          "detail": "HTTP 403",
+          "detail": "HTTP 400",
           "classification": null
         },
         "empty_payload_400": {
           "ok": true,
-          "detail": "HTTP 403",
+          "detail": "HTTP 400",
           "classification": null
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 403 7ms",
+          "detail": "HTTP 400 48ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 403",
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    },
+    "DELETE /api/collaborators/:id": {
+      "method": "DELETE",
+      "path": "/api/collaborators/:id",
+      "tag": "Core",
+      "contractKind": "delete",
+      "checks": {
+        "no_auth_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "invalid_token_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "not_found_404": {
+          "ok": true,
+          "detail": "HTTP 404",
+          "classification": null
+        },
+        "success_auth": {
+          "ok": true,
+          "detail": "HTTP 404 8ms",
+          "classification": null
+        },
+        "schema_valid": {
+          "ok": true,
+          "detail": "HTTP 404",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -264,27 +302,27 @@
         },
         "not_found_404": {
           "ok": true,
-          "detail": "HTTP 403",
+          "detail": "HTTP 400",
           "classification": null
         },
         "invalid_payload_400": {
           "ok": true,
-          "detail": "HTTP 403",
+          "detail": "HTTP 400",
           "classification": null
         },
         "empty_payload_400": {
           "ok": true,
-          "detail": "HTTP 403",
+          "detail": "HTTP 400",
           "classification": null
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 403 13ms",
+          "detail": "HTTP 400 19ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 403",
+          "detail": "HTTP 400",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -297,11 +335,11 @@
   },
   "classifications": {},
   "summary": {
-    "total": 7,
-    "passed": 47,
+    "total": 8,
+    "passed": 53,
     "failed": 0,
-    "actionable": 47,
-    "skipped": 4,
+    "actionable": 53,
+    "skipped": 5,
     "effectiveFailed": 0
   }
 }

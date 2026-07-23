@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:36:47.099Z",
+  "generatedAt": "2026-07-23T16:50:06.504Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "GET /api/docs": {
       "method": "GET",
@@ -25,38 +25,15 @@
           "classification": null
         }
       }
-    },
-    "GET /api/health": {
-      "method": "GET",
-      "path": "/api/health",
-      "tag": "Sistema",
-      "contractKind": "public",
-      "checks": {
-        "success_auth": {
-          "ok": true,
-          "detail": "HTTP 200",
-          "classification": null
-        },
-        "schema_valid": {
-          "ok": true,
-          "detail": "HTTP 200",
-          "classification": null
-        },
-        "no_sensitive_leak": {
-          "ok": true,
-          "detail": "OK",
-          "classification": null
-        }
-      }
     }
   },
   "classifications": {},
   "summary": {
-    "total": 2,
-    "passed": 6,
+    "total": 1,
+    "passed": 3,
     "failed": 0,
-    "actionable": 6,
-    "skipped": 14,
+    "actionable": 3,
+    "skipped": 7,
     "effectiveFailed": 0
   }
 }

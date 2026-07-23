@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { getErrorMessage } from '../utils/errors';
 import type { StoredState, NewAnalysisDraft } from './contextTypes';
 import type {
   Analysis,
@@ -101,7 +102,6 @@ import {
   apiSaveAetOrganizacao,
   apiSaveAetMetodos,
   apiGenerateAetReport,
-  apiSignAet,
   apiGetAetMobiliario,
   apiSaveAetMobiliario,
   apiGetAetEquipamentos,
@@ -176,7 +176,9 @@ import {
   apiCreateOrgWorkPost,
   apiDeleteOrgEntity,
   apiSubmitAccessRequest,
+  apiGetCollaborators,
   apiSaveCollaborator,
+  apiDeleteCollaborator,
   apiUpdateProfile,
   isApiAvailable,
   type SupportAuditEntry,
@@ -284,7 +286,7 @@ import { exportSstPdf } from '../utils/exportSstPdf';
 import { downloadEsocialXmlFromString } from '../services/esocialExport';
 import { exportPgrPdf } from '../utils/exportPgrPdf';
 import { buildNr17SessionReport } from '../utils/nr17';
-import { blobToVideoRecording, createLocalVideoUrl } from '../utils/videoRecording';
+import { blobToVideoRecording, createLocalVideoUrl, revokeLocalVideoUrl } from '../utils/videoRecording';
 import { exportAnalysisPdf, analysisWithNr17Report, exportCaptureImage } from '../utils/exportNr17Pdf';
 import { exportAnalysesSummaryPdf } from '../utils/exportSummaryReportPdf';
 import {
@@ -404,6 +406,7 @@ interface AppContextValue {
   logout: () => void;
   selectCompany: (id: string) => void | Promise<boolean>;
   saveCollaborator: (data: Omit<Collaborator, 'id' | 'risk' | 'icon' | 'iconBg'> & { id?: string }) => void;
+  deleteCollaborator: (id: string) => void;
   /** Garante colaborador implícito "eu mesmo" (autônomo / sem equipe) */
   ensureSelfCollaborator: () => Promise<Collaborator>;
   setAnalysisDraft: (patch: AnalysisDraftPatch) => void;
@@ -561,7 +564,6 @@ interface AppContextValue {
   saveAetFurniture: (data: Partial<AetFurniture>) => Promise<void>;
   saveAetEquipment: (data: Partial<AetEquipment>) => Promise<void>;
   generateAetReport: () => Promise<void>;
-  signAet: (name: string, registry: string) => Promise<void>;
   downloadAetPdf: () => void;
   aetVersionDetail: AetVersionDetail | null;
   aetVersions: AetVersionDetail[];
@@ -593,8 +595,8 @@ interface AppContextValue {
   createSstEpc: (data: Partial<SstEpc>) => Promise<void>;
   createSstInspecao: (title: string) => Promise<void>;
   createSstAuditoria: (title: string) => Promise<void>;
-  createSstNc: (data: { description: string; title?: string; severity?: string; riskId?: string }) => Promise<void>;
-  createSstCapa: (data: { description: string; ncId?: string; riskId?: string; syncGro?: boolean }) => Promise<void>;
+  createSstNc: (data: { description: string; title?: string; severity?: string; riskId?: string }) => Promise<boolean>;
+  createSstCapa: (data: { description: string; ncId?: string; riskId?: string; syncGro?: boolean }) => Promise<boolean>;
   createSstTreinamento: (title: string) => Promise<void>;
   generateSstReport: () => Promise<void>;
   downloadSstPdf: () => void;
@@ -721,6 +723,15 @@ function persist(state: StoredState) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+const AUTH_GATE_SCREENS = new Set<ScreenId>([
+  'splash',
+  'login',
+  'request-access',
+  'request-access-autonomo',
+  'activate-account',
+  'reset-password',
+]);
+
 function profileLabel(perfil: string): string {
   const map: Record<string, string> = {
     ERGONOMISTA: 'Ergonomista Sênior',
@@ -806,6 +817,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setDraft,
   });
   e2eStateRef.current = { screen, stored, denuncias, pgrVersions, aetProcesses, setDraft };
+  const screenRef = useRef(screen);
+  screenRef.current = screen;
   const [aetProcessDetail, setAetProcessDetail] = useState<AetProcess | null>(null);
   const [aetFurniture, setAetFurniture] = useState<AetFurniture[]>([]);
   const [aetEquipment, setAetEquipment] = useState<AetEquipment[]>([]);
@@ -863,6 +876,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
     persist(stored);
   }, [stored]);
 
+  /** Multi-aba: sincroniza localStorage (ex.: logout numa aba propaga nas outras). */
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== STORAGE_KEY || e.newValue == null) return;
+      try {
+        const next = repairStoredState(JSON.parse(e.newValue) as StoredState);
+        setStored(next);
+        if (!next.session) {
+          setMenuOpen(false);
+          setScreen((s) =>
+            s === 'splash' ||
+            s === 'login' ||
+            s === 'request-access' ||
+            s === 'request-access-autonomo' ||
+            s === 'reset-password'
+              ? s
+              : 'login',
+          );
+        }
+      } catch {
+        /* ignore corrupt payload */
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
   const selectedCompany = useMemo(
     () => companies.find((c) => c.id === stored.selectedCompanyId) ?? companies[0] ?? EMPTY_COMPANY,
     [companies, stored.selectedCompanyId],
@@ -873,9 +913,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [stored.analyses, currentAnalysisId],
   );
 
+  const [offlineQueueLen, setOfflineQueueLen] = useState(() => getOfflineQueue().length);
+
   const pendingSync = useMemo(
-    () => stored.analyses.filter((a) => !a.synced).length,
-    [stored.analyses],
+    () => stored.analyses.filter((a) => !a.synced).length + offlineQueueLen,
+    [stored.analyses, offlineQueueLen],
   );
 
   const showToast = useCallback((msg: string, type: '' | 'success' | 'info' | 'warn' = '') => {
@@ -1023,7 +1065,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshSupportAudit();
         return true;
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro ao autorizar suporte', 'warn');
+        showToast(getErrorMessage(err, 'Erro ao autorizar suporte'), 'warn');
         return false;
       }
     },
@@ -1040,7 +1082,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       showToast('Acesso de suporte revogado', 'success');
       return true;
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro ao revogar', 'warn');
+      showToast(getErrorMessage(err, 'Erro ao revogar'), 'warn');
       return false;
     }
   }, [dbConnected, refreshSupportAudit, refreshSupportStatus, showToast, stored.selectedCompanyId, stored.session?.tenantId]);
@@ -1113,11 +1155,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
       if (isAdminGlobal) {
         await refreshCompanies();
-        go('global-admin');
+        if (AUTH_GATE_SCREENS.has(screenRef.current)) go('global-admin');
       } else {
         await refreshCompanies();
         await loadTenantData(user.tenantId);
-        go('dashboard');
+        if (AUTH_GATE_SCREENS.has(screenRef.current)) go('dashboard');
       }
     },
     [go, loadTenantData, refreshCompanies],
@@ -1144,7 +1186,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await finalizeApiLogin(success.user);
         return true;
       } catch (err) {
-        const msg = err instanceof Error ? err.message : '';
+        const msg = getErrorMessage(err, '');
         if (/404|indispon|fetch|network|Failed to fetch|Serviço não encontrado/i.test(msg)) {
           showToast(msg || 'Servidor indisponível. Verifique a conexão e tente de novo.', 'warn');
         } else {
@@ -1193,7 +1235,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return true;
       } catch (err) {
         console.error('registerCompany', err);
-        showToast(err instanceof Error ? err.message : 'Erro ao cadastrar empresa', 'warn');
+        showToast(getErrorMessage(err, 'Erro ao cadastrar empresa'), 'warn');
         return false;
       }
     },
@@ -1295,16 +1337,75 @@ export function AppProvider({ children }: { children: ReactNode }) {
     loadTenantData,
   });
 
+  const deleteCollaborator = useCallback(
+    (id: string) => {
+      const collab = stored.collaborators.find((c) => c.id === id);
+      if (!collab) {
+        showToast('Colaborador não encontrado', 'warn');
+        return;
+      }
+      if (collab.matricula === SELF_COLLABORATOR_MATRICULA) {
+        showToast('Colaborador de autoavaliação não pode ser excluído', 'warn');
+        return;
+      }
+      showModal(
+        'Excluir colaborador',
+        `Deseja excluir ${collab.name} (${collab.matricula})? Esta ação não pode ser desfeita.`,
+        'Excluir',
+        () => {
+          setStored((s) => ({
+            ...s,
+            collaborators: s.collaborators.filter((c) => c.id !== id),
+          }));
+          setDraft((d) => (d.collaboratorId === id ? { ...d, collaboratorId: '' } : d));
+          showToast('Colaborador excluído', 'success');
+          go('collabs');
+          if (dbConnected && /^\d+$/.test(id)) {
+            void apiDeleteCollaborator(stored.selectedCompanyId, id)
+              .then(() => {
+                void loadTenantData(stored.selectedCompanyId);
+              })
+              .catch((err) => {
+                console.error('deleteCollaborator', err);
+                showToast(getErrorMessage(err, 'Erro ao excluir no servidor'), 'warn');
+                void loadTenantData(stored.selectedCompanyId);
+              });
+          }
+        },
+      );
+    },
+    [
+      dbConnected,
+      go,
+      loadTenantData,
+      showModal,
+      showToast,
+      stored.collaborators,
+      stored.selectedCompanyId,
+    ],
+  );
+
   const ensureSelfCollaborator = useCallback(async (): Promise<Collaborator> => {
-    const existing = stored.collaborators.find((c) => c.matricula === SELF_COLLABORATOR_MATRICULA);
-    if (existing) {
+    const adoptSelf = (collab: Collaborator) => {
+      setStored((s) => ({
+        ...s,
+        collaborators: s.collaborators.some((c) => c.id === collab.id)
+          ? s.collaborators
+          : [collab, ...s.collaborators],
+      }));
       setDraft((d) => ({
         ...d,
-        collaboratorId: existing.id,
-        setor: d.setor || existing.setor || 'Geral',
+        collaboratorId: collab.id,
+        setor: d.setor || collab.setor || 'Geral',
       }));
-      return existing;
-    }
+      return collab;
+    };
+
+    const pickSelf = (list: Collaborator[]) =>
+      list.find((c) => c.matricula === SELF_COLLABORATOR_MATRICULA);
+
+    const localExisting = pickSelf(stored.collaborators);
+    if (localExisting) return adoptSelf(localExisting);
 
     const nome =
       stored.session?.name?.trim() ||
@@ -1320,19 +1421,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
 
     if (dbConnected) {
-      const collab = await apiSaveCollaborator(stored.selectedCompanyId, payload);
-      setStored((s) => ({
-        ...s,
-        collaborators: s.collaborators.some((c) => c.id === collab.id)
-          ? s.collaborators
-          : [collab, ...s.collaborators],
-      }));
-      setDraft((d) => ({
-        ...d,
-        collaboratorId: collab.id,
-        setor: d.setor || collab.setor || 'Geral',
-      }));
-      return collab;
+      // Pode já existir no Postgres sem estar no estado local (ex.: sessão limpa / race de bundle)
+      try {
+        const remote = await apiGetCollaborators(stored.selectedCompanyId);
+        const remoteSelf = pickSelf(remote);
+        if (remoteSelf) return adoptSelf(remoteSelf);
+      } catch (err) {
+        console.error('ensureSelfCollaborator:list', err);
+      }
+
+      try {
+        const collab = await apiSaveCollaborator(stored.selectedCompanyId, payload);
+        return adoptSelf(collab);
+      } catch (err) {
+        // 409 — criado por outra aba/request entre o GET e o POST
+        if (err instanceof Error && /matr[ií]cula/i.test(err.message)) {
+          const remote = await apiGetCollaborators(stored.selectedCompanyId);
+          const remoteSelf = pickSelf(remote);
+          if (remoteSelf) return adoptSelf(remoteSelf);
+        }
+        throw err;
+      }
     }
 
     const local: Collaborator = {
@@ -1348,9 +1457,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       icon: '👤',
       iconBg: 'var(--a10)',
     };
-    setStored((s) => ({ ...s, collaborators: [local, ...s.collaborators] }));
-    setDraft((d) => ({ ...d, collaboratorId: local.id, setor: d.setor || 'Geral' }));
-    return local;
+    return adoptSelf(local);
   }, [companies, dbConnected, stored.collaborators, stored.selectedCompanyId, stored.session?.name, setStored]);
 
   const captureAnalysis = useCallback(
@@ -1375,7 +1482,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         try {
           collab = await ensureSelfCollaborator();
         } catch (err) {
-          showToast(err instanceof Error ? err.message : 'Não foi possível iniciar sem colaborador', 'warn');
+          showToast(getErrorMessage(err, 'Não foi possível iniciar sem colaborador'), 'warn');
           return;
         }
       }
@@ -1554,7 +1661,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         loadManual: manualInput,
         loadEffort: effort,
         mode: stored.analysisMode,
-        synced: stored.analysisMode === 'complete',
+        // Sempre inicia não sincronizado; só vira true após POST bem-sucedido
+        synced: false,
         icon: collab.icon,
         iconBg: collab.iconBg,
         captureImage,
@@ -1607,18 +1715,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       setTimeout(() => go('result'), 600);
 
-      if (dbConnected) {
+      const onlineReady =
+        dbConnected && typeof navigator !== 'undefined' && navigator.onLine && stored.analysisMode === 'complete';
+
+      if (onlineReady) {
         void (async () => {
           try {
             const videoRecording = videoBlob
               ? await blobToVideoRecording(videoBlob, recordingSecs)
               : undefined;
-            const { id } = await apiSaveAnalysis(stored.selectedCompanyId, {
+            const saved = await apiSaveAnalysis(stored.selectedCompanyId, {
               ...analysis,
               collaboratorName: collab.name,
               reportId: newReport?.id,
               videoRecording,
             });
+            const id = saved.id;
             setStored((s) => ({
               ...s,
               analyses: s.analyses.map((a) =>
@@ -1626,12 +1738,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
               ),
             }));
             setCurrentAnalysisId(id);
+            if (saved.aetCreated && saved.aetProcessId) {
+              showToast(
+                saved.aetReportGenerated
+                  ? `AET #${saved.aetProcessId} gerada automaticamente com laudo`
+                  : `AET #${saved.aetProcessId} gerada automaticamente`,
+                'success',
+              );
+            }
           } catch (err) {
             console.error('apiSaveAnalysis', err);
             queueOfflineAnalysis({
               tenantId: stored.selectedCompanyId,
               analysis: { ...analysis, localVideoUrl: undefined, captureImage: analysis.captureImage?.slice(0, 200_000) },
             });
+            setOfflineQueueLen(getOfflineQueue().length);
             setStored((s) => ({
               ...s,
               analyses: s.analyses.map((a) => (a.id === analysis.id ? { ...a, synced: false } : a)),
@@ -1639,6 +1760,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
             showToast('Salvo localmente — pendente de sincronização', 'warn');
           }
         })();
+      } else {
+        queueOfflineAnalysis({
+          tenantId: stored.selectedCompanyId,
+          analysis: { ...analysis, localVideoUrl: undefined, captureImage: analysis.captureImage?.slice(0, 200_000) },
+        });
+        setOfflineQueueLen(getOfflineQueue().length);
+        if (stored.analysisMode === 'offline' || !dbConnected || !navigator.onLine) {
+          showToast('Análise offline na fila de sincronização', 'info');
+        }
       }
     },
     [analysisDraft, companies, dbConnected, ensureSelfCollaborator, go, showToast, stored.analysisMode, stored.collaborators, stored.selectedCompanyId, stored.session, liveWorkstation],
@@ -1772,30 +1902,38 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setCurrentAnalysisId(analysis.id);
       showToast('Análise por vídeo salva', 'success');
 
-      if (dbConnected) {
+      const onlineReady =
+        dbConnected && typeof navigator !== 'undefined' && navigator.onLine && stored.analysisMode === 'complete';
+
+      if (onlineReady) {
         void (async () => {
           try {
             const videoRecording = videoBlob
               ? await blobToVideoRecording(videoBlob, videoReport.durationSecs)
               : undefined;
-            const { id } = await apiSaveAnalysis(stored.selectedCompanyId, {
+            const saved = await apiSaveAnalysis(stored.selectedCompanyId, {
               ...analysis,
               collaboratorName: collab.name,
               reportId: newReport.id,
               v2Report,
               videoRecording,
             });
+            const id = saved.id;
             setStored((s) => ({
               ...s,
               analyses: s.analyses.map((a) => (a.id === analysis.id ? { ...a, id, synced: true } : a)),
             }));
             setCurrentAnalysisId(id);
+            if (saved.aetCreated && saved.aetProcessId) {
+              showToast(`AET #${saved.aetProcessId} gerada automaticamente`, 'success');
+            }
           } catch (err) {
             console.error('apiSaveAnalysis video', err);
             queueOfflineAnalysis({
               tenantId: stored.selectedCompanyId,
               analysis: { ...analysis, localVideoUrl: undefined, captureImage: analysis.captureImage?.slice(0, 200_000) },
             });
+            setOfflineQueueLen(getOfflineQueue().length);
             setStored((s) => ({
               ...s,
               analyses: s.analyses.map((a) => (a.id === analysis.id ? { ...a, synced: false } : a)),
@@ -1803,6 +1941,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
             showToast('Vídeo salvo localmente — pendente de sincronização', 'warn');
           }
         })();
+      } else {
+        queueOfflineAnalysis({
+          tenantId: stored.selectedCompanyId,
+          analysis: { ...analysis, localVideoUrl: undefined, captureImage: analysis.captureImage?.slice(0, 200_000) },
+        });
+        setOfflineQueueLen(getOfflineQueue().length);
       }
     },
     [analysisDraft, companies, dbConnected, liveWorkstation, showToast, stored.collaborators, stored.analysisMode, stored.selectedCompanyId, stored.session],
@@ -1820,7 +1964,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const pendingLocal = stored.analyses.filter((a) => !a.synced);
     const queue = getOfflineQueue();
-    const total = pendingLocal.length + queue.length;
+    // Evita POST duplicado: fila cujo id local já está em pendingLocal
+    const pendingIds = new Set(pendingLocal.map((a) => a.id));
+    const queueDedup = queue.filter((item) => {
+      const analysis = (item.payload as { analysis?: Analysis })?.analysis;
+      return !analysis?.id || !pendingIds.has(analysis.id);
+    });
+    const total = pendingLocal.length + queueDedup.length;
     if (total === 0) {
       showToast('Nada para sincronizar', 'info');
       return;
@@ -1835,15 +1985,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       for (const analysis of pendingLocal) {
         try {
-          const { id } = await apiSaveAnalysis(tenantId, {
+          const saved = await apiSaveAnalysis(tenantId, {
             ...analysis,
             collaboratorName: analysis.collaboratorName,
           });
+          const id = saved.id;
           setStored((s) => ({
             ...s,
             analyses: s.analyses.map((a) => (a.id === analysis.id ? { ...a, id, synced: true } : a)),
           }));
           if (currentAnalysisId === analysis.id) setCurrentAnalysisId(id);
+          // Remove da fila se existir item com mesmo id local
+          for (const item of queue) {
+            const qAnalysis = (item.payload as { analysis?: Analysis })?.analysis;
+            if (qAnalysis?.id === analysis.id) removeOfflineQueueItem(item.id);
+          }
           ok += 1;
         } catch (err) {
           console.error('startSync analysis', err);
@@ -1851,7 +2007,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      for (const item of queue) {
+      for (const item of queueDedup) {
         try {
           const payload = item.payload as { tenantId?: string; analysis?: Analysis };
           const analysis = payload.analysis;
@@ -1860,10 +2016,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
             continue;
           }
           const tid = payload.tenantId || tenantId;
-          const { id } = await apiSaveAnalysis(tid, {
+          const saved = await apiSaveAnalysis(tid, {
             ...analysis,
             collaboratorName: analysis.collaboratorName,
           });
+          const id = saved.id;
           setStored((s) => {
             const exists = s.analyses.some((a) => a.id === analysis.id || a.id === id);
             return {
@@ -1882,6 +2039,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           fail += 1;
         }
       }
+
+      setOfflineQueueLen(getOfflineQueue().length);
 
       if (fail === 0) {
         showToast(`Sincronização concluída (${ok})`, 'success');
@@ -2142,6 +2301,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         `Deseja excluir a análise de ${analysis.setor} (${analysis.date} · ${analysis.time})? Esta ação não pode ser desfeita.`,
         'Excluir',
         () => {
+          revokeLocalVideoUrl(analysis.localVideoUrl);
           setStored((s) => ({
             ...s,
             analyses: s.analyses.filter((a) => a.id !== id),
@@ -2236,7 +2396,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       void saved;
     } catch (err) {
       console.error('saveRiskInventory', err);
-      showToast(err instanceof Error ? err.message : 'Erro ao salvar risco', 'warn');
+      showToast(getErrorMessage(err, 'Erro ao salvar risco'), 'warn');
     }
   }, [dbConnected, go, refreshRiskInventory, riskInventoryDraft, showToast, stored.selectedCompanyId]);
 
@@ -2331,7 +2491,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setDenunciaDraftState({ ...EMPTY_DENUNCIA_FORM });
       return created;
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro ao registrar denúncia', 'warn');
+      showToast(getErrorMessage(err, 'Erro ao registrar denúncia'), 'warn');
       return null;
     }
   }, [dbConnected, denunciaDraft, refreshDenuncias, showToast, stored.selectedCompanyId]);
@@ -2512,7 +2672,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setGroActionPlanDraftState(null);
       showToast('Ação salva', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro ao salvar', 'warn');
+      showToast(getErrorMessage(err, 'Erro ao salvar'), 'warn');
     }
   }, [dbConnected, groActionPlanDraft, refreshGroData, showToast, stored.selectedCompanyId]);
 
@@ -2545,7 +2705,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setGroIndicatorDraftState(null);
       showToast('Indicador salvo', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro ao salvar', 'warn');
+      showToast(getErrorMessage(err, 'Erro ao salvar'), 'warn');
     }
   }, [dbConnected, groIndicatorDraft, refreshGroData, showToast, stored.selectedCompanyId]);
 
@@ -2574,7 +2734,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshGroData();
         showToast(`Etapa: ${res.label}`, 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Não foi possível avançar', 'warn');
+        showToast(getErrorMessage(err, 'Não foi possível avançar'), 'warn');
       }
     },
     [dbConnected, refreshGroData, showToast, stored.selectedCompanyId],
@@ -2588,7 +2748,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshGroData();
         showToast('Revisão concluída — retorno ao monitoramento', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro na revisão', 'warn');
+        showToast(getErrorMessage(err, 'Erro na revisão'), 'warn');
       }
     },
     [dbConnected, refreshGroData, showToast, stored.selectedCompanyId],
@@ -2602,7 +2762,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshGroData();
         showToast('Relatório GRO gerado', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro ao gerar relatório', 'warn');
+        showToast(getErrorMessage(err, 'Erro ao gerar relatório'), 'warn');
       }
     },
     [dbConnected, refreshGroData, showToast, stored.selectedCompanyId],
@@ -2666,7 +2826,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshPsicoData();
         showToast('Fator avaliado', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro ao salvar fator', 'warn');
+        showToast(getErrorMessage(err, 'Erro ao salvar fator'), 'warn');
       }
     },
     [dbConnected, refreshPsicoData, showToast, stored.selectedCompanyId],
@@ -2693,7 +2853,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         showToast('Resposta registrada (anonimizada)', 'success');
         return result;
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro ao enviar questionário', 'warn');
+        showToast(getErrorMessage(err, 'Erro ao enviar questionário'), 'warn');
         return null;
       }
     },
@@ -2711,7 +2871,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshPsicoData();
         showToast('Plano atualizado', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro ao salvar ação', 'warn');
+        showToast(getErrorMessage(err, 'Erro ao salvar ação'), 'warn');
       }
     },
     [dbConnected, refreshPsicoData, showToast, stored.selectedCompanyId],
@@ -2732,7 +2892,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshPsicoData();
         showToast('Ação removida', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro ao excluir', 'warn');
+        showToast(getErrorMessage(err, 'Erro ao excluir'), 'warn');
       }
     },
     [dbConnected, refreshPsicoData, showToast, stored.selectedCompanyId],
@@ -2788,11 +2948,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const active = versions.find((v) => v.id === detail.activeVersionId) ?? versions[0] ?? null;
         setAetVersionDetail(active);
         if (active?.report) setAetReport(active.report);
+        go('aet-detalhe');
       } catch {
         showToast('Erro ao carregar AET', 'warn');
       }
     },
-    [dbConnected, showToast, stored.selectedCompanyId],
+    [dbConnected, go, showToast, stored.selectedCompanyId],
   );
 
   const { createAetProcess } = useAetActions({
@@ -2812,7 +2973,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshAetData();
       showToast('Etapa avançada', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+      showToast(getErrorMessage(err, 'Erro'), 'warn');
     }
   }, [aetProcessDetail, dbConnected, refreshAetData, showToast, stored.selectedCompanyId]);
 
@@ -2894,24 +3055,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setAetProcessDetail((p) => (p ? { ...p, report } : p));
       showToast('Relatório normativo gerado', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro ao gerar relatório', 'warn');
+      showToast(getErrorMessage(err, 'Erro ao gerar relatório'), 'warn');
     }
   }, [aetProcessDetail, dbConnected, showToast, stored.selectedCompanyId]);
-
-  const signAet = useCallback(
-    async (name: string, registry: string) => {
-      if (!aetProcessDetail || !dbConnected) return;
-      try {
-        const p = await apiSignAet(stored.selectedCompanyId, aetProcessDetail.id, name, registry);
-        setAetProcessDetail(p);
-        await refreshAetData();
-        showToast('AET assinada', 'success');
-      } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro na assinatura', 'warn');
-      }
-    },
-    [aetProcessDetail, dbConnected, refreshAetData, showToast, stored.selectedCompanyId],
-  );
 
   const downloadAetPdf = useCallback(() => {
     if (!aetProcessDetail || !aetReport) {
@@ -2954,7 +3100,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshAetVersion(v.id);
       showToast(`Versão ${v.number} criada`, 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro ao criar versão', 'warn');
+      showToast(getErrorMessage(err, 'Erro ao criar versão'), 'warn');
     }
   }, [aetProcessDetail, dbConnected, refreshAetVersion, showToast, stored.selectedCompanyId]);
 
@@ -2965,7 +3111,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshAetVersion(aetVersionDetail.id);
       showToast('Snapshot atualizado', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+      showToast(getErrorMessage(err, 'Erro'), 'warn');
     }
   }, [aetVersionDetail, dbConnected, refreshAetVersion, showToast, stored.selectedCompanyId]);
 
@@ -2977,7 +3123,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshAetVersion(aetVersionDetail.id);
       showToast('Relatório corporativo gerado', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+      showToast(getErrorMessage(err, 'Erro'), 'warn');
     }
   }, [aetVersionDetail, dbConnected, refreshAetVersion, showToast, stored.selectedCompanyId]);
 
@@ -2989,7 +3135,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshAetVersion(aetVersionDetail.id);
         showToast('Enviado para aprovação', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+        showToast(getErrorMessage(err, 'Erro'), 'warn');
       }
     },
     [aetVersionDetail, dbConnected, refreshAetVersion, showToast, stored.selectedCompanyId],
@@ -3003,7 +3149,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (aetProcessDetail) await openAetProcess(aetProcessDetail.id);
       showToast('Versão aprovada — integração NR-01 executada', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+      showToast(getErrorMessage(err, 'Erro'), 'warn');
     }
   }, [aetProcessDetail, aetVersionDetail, dbConnected, openAetProcess, refreshAetVersion, showToast, stored.selectedCompanyId]);
 
@@ -3015,7 +3161,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshAetVersion(aetVersionDetail.id);
         showToast('Versão rejeitada', 'warn');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+        showToast(getErrorMessage(err, 'Erro'), 'warn');
       }
     },
     [aetVersionDetail, dbConnected, refreshAetVersion, showToast, stored.selectedCompanyId],
@@ -3033,7 +3179,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
         showToast('Assinatura registrada', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+        showToast(getErrorMessage(err, 'Erro'), 'warn');
       }
     },
     [aetProcessDetail, aetVersionDetail, dbConnected, refreshAetVersion, showToast, stored.selectedCompanyId],
@@ -3047,7 +3193,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshAetVersion(v.id);
       showToast(`Revisão ${v.number} iniciada`, 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+      showToast(getErrorMessage(err, 'Erro'), 'warn');
     }
   }, [aetVersionDetail, dbConnected, refreshAetVersion, showToast, stored.selectedCompanyId]);
 
@@ -3059,7 +3205,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setAetProcessDetail(p);
         showToast('Responsável técnico atualizado', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+        showToast(getErrorMessage(err, 'Erro'), 'warn');
       }
     },
     [aetProcessDetail, dbConnected, showToast, stored.selectedCompanyId],
@@ -3126,17 +3272,44 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [dbConnected, refreshSstData, showToast, stored.selectedCompanyId]);
 
   const createSstNc = useCallback(async (data: { description: string; title?: string; severity?: string; riskId?: string }) => {
-    if (!dbConnected) { showToast('PostgreSQL offline', 'warn'); return; }
-    await apiCreateSstNc(stored.selectedCompanyId, data);
-    await refreshSstData();
-    showToast('NC registrada', 'success');
+    if (!dbConnected) { showToast('PostgreSQL offline', 'warn'); return false; }
+    if (!data.description?.trim()) {
+      showToast('Informe a descrição da NC', 'warn');
+      return false;
+    }
+    try {
+      await apiCreateSstNc(stored.selectedCompanyId, {
+        ...data,
+        description: data.description.trim(),
+        title: data.title?.trim() || undefined,
+      });
+      await refreshSstData();
+      showToast('NC registrada', 'success');
+      return true;
+    } catch (err) {
+      showToast(getErrorMessage(err, 'Erro ao registrar NC'), 'warn');
+      return false;
+    }
   }, [dbConnected, refreshSstData, showToast, stored.selectedCompanyId]);
 
   const createSstCapa = useCallback(async (data: { description: string; ncId?: string; riskId?: string; syncGro?: boolean }) => {
-    if (!dbConnected) { showToast('PostgreSQL offline', 'warn'); return; }
-    await apiCreateSstCapa(stored.selectedCompanyId, data);
-    await refreshSstData();
-    showToast('CAPA criada' + (data.syncGro ? ' e sincronizada GRO' : ''), 'success');
+    if (!dbConnected) { showToast('PostgreSQL offline', 'warn'); return false; }
+    if (!data.description?.trim()) {
+      showToast('Informe a descrição da CAPA', 'warn');
+      return false;
+    }
+    try {
+      await apiCreateSstCapa(stored.selectedCompanyId, {
+        ...data,
+        description: data.description.trim(),
+      });
+      await refreshSstData();
+      showToast('CAPA criada' + (data.syncGro ? ' e sincronizada GRO' : ''), 'success');
+      return true;
+    } catch (err) {
+      showToast(getErrorMessage(err, 'Erro ao criar CAPA'), 'warn');
+      return false;
+    }
   }, [dbConnected, refreshSstData, showToast, stored.selectedCompanyId]);
 
   const createSstTreinamento = useCallback(async (title: string) => {
@@ -3154,7 +3327,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setSstReport(report);
       showToast('Relatório SST gerado', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+      showToast(getErrorMessage(err, 'Erro'), 'warn');
     }
   }, [dbConnected, showToast, stored.selectedCompanyId]);
 
@@ -3203,7 +3376,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshEsocialData();
       showToast(r.valid ? 'Evento validado' : 'Validação com erros', r.valid ? 'success' : 'warn');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro na validação', 'warn');
+      showToast(getErrorMessage(err, 'Erro na validação'), 'warn');
     }
   }, [dbConnected, refreshEsocialData, showToast, stored.selectedCompanyId]);
 
@@ -3215,7 +3388,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshEsocialData();
       showToast('Evento assinado (ICP-Brasil pendente no certificado)', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro na assinatura', 'warn');
+      showToast(getErrorMessage(err, 'Erro na assinatura'), 'warn');
     }
   }, [dbConnected, refreshEsocialData, showToast, stored.selectedCompanyId, stored.session?.name]);
 
@@ -3226,7 +3399,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       downloadEsocialXmlFromString(xml, eventType, eventId);
       showToast('XML exportado', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro ao exportar XML', 'warn');
+      showToast(getErrorMessage(err, 'Erro ao exportar XML'), 'warn');
     }
   }, [dbConnected, showToast, stored.selectedCompanyId]);
 
@@ -3237,7 +3410,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshEsocialData();
       showToast(`Lote ${r.loteId} preparado para gov.br`, 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro ao preparar envio', 'warn');
+      showToast(getErrorMessage(err, 'Erro ao preparar envio'), 'warn');
     }
   }, [dbConnected, refreshEsocialData, showToast, stored.selectedCompanyId]);
 
@@ -3248,7 +3421,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshEsocialData();
       showToast(r.eventStatus === 'ACEITO' ? 'Evento aceito pelo gov.br' : `Transmissão: ${r.eventStatus}`, r.eventStatus === 'REJEITADO' ? 'warn' : 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro na transmissão', 'warn');
+      showToast(getErrorMessage(err, 'Erro na transmissão'), 'warn');
     }
   }, [dbConnected, refreshEsocialData, showToast, stored.selectedCompanyId]);
 
@@ -3259,7 +3432,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshEsocialData();
       showToast(`Reenvio: ${r.eventStatus}`, r.eventStatus === 'ACEITO' ? 'success' : 'warn');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro no reenvio', 'warn');
+      showToast(getErrorMessage(err, 'Erro no reenvio'), 'warn');
     }
   }, [dbConnected, refreshEsocialData, showToast, stored.selectedCompanyId]);
 
@@ -3270,7 +3443,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshEsocialData();
       showToast(`Status: ${r.status}${r.message ? ` — ${r.message}` : ''}`, r.status === 'ACEITO' ? 'success' : 'info');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro ao consultar status', 'warn');
+      showToast(getErrorMessage(err, 'Erro ao consultar status'), 'warn');
     }
   }, [dbConnected, refreshEsocialData, showToast, stored.selectedCompanyId]);
 
@@ -3282,7 +3455,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshEsocialData();
       showToast('Configuração eSocial salva', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro ao salvar', 'warn');
+      showToast(getErrorMessage(err, 'Erro ao salvar'), 'warn');
     }
   }, [dbConnected, refreshEsocialData, showToast, stored.selectedCompanyId]);
 
@@ -3314,7 +3487,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       showToast(`PGR v${v.number} gerado com snapshot automático`, 'success');
       go('pgr-detalhe');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro ao gerar versão', 'warn');
+      showToast(getErrorMessage(err, 'Erro ao gerar versão'), 'warn');
     }
   }, [dbConnected, go, refreshPgrData, showToast, stored.selectedCompanyId]);
 
@@ -3341,7 +3514,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshPgrData();
         showToast('Snapshot atualizado com dados atuais', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro ao atualizar', 'warn');
+        showToast(getErrorMessage(err, 'Erro ao atualizar'), 'warn');
       }
     },
     [dbConnected, refreshPgrData, showToast, stored.selectedCompanyId],
@@ -3359,7 +3532,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshPgrData();
         showToast('Enviado para aprovação', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+        showToast(getErrorMessage(err, 'Erro'), 'warn');
       }
     },
     [dbConnected, refreshPgrData, showToast, stored.selectedCompanyId],
@@ -3374,7 +3547,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshPgrData();
         showToast('Versão aprovada', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+        showToast(getErrorMessage(err, 'Erro'), 'warn');
       }
     },
     [dbConnected, refreshPgrData, showToast, stored.selectedCompanyId],
@@ -3389,7 +3562,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshPgrData();
         showToast('Versão rejeitada — em revisão', 'warn');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+        showToast(getErrorMessage(err, 'Erro'), 'warn');
       }
     },
     [dbConnected, refreshPgrData, showToast, stored.selectedCompanyId],
@@ -3405,7 +3578,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await refreshPgrData();
         showToast('Assinatura registrada', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+        showToast(getErrorMessage(err, 'Erro'), 'warn');
       }
     },
     [dbConnected, refreshPgrData, showToast, stored.selectedCompanyId],
@@ -3421,7 +3594,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         showToast(`Revisão iniciada — v${detail.number}`, 'success');
         go('pgr-detalhe');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+        showToast(getErrorMessage(err, 'Erro'), 'warn');
       }
     },
     [dbConnected, go, refreshPgrData, showToast, stored.selectedCompanyId],
@@ -3498,7 +3671,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshComplianceData();
       showToast(`${r.newDetections} nova(s) detecção(ões) — validação humana necessária`, r.newDetections ? 'warn' : 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro na varredura', 'warn');
+      showToast(getErrorMessage(err, 'Erro na varredura'), 'warn');
     }
   }, [dbConnected, refreshComplianceData, showToast, stored.selectedCompanyId]);
 
@@ -3509,7 +3682,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshComplianceData();
       showToast('Fonte atualizada', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+      showToast(getErrorMessage(err, 'Erro'), 'warn');
     }
   }, [dbConnected, refreshComplianceData, showToast, stored.selectedCompanyId]);
 
@@ -3529,7 +3702,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const cmp = await apiCompareComplianceNormVersions(stored.selectedCompanyId, normId, fromId, toId);
       setComplianceVersionCompare(cmp);
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro na comparação', 'warn');
+      showToast(getErrorMessage(err, 'Erro na comparação'), 'warn');
     }
   }, [dbConnected, showToast, stored.selectedCompanyId]);
 
@@ -3563,7 +3736,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       );
       if (r.notice) showToast(r.notice, 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro na validação', 'warn');
+      showToast(getErrorMessage(err, 'Erro na validação'), 'warn');
     }
   }, [dbConnected, refreshComplianceData, showToast, stored.selectedCompanyId, stored.session?.name]);
 
@@ -3574,7 +3747,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshComplianceData();
       showToast('Tarefa atualizada', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+      showToast(getErrorMessage(err, 'Erro'), 'warn');
     }
   }, [dbConnected, refreshComplianceData, showToast, stored.selectedCompanyId]);
 
@@ -3585,7 +3758,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setComplianceSchedule(s);
       showToast('Agendamento atualizado', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro', 'warn');
+      showToast(getErrorMessage(err, 'Erro'), 'warn');
     }
   }, [dbConnected, showToast, stored.selectedCompanyId]);
 
@@ -3606,7 +3779,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshComplianceData();
       showToast('Relatório gerado', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro ao gerar relatório', 'warn');
+      showToast(getErrorMessage(err, 'Erro ao gerar relatório'), 'warn');
     }
   }, [dbConnected, refreshComplianceData, showToast, stored.selectedCompanyId]);
 
@@ -3624,7 +3797,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await refreshComplianceData();
       showToast('Relatório exportado', 'success');
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro na exportação', 'warn');
+      showToast(getErrorMessage(err, 'Erro na exportação'), 'warn');
     }
   }, [dbConnected, refreshComplianceData, showToast, stored.selectedCompanyId]);
 
@@ -3660,7 +3833,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         showToast(`${name} cadastrado`, 'success');
         return true;
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro ao cadastrar', 'warn');
+        showToast(getErrorMessage(err, 'Erro ao cadastrar'), 'warn');
         return false;
       }
     },
@@ -3676,7 +3849,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         showToast('Removido', 'success');
         return true;
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro ao remover', 'warn');
+        showToast(getErrorMessage(err, 'Erro ao remover'), 'warn');
         return false;
       }
     },
@@ -3734,6 +3907,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     logout,
     selectCompany,
     saveCollaborator,
+    deleteCollaborator,
     ensureSelfCollaborator,
     setAnalysisDraft: (patch) =>
       setDraft((d) => {
@@ -3892,7 +4066,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     saveAetFurniture,
     saveAetEquipment,
     generateAetReport,
-    signAet,
     downloadAetPdf,
     aetVersionDetail,
     aetVersions,

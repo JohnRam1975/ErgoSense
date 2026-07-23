@@ -1,46 +1,8 @@
 {
-  "generatedAt": "2026-07-01T22:18:54.466Z",
+  "generatedAt": "2026-07-23T16:49:00.986Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
-    "GET /api/admin/support/active": {
-      "method": "GET",
-      "path": "/api/admin/support/active",
-      "tag": "Admin",
-      "contractKind": "admin",
-      "checks": {
-        "no_auth_401": {
-          "ok": true,
-          "detail": "HTTP 401",
-          "classification": null
-        },
-        "invalid_token_401": {
-          "ok": true,
-          "detail": "HTTP 401",
-          "classification": null
-        },
-        "forbidden_role_403": {
-          "ok": true,
-          "detail": "HTTP 403",
-          "classification": null
-        },
-        "success_auth": {
-          "ok": true,
-          "detail": "HTTP 200 28ms",
-          "classification": null
-        },
-        "schema_valid": {
-          "ok": true,
-          "detail": "HTTP 200",
-          "classification": null
-        },
-        "no_sensitive_leak": {
-          "ok": true,
-          "detail": "OK",
-          "classification": null
-        }
-      }
-    },
     "GET /api/admin/tenant-requests": {
       "method": "GET",
       "path": "/api/admin/tenant-requests",
@@ -64,7 +26,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 37ms",
+          "detail": "HTTP 200 23ms",
           "classification": null
         },
         "schema_valid": {
@@ -107,7 +69,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 8ms",
+          "detail": "HTTP 200 10ms",
           "classification": null
         },
         "schema_valid": {
@@ -155,7 +117,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 10ms",
+          "detail": "HTTP 400 9ms",
           "classification": null
         },
         "schema_valid": {
@@ -256,7 +218,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 8ms",
+          "detail": "HTTP 400 12ms",
           "classification": null
         },
         "schema_valid": {
@@ -309,7 +271,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 9ms",
+          "detail": "HTTP 400 8ms",
           "classification": null
         },
         "schema_valid": {
@@ -347,7 +309,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 19ms",
+          "detail": "HTTP 200 13ms",
           "classification": null
         },
         "schema_valid": {
@@ -390,7 +352,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 7ms",
+          "detail": "HTTP 404 12ms",
           "classification": null
         },
         "schema_valid": {
@@ -443,7 +405,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 7ms",
+          "detail": "HTTP 404 16ms",
           "classification": null
         },
         "schema_valid": {
@@ -477,6 +439,112 @@
         "forbidden_role_403": {
           "ok": true,
           "detail": "HTTP 403",
+          "classification": null
+        },
+        "not_found_404": {
+          "ok": true,
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "invalid_payload_400": {
+          "ok": true,
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "empty_payload_400": {
+          "ok": true,
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "success_auth": {
+          "ok": true,
+          "detail": "HTTP 400 26ms",
+          "classification": null
+        },
+        "schema_valid": {
+          "ok": true,
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    },
+    "POST /api/admin/tenants/:id/deactivate": {
+      "method": "POST",
+      "path": "/api/admin/tenants/:id/deactivate",
+      "tag": "Admin",
+      "contractKind": "admin",
+      "checks": {
+        "no_auth_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "invalid_token_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "forbidden_role_403": {
+          "ok": true,
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "not_found_404": {
+          "ok": true,
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "invalid_payload_400": {
+          "ok": true,
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "empty_payload_400": {
+          "ok": true,
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "success_auth": {
+          "ok": true,
+          "detail": "HTTP 400 14ms",
+          "classification": null
+        },
+        "schema_valid": {
+          "ok": true,
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    },
+    "POST /api/admin/tenants/:id/grant-access": {
+      "method": "POST",
+      "path": "/api/admin/tenants/:id/grant-access",
+      "tag": "Admin",
+      "contractKind": "admin",
+      "checks": {
+        "no_auth_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "invalid_token_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "forbidden_role_403": {
+          "ok": true,
+          "detail": "HTTP 400",
           "classification": null
         },
         "not_found_404": {
@@ -544,7 +612,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 7ms",
+          "detail": "HTTP 400 28ms",
           "classification": null
         },
         "schema_valid": {
@@ -597,7 +665,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 5ms",
+          "detail": "HTTP 400 7ms",
           "classification": null
         },
         "schema_valid": {
@@ -635,12 +703,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 16ms",
+          "detail": "HTTP 200 19ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 404",
+          "detail": "HTTP 200",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -653,10 +721,10 @@
   },
   "classifications": {},
   "summary": {
-    "total": 14,
-    "passed": 107,
+    "total": 15,
+    "passed": 119,
     "failed": 0,
-    "actionable": 107,
+    "actionable": 119,
     "skipped": 3,
     "effectiveFailed": 0
   }

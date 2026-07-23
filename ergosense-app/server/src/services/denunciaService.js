@@ -4,6 +4,7 @@
 import crypto from 'crypto';
 import { query as defaultQuery } from '../db.js';
 import { integrateFromDenuncia } from './riskIntegrationHub.js';
+import { historyDetailsJson, historyUserId, historyUserName } from '../utils/historyLog.js';
 
 export const DENUNCIA_TIPOS = [
   'ASSEDIO_MORAL',
@@ -128,9 +129,9 @@ export async function logDenunciaHistory(runQuery, tenantId, denunciaId, acao, u
       tenantId,
       denunciaId,
       acao,
-      user?.id ?? null,
-      user?.name ?? user?.email ?? null,
-      detalhes ? JSON.stringify(detalhes) : null,
+      historyUserId(user),
+      historyUserName(user),
+      historyDetailsJson(detalhes),
     ],
   );
 }

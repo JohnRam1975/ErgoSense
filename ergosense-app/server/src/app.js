@@ -48,10 +48,14 @@ import {
 
 const PUBLIC_API_PATHS = new Set([
   '/api/health',
+  '/api/health/live',
+  '/api/health/ready',
   '/api/auth/login',
   '/api/auth/refresh',
   '/api/auth/mfa/verify',
   '/api/auth/activate-account',
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password',
   '/api/openapi.json',
   '/api/docs',
 ]);
@@ -70,6 +74,7 @@ export function isPublicApiRoute(req) {
   if (path === '/api/public/plans' && req.method === 'GET') return true;
   if (path === '/api/public/support-contact' && (req.method === 'GET' || req.method === 'POST')) return true;
   if (path === '/api/auth/activate-account/preview' && req.method === 'GET') return true;
+  if (path === '/api/auth/reset-password/preview' && req.method === 'GET') return true;
   if (path.startsWith('/api/denuncias/public')) return true;
   if (path.startsWith('/api/psico/public/')) return true;
   return false;
@@ -291,7 +296,16 @@ export async function createApp(options = {}) {
   });
 
   app.use((err, req, res, _next) => {
-    console.error(JSON.stringify({ level: 'error', msg: 'unhandled_error', path: req.path, error: err.message }));
+    console.error(
+      JSON.stringify({
+        level: 'error',
+        msg: 'unhandled_error',
+        path: req.path,
+        error: err.message,
+        stack: err.stack ?? null,
+        trace_id: req.traceId ?? null,
+      }),
+    );
     if (res.headersSent) return;
     const status = err.status ?? err.statusCode ?? 500;
     res.status(status).json({

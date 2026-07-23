@@ -1,6 +1,8 @@
 # Módulos Integrados — ErgoSense v3
 **Data:** 08/06/2026
 
+> **Snapshot histórico** da integração MTE (jun/2026). Catálogo de telas atual: [`../../docs/funcional/08-catalogo-telas.md`](../../docs/funcional/08-catalogo-telas.md) · visão do produto: [`../../docs/funcional/README.md`](../../docs/funcional/README.md).
+
 ---
 
 ## Módulos existentes (mantidos intactos)

@@ -2,6 +2,9 @@
 ## Portaria MTE nº 1.419/2024 × Guia de Fatores de Riscos Psicossociais 2025
 **Data:** 08/06/2026 | **Nota:** Este arquivo substitui o .xlsx para máxima compatibilidade
 
+> **Canônico** para checklist MTE/NR-01 (substitui `ergosense-app/docs/checklist-conformidade-mte-nr01.md`, removido).  
+> Pacote: [`gap-analysis-psicossocial.md`](gap-analysis-psicossocial.md) · [`plano-de-adequacao-nr01.md`](plano-de-adequacao-nr01.md) · [`roadmap-implementacao.md`](roadmap-implementacao.md).
+
 ---
 
 ## LEGENDA

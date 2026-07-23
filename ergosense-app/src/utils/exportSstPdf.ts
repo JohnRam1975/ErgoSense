@@ -2,7 +2,7 @@ import { jsPDF } from 'jspdf';
 import { A4_MARGIN, A4_FOOTER_Y, A4_TOP_FIRST, ensureSpace, getA4Sizes, wrapTextLeft } from './pdfA4Layout';
 import type { SstReport } from '../types/sst';
 
-export function exportSstPdf(report: SstReport): void {
+export function buildSstPdf(report: SstReport): jsPDF {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   let pageNum = 1;
   let y = A4_TOP_FIRST;
@@ -57,5 +57,9 @@ export function exportSstPdf(report: SstReport): void {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   wrapTextLeft(doc, 'Documento gerado pelo ErgoSense. Validar com responsável técnico SST/SMS.', y, 4);
-  doc.save(`SST-${Date.now()}.pdf`);
+  return doc;
+}
+
+export function exportSstPdf(report: SstReport): void {
+  buildSstPdf(report).save(`SST-${Date.now()}.pdf`);
 }

@@ -58,6 +58,7 @@ export async function createCollaborator(tenantId, body) {
   const safeCargo = cargo ? sanitizePlainText(cargo, 120) : null;
   const safeTurno = turno ? sanitizePlainText(turno, 64) : null;
   const safeNotes = notes ? sanitizePlainText(notes, 2000) : null;
+  const safeBirthDate = birthDate && String(birthDate).trim() ? String(birthDate).trim() : null;
 
   const setorId = await resolveSetorId(tenantId, setor);
   const idx = Math.floor(Math.random() * ICONS.length);
@@ -67,29 +68,83 @@ export async function createCollaborator(tenantId, body) {
     [tenantId, safeMatricula],
   );
   if (existing.rows[0]?.id) {
-    return fetchCollaboratorById(existing.rows[0].id);
+    const err = new Error('Já existe colaborador com esta matrícula');
+    err.status = 409;
+    throw err;
   }
 
-  const { rows } = await query(
-    `INSERT INTO colaboradores (tenant_id, setor_id, nome, matricula, cargo, turno, data_nascimento,
-      observacoes, consentimento_lgpd, consentimento_data, risk_level, icone, icone_bg)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'baixo',$11,$12)
-     RETURNING id`,
-    [
-      tenantId,
-      setorId,
-      safeNome,
-      safeMatricula,
-      safeCargo,
-      safeTurno,
-      birthDate || null,
-      safeNotes,
-      !!consent,
-      consent ? new Date() : null,
-      ICONS[idx],
-      BGS[idx],
-    ],
+  // Soft-deleted com mesma matrícula: reativa em vez de violar UNIQUE
+  const softDeleted = await query(
+    `SELECT id FROM colaboradores
+     WHERE tenant_id = $1 AND matricula = $2 AND deleted_at IS NOT NULL
+     ORDER BY deleted_at DESC LIMIT 1`,
+    [tenantId, safeMatricula],
   );
+  if (softDeleted.rows[0]?.id) {
+    const restoredId = softDeleted.rows[0].id;
+    await query(
+      `UPDATE colaboradores SET
+         setor_id = $1, nome = $2, cargo = $3, turno = $4, data_nascimento = $5,
+         observacoes = $6, consentimento_lgpd = $7,
+         consentimento_data = CASE WHEN $7 THEN COALESCE(consentimento_data, NOW()) ELSE consentimento_data END,
+         deleted_at = NULL, updated_at = NOW(),
+         icone = COALESCE(icone, $8), icone_bg = COALESCE(icone_bg, $9)
+       WHERE id = $10 AND tenant_id = $11`,
+      [
+        setorId,
+        safeNome,
+        safeCargo,
+        safeTurno,
+        safeBirthDate,
+        safeNotes,
+        !!consent,
+        ICONS[idx],
+        BGS[idx],
+        restoredId,
+        tenantId,
+      ],
+    );
+    if (setorId) {
+      await ensureOrgForCollaborator(query, tenantId, {
+        setorId,
+        cargo: safeCargo,
+        matricula: safeMatricula,
+      });
+    }
+    return fetchCollaboratorById(restoredId);
+  }
+
+  let rows;
+  try {
+    const inserted = await query(
+      `INSERT INTO colaboradores (tenant_id, setor_id, nome, matricula, cargo, turno, data_nascimento,
+        observacoes, consentimento_lgpd, consentimento_data, risk_level, icone, icone_bg)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'baixo',$11,$12)
+       RETURNING id`,
+      [
+        tenantId,
+        setorId,
+        safeNome,
+        safeMatricula,
+        safeCargo,
+        safeTurno,
+        safeBirthDate,
+        safeNotes,
+        !!consent,
+        consent ? new Date() : null,
+        ICONS[idx],
+        BGS[idx],
+      ],
+    );
+    rows = inserted.rows;
+  } catch (e) {
+    if (e?.code === '23505') {
+      const err = new Error('Já existe colaborador com esta matrícula');
+      err.status = 409;
+      throw err;
+    }
+    throw e;
+  }
 
   if (setorId) {
     await ensureOrgForCollaborator(query, tenantId, {
@@ -109,8 +164,21 @@ export async function updateCollaborator(tenantId, id, body) {
   const safeCargo = cargo ? sanitizePlainText(cargo, 120) : null;
   const safeTurno = turno ? sanitizePlainText(turno, 64) : null;
   const safeNotes = notes ? sanitizePlainText(notes, 2000) : null;
+  const safeBirthDate = birthDate && String(birthDate).trim() ? String(birthDate).trim() : null;
 
   const setorId = setor ? await resolveSetorId(tenantId, setor) : null;
+
+  const dup = await query(
+    `SELECT id FROM colaboradores
+     WHERE tenant_id = $1 AND matricula = $2 AND deleted_at IS NULL AND id <> $3
+     LIMIT 1`,
+    [tenantId, safeMatricula, id],
+  );
+  if (dup.rows[0]?.id) {
+    const err = new Error('Já existe colaborador com esta matrícula');
+    err.status = 409;
+    throw err;
+  }
 
   const { rowCount } = await query(
     `UPDATE colaboradores SET setor_id = $1, nome = $2, matricula = $3, cargo = $4, turno = $5,
@@ -118,7 +186,7 @@ export async function updateCollaborator(tenantId, id, body) {
       consentimento_data = CASE WHEN $8 THEN COALESCE(consentimento_data, NOW()) ELSE consentimento_data END,
       updated_at = NOW()
      WHERE id = $9 AND tenant_id = $10 AND deleted_at IS NULL`,
-    [setorId, safeNome, safeMatricula, safeCargo, safeTurno, birthDate || null, safeNotes, !!consent, id, tenantId],
+    [setorId, safeNome, safeMatricula, safeCargo, safeTurno, safeBirthDate, safeNotes, !!consent, id, tenantId],
   );
 
   if (!rowCount) return null;
@@ -132,4 +200,27 @@ export async function updateCollaborator(tenantId, id, body) {
   }
 
   return fetchCollaboratorById(id);
+}
+
+export async function deleteCollaborator(tenantId, id) {
+  const { rows } = await query(
+    `SELECT id, matricula FROM colaboradores
+     WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`,
+    [id, tenantId],
+  );
+  const row = rows[0];
+  if (!row) return null;
+
+  if (String(row.matricula) === 'ESP-SELF') {
+    const err = new Error('Colaborador implícito de autoavaliação não pode ser excluído');
+    err.status = 400;
+    throw err;
+  }
+
+  const { rowCount } = await query(
+    `UPDATE colaboradores SET deleted_at = NOW(), updated_at = NOW()
+     WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`,
+    [id, tenantId],
+  );
+  return rowCount > 0 ? { id: String(id) } : null;
 }

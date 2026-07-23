@@ -6,25 +6,12 @@
 import type { PosePoint } from '../types/pose';
 import { POSE, isVisible, midpoint } from './poseGeometry';
 import type { LoadDistanceEstimate } from '../types/loadAssessment';
-
-const REF_SHOULDER_WIDTH_CM = 42;
+import { dist2d, normToCm } from './loadDistanceMath';
 
 export interface LoadDistanceEstimationInput {
   landmarks: PosePoint[];
   videoWidth: number;
   videoHeight: number;
-}
-
-function dist2d(a: PosePoint, b: PosePoint): number {
-  const dx = a.x - b.x;
-  const dy = a.y - b.y;
-  return Math.sqrt(dx * dx + dy * dy);
-}
-
-/** Converte distância normalizada (0–1 no frame) para cm via escala dos ombros */
-function normToCm(normDist: number, shoulderWidthNorm: number): number {
-  if (shoulderWidthNorm <= 0.05) return 0;
-  return Math.round((normDist / shoulderWidthNorm) * REF_SHOULDER_WIDTH_CM);
 }
 
 export function estimateLoadDistanceFromPose(input: LoadDistanceEstimationInput): LoadDistanceEstimate | null {

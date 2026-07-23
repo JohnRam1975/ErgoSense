@@ -27,6 +27,8 @@ test('validateBody — retorna 400 para e-mail inválido', () => {
   assert.equal(status, 400);
   assert.equal(nextCalled, false);
   assert.match(body.message, /E-mail inválido/i);
+  assert.ok(Array.isArray(body.errors));
+  assert.ok(body.errors.some((e) => e.path === 'email'));
 });
 
 test('loginSchema — rejeita e-mail inválido', () => {

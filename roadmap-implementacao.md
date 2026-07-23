@@ -2,6 +2,10 @@
 ## Adequação ao Guia MTE 2025 / Portaria MTE nº 1.419/2024
 **Data:** 08/06/2026 | **Versão:** 1.0
 
+> Pacote MTE (não duplicar veredito entre arquivos):  
+> Gap → [`gap-analysis-psicossocial.md`](gap-analysis-psicossocial.md) · Plano NR-01 → [`plano-de-adequacao-nr01.md`](plano-de-adequacao-nr01.md) · Matriz → [`matriz-conformidade-mte.md`](matriz-conformidade-mte.md) · Arquitetura módulos → [`arquitetura-novos-modulos.md`](arquitetura-novos-modulos.md) · Dashboards → [`dashboards-mte.md`](dashboards-mte.md).  
+> Roadmap de produto V2 (métodos/IA): [`docs/ERGOSENSE_V2_ROADMAP.md`](docs/ERGOSENSE_V2_ROADMAP.md).
+
 ---
 
 ## CRITÉRIOS DE PRIORIZAÇÃO

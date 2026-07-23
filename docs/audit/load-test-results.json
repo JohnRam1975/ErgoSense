@@ -1,0 +1,114 @@
+{
+  "generatedAt": "2026-07-23T16:53:56.322Z",
+  "summary": [
+    {
+      "target": "health",
+      "n": 100,
+      "ok": 100,
+      "fail": 0,
+      "totalMs": 1278,
+      "avg": 723,
+      "p95": 1157,
+      "max": 1185,
+      "throughput": 78,
+      "errors": []
+    },
+    {
+      "target": "psico-dashboard",
+      "n": 100,
+      "ok": 100,
+      "fail": 0,
+      "totalMs": 899,
+      "avg": 505,
+      "p95": 816,
+      "max": 849,
+      "throughput": 111,
+      "errors": []
+    },
+    {
+      "target": "health",
+      "n": 500,
+      "ok": 500,
+      "fail": 0,
+      "totalMs": 2937,
+      "avg": 1570,
+      "p95": 2683,
+      "max": 2790,
+      "throughput": 170,
+      "errors": []
+    },
+    {
+      "target": "psico-dashboard",
+      "n": 500,
+      "ok": 500,
+      "fail": 0,
+      "totalMs": 4195,
+      "avg": 2240,
+      "p95": 3874,
+      "max": 4182,
+      "throughput": 119,
+      "errors": []
+    },
+    {
+      "target": "health",
+      "n": 1000,
+      "ok": 1000,
+      "fail": 0,
+      "totalMs": 9254,
+      "avg": 5252,
+      "p95": 8497,
+      "max": 8897,
+      "throughput": 108,
+      "errors": []
+    },
+    {
+      "target": "psico-dashboard",
+      "n": 1000,
+      "ok": 1000,
+      "fail": 0,
+      "totalMs": 11407,
+      "avg": 6956,
+      "p95": 11067,
+      "max": 11361,
+      "throughput": 88,
+      "errors": []
+    }
+  ],
+  "brokeAt": {
+    "n": 2400,
+    "ok": 1012,
+    "fail": 1388,
+    "totalMs": 28197,
+    "avg": 21341,
+    "p95": 27606,
+    "max": 27893,
+    "throughput": 85,
+    "errors": [
+      {
+        "ok": false,
+        "status": 504,
+        "ms": 26354
+      },
+      {
+        "ok": false,
+        "status": 504,
+        "ms": 26354
+      },
+      {
+        "ok": false,
+        "status": 504,
+        "ms": 27071
+      },
+      {
+        "ok": false,
+        "status": 504,
+        "ms": 26672
+      },
+      {
+        "ok": false,
+        "status": 504,
+        "ms": 26671
+      }
+    ]
+  }
+}

@@ -56,8 +56,8 @@ export const SECTORS = [
   'Transporte / Frota',
   'Produção Industrial',
 ];
-export { ACTIVITY_PROFILES, activitiesForContext, ALL_ACTIVITIES as ACTIVITIES } from './activityProfiles';
 export type { ActivityContext } from './activityProfiles';
+export { ACTIVITY_PROFILES, activitiesForContext } from './activityProfiles';
 
 export const TURNOS = ['Manhã 06h–14h', 'Tarde 14h–22h', 'Noite 22h–06h'];
 
@@ -70,6 +70,7 @@ export const FULLSCREEN_SCREENS = [
   'request-access',
   'request-access-autonomo',
   'activate-account',
+  'reset-password',
   'register-company',
   'global-admin',
   'admin-tenant-requests',

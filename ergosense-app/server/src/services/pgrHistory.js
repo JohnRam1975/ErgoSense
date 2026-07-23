@@ -1,4 +1,5 @@
 import { query } from '../db.js';
+import { historyDetailsJson, historyUserId, historyUserName } from '../utils/historyLog.js';
 
 export async function logPgrHistory({ tenantId, versionId = null, action, user = null, details = null }) {
   await query(
@@ -8,9 +9,9 @@ export async function logPgrHistory({ tenantId, versionId = null, action, user =
       tenantId,
       versionId,
       action,
-      user?.id ?? null,
-      user?.name || user?.email || null,
-      details ? JSON.stringify(details) : null,
+      historyUserId(user),
+      historyUserName(user),
+      historyDetailsJson(details),
     ],
   );
 }

@@ -2,6 +2,7 @@
  * Ações AET — extraído do AppContext (SRP)
  */
 import { useCallback } from 'react';
+import { getErrorMessage } from '../../utils/errors';
 import { apiCreateAetProcesso, isApiAvailable } from '../../api/client';
 import type { AetProcess } from '../../types/aet';
 import type { StoredState } from '../contextTypes';
@@ -54,7 +55,7 @@ export function useAetActions({
         showToast('Processo AET criado', 'success');
         return true;
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro ao criar AET', 'warn');
+        showToast(getErrorMessage(err, 'Erro ao criar AET'), 'warn');
         return false;
       }
     },

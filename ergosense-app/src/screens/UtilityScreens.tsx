@@ -389,7 +389,7 @@ export function SettingsScreen() {
             ✏️
           </button>
         </div>
-        {isTenantAdmin && (
+        {isTenantAdmin ? (
           <>
             <div style={{ fontFamily: 'var(--fd)', fontSize: 10, fontWeight: 700, letterSpacing: 2, color: 'var(--t1)', textTransform: 'uppercase', marginBottom: 9, display: 'flex', alignItems: 'center', gap: 5 }}>
               <span style={{ width: 10, height: 2, background: 'var(--cyan)', display: 'inline-block' }} />
@@ -399,10 +399,26 @@ export function SettingsScreen() {
               <button type="button" className="btn bp btn-list" onClick={() => go('support-access')}>
                 <div>
                   <div style={{ fontSize: 15, color: 'var(--t0)' }}>Autorizar suporte da plataforma</div>
-                  <div className="btn-list-sub">Controle de acesso LGPD · auditoria</div>
+                  <div className="btn-list-sub">Somente ADMIN_EMPRESA · LGPD · auditoria</div>
                 </div>
                 <span style={{ color: 'var(--amber)', fontSize: 18 }}>›</span>
               </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ fontFamily: 'var(--fd)', fontSize: 10, fontWeight: 700, letterSpacing: 2, color: 'var(--t1)', textTransform: 'uppercase', marginBottom: 9, display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span style={{ width: 10, height: 2, background: 'var(--cyan)', display: 'inline-block' }} />
+              SUPORTE
+            </div>
+            <div className="card" style={{ marginBottom: 14, padding: 14 }}>
+              <div style={{ fontSize: 15, color: 'var(--t0)', fontWeight: 600, marginBottom: 6 }}>
+                Suporte da plataforma
+              </div>
+              <p style={{ fontSize: 12, color: 'var(--t1)', margin: 0, lineHeight: 1.45 }}>
+                Apenas o <strong>administrador da empresa</strong> (ADMIN_EMPRESA) pode autorizar o acesso técnico
+                da ErgoSense. Se precisar de suporte, peça a ele em Configurações → Autorizar suporte da plataforma.
+              </p>
             </div>
           </>
         )}

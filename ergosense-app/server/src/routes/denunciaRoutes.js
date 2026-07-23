@@ -17,6 +17,16 @@ import {
   syncDenunciaIntegrations,
 } from '../services/denunciaService.js';
 import { requireNumericId } from '../utils/parseId.js';
+import { apiError } from '../utils/apiResponse.js';
+
+const DENUNCIA_TRATATIVA_TIPOS = [
+  'TRIAGEM',
+  'INVESTIGACAO',
+  'MEDIDA_CAUTELAR',
+  'CORRETIVA',
+  'ACOMPANHAMENTO',
+  'ENCERRAMENTO',
+];
 
 const SELECT_DENUNCIA = `
   SELECT d.*, s.nome AS setor_nome
@@ -278,29 +288,37 @@ export function registerDenunciaRoutes(app, { resolveOperationalTenant }) {
     const id = requireNumericId(req, res);
     if (id === null) return;
     const tipo = String(req.body?.type ?? req.body?.tipo ?? 'INVESTIGACAO').toUpperCase();
+    if (!DENUNCIA_TRATATIVA_TIPOS.includes(tipo)) {
+      return apiError(res, `Tipo de tratativa inválido. Use: ${DENUNCIA_TRATATIVA_TIPOS.join(', ')}`, 400);
+    }
     const descricao = sanitizePlainText(req.body?.description ?? req.body?.descricao, 4000);
-    if (!descricao) return res.status(400).json({ error: 'Descrição obrigatória' });
+    if (!descricao) return apiError(res, 'Descrição obrigatória', 400);
 
-    const exists = await query(`SELECT id FROM denuncias WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`, [id, tenantId]);
-    if (!exists.rows.length) return res.status(404).json({ error: 'Denúncia não encontrada' });
+    try {
+      const exists = await query(`SELECT id FROM denuncias WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`, [id, tenantId]);
+      if (!exists.rows.length) return apiError(res, 'Denúncia não encontrada', 404);
 
-    const { rows } = await query(
-      `INSERT INTO denuncia_tratativas (tenant_id, denuncia_id, tipo, descricao, responsavel, prazo, status)
-       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-      [
-        tenantId,
-        id,
-        tipo,
-        descricao,
-        sanitizePlainText(req.body?.responsible ?? req.body?.responsavel, 255),
-        req.body?.dueDate ?? req.body?.prazo ?? null,
-        req.body?.status ?? 'aberto',
-      ],
-    );
+      const { rows } = await query(
+        `INSERT INTO denuncia_tratativas (tenant_id, denuncia_id, tipo, descricao, responsavel, prazo, status)
+         VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+        [
+          tenantId,
+          id,
+          tipo,
+          descricao,
+          sanitizePlainText(req.body?.responsible ?? req.body?.responsavel, 255),
+          req.body?.dueDate ?? req.body?.prazo ?? null,
+          req.body?.status ?? 'aberto',
+        ],
+      );
 
-    await logDenunciaHistory(query, tenantId, id, 'TRATATIVA_CRIADA', req.user, { tipo, tratativaId: rows[0].id });
-    const item = await fetchDenunciaFull(tenantId, id);
-    res.status(201).json(item);
+      await logDenunciaHistory(query, tenantId, id, 'TRATATIVA_CRIADA', req.user, { tipo, tratativaId: rows[0].id });
+      const item = await fetchDenunciaFull(tenantId, id);
+      return res.status(201).json(item);
+    } catch (err) {
+      console.error(JSON.stringify({ level: 'error', msg: 'denuncia_tratativa_failed', error: err.message }));
+      return apiError(res, err.message, 500);
+    }
   });
 
   app.patch('/api/denuncias/:id/tratativas/:tid', requirePermission('denuncia:investigate'), async (req, res) => {

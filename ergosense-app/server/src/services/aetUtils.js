@@ -1,4 +1,5 @@
 import { query } from '../db.js';
+import { historyDetailsJson, historyUserId, historyUserName } from '../utils/historyLog.js';
 
 export const AET_STAGES = [
   'CARACTERIZACAO',
@@ -46,9 +47,9 @@ export async function logAetHistory({ tenantId, processoId, action, stage = null
       versionId,
       action,
       stage,
-      user?.id ?? null,
-      user?.name || user?.email || null,
-      details ? JSON.stringify(details) : null,
+      historyUserId(user),
+      historyUserName(user),
+      historyDetailsJson(details),
     ],
   );
 }

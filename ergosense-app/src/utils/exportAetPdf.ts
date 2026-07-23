@@ -43,7 +43,7 @@ function contentToText(content: unknown): string {
   return JSON.stringify(content, null, 2).slice(0, 1200);
 }
 
-export function exportAetPdf(process: AetProcess, report: AetNormativeReport, version?: AetVersionDetail): void {
+export function buildAetPdf(process: AetProcess, report: AetNormativeReport, version?: AetVersionDetail): jsPDF {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   let pageNum = 1;
   let y = A4_TOP_FIRST;
@@ -170,5 +170,10 @@ export function exportAetPdf(process: AetProcess, report: AetNormativeReport, ve
   }
 
   drawFooter(doc, pageNum, docHash);
-  doc.save(`AET-${versionNum ?? process.id}-${Date.now()}.pdf`);
+  return doc;
+}
+
+export function exportAetPdf(process: AetProcess, report: AetNormativeReport, version?: AetVersionDetail): void {
+  const versionNum = version?.number ?? report.versionNumber ?? undefined;
+  buildAetPdf(process, report, version).save(`AET-${versionNum ?? process.id}-${Date.now()}.pdf`);
 }

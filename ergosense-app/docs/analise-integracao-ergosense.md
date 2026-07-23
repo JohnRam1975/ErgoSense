@@ -1,6 +1,8 @@
 # Análise de Integração — ErgoSense
 **Data:** 08/06/2026 | **Versão:** 3.0
 
+> **Histórico** (plano de unificar protótipo HTML → React). Stack e produto atuais: [`../../docs/ARCHITECTURE.md`](../../docs/ARCHITECTURE.md) · [`../../docs/funcional/README.md`](../../docs/funcional/README.md). Não use este arquivo como descrição da arquitetura em produção.
+
 ---
 
 ## 1. Objetivo

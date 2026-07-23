@@ -390,6 +390,40 @@ export async function apiActivateAccount(data: {
   return request('/api/auth/activate-account', { method: 'POST', body: JSON.stringify(data) });
 }
 
+export async function apiForgotPassword(email: string): Promise<{
+  email: string;
+  name?: string;
+  token: string;
+  expiresAt?: string;
+  message: string;
+  delivery?: string;
+  resetUrl?: string;
+}> {
+  return request('/api/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function apiResetPasswordPreview(token: string): Promise<{
+  email: string;
+  name?: string;
+  expiresAt?: string;
+}> {
+  return request(`/api/auth/reset-password/preview?token=${encodeURIComponent(token)}`);
+}
+
+export async function apiResetPassword(data: {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}): Promise<{ ok: boolean; email: string }> {
+  return request('/api/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
 export async function apiSubmitAccessRequest(data: {
   nome: string;
   email: string;
@@ -569,6 +603,13 @@ export async function apiUpdateCollaborator(
   });
 }
 
+export async function apiDeleteCollaborator(tenantId: string, id: string) {
+  return request<{ id: string }>(
+    `/api/collaborators/${encodeURIComponent(id)}?tenantId=${encodeURIComponent(tenantId)}`,
+    { method: 'DELETE' },
+  );
+}
+
 export async function apiGetTenants(): Promise<
   Array<{
     id: string;
@@ -620,7 +661,12 @@ export async function apiSaveAnalysis(
   tenantId: string,
   analysis: Omit<import('./dto/analysis.dto').AnalysisCreateDto, 'tenantId'>,
 ) {
-  return request<{ id: string }>('/api/analyses', {
+  return request<{
+    id: string;
+    aetProcessId?: string | null;
+    aetCreated?: boolean;
+    aetReportGenerated?: boolean;
+  }>('/api/analyses', {
     method: 'POST',
     body: JSON.stringify({ tenantId, ...analysis }),
   });
@@ -1316,13 +1362,6 @@ export async function apiGenerateAetReport(tenantId: string, id: string) {
   return request<import('../types/aet').AetNormativeReport>(
     `/api/aet/processos/${encodeURIComponent(id)}/gerar-relatorio?tenantId=${encodeURIComponent(tenantId)}`,
     { method: 'POST', body: JSON.stringify({ tenantId }) },
-  );
-}
-
-export async function apiSignAet(tenantId: string, id: string, ergonomistName: string, ergonomistRegistry: string) {
-  return request<import('../types/aet').AetProcess>(
-    `/api/aet/processos/${encodeURIComponent(id)}/assinar?tenantId=${encodeURIComponent(tenantId)}`,
-    { method: 'POST', body: JSON.stringify({ tenantId, ergonomistName, ergonomistRegistry }) },
   );
 }
 

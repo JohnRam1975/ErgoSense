@@ -8,14 +8,7 @@ import { sanitizeEmail } from '../auth/sanitize.js';
 import { setupMfa, enableMfa } from './mfa/MfaService.js';
 import { auditOnboarding } from './onboardingAudit.js';
 import { config } from '../config/env.js';
-
-function hashToken(token) {
-  return crypto.createHash('sha256').update(token).digest('hex');
-}
-
-function generateToken() {
-  return crypto.randomBytes(32).toString('hex');
-}
+import { generateToken, hashToken } from '../utils/secureToken.js';
 
 function generateTempPassword() {
   return crypto.randomBytes(9).toString('base64url').slice(0, 12);

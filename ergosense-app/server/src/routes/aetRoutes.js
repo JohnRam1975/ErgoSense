@@ -38,6 +38,7 @@ import {
 } from '../services/aetCorporateService.js';
 import { validateBody } from '../validation/validateRequest.js';
 import { createAetProcessoSchema } from '../validation/schemas.js';
+import { importMethodsFromAnalysis } from '../services/aetMethodsFromAnalysis.js';
 
 async function getProcessoOr404(tenantId, id) {
   const { rows } = await query(
@@ -63,45 +64,6 @@ async function loadEquipmentForProcess(tenantId, ids) {
     [tenantId, ids],
   );
   return rows.map(mapEquipamento);
-}
-
-async function importMethodsFromAnalysis(tenantId, analysisId) {
-  const { rows } = await query(
-    `SELECT r.rula, r.reba, r.angulos_json, r.nr17_report_json
-     FROM resultados_ia r
-     WHERE r.analise_id = $1 AND r.tenant_id = $2`,
-    [analysisId, tenantId],
-  );
-  if (!rows[0]) return null;
-
-  let v2 = null;
-  try {
-    const v2Res = await query(
-      `SELECT v2_report_json FROM analises WHERE id = $1 AND tenant_id = $2`,
-      [analysisId, tenantId],
-    );
-    v2 = v2Res.rows[0]?.v2_report_json ?? null;
-  } catch {
-    // Coluna v2_report_json ausente — execute migrate-v2-modules.js se necessário
-  }
-
-  const methods = {};
-  if (rows[0].rula != null) {
-    methods.rula = { score: rows[0].rula, source: 'analise_ia', norma: 'RULA McAtamney 1993' };
-  }
-  if (rows[0].reba != null) {
-    methods.reba = { score: rows[0].reba, source: 'analise_ia', norma: 'REBA Hignett 2000' };
-  }
-  if (v2?.methods) {
-    for (const m of v2.methods) {
-      if (m.methodId === 'owas') methods.owas = { owasClass: m.score, classificationLabel: m.classificationLabel, source: 'v2', norma: 'OWAS Karhu 1977' };
-      if (m.methodId === 'niosh') methods.niosh = { rwl: m.outputs?.RWL, liftingIndex: m.outputs?.LI, source: 'v2', norma: 'NIOSH RNLE 1991' };
-      if (m.methodId === 'rula' && !methods.rula) methods.rula = { score: m.score, classificationLabel: m.classificationLabel, source: 'v2' };
-      if (m.methodId === 'reba' && !methods.reba) methods.reba = { score: m.score, classificationLabel: m.classificationLabel, source: 'v2' };
-    }
-  }
-  methods.angles = rows[0].angulos_json;
-  return methods;
 }
 
 async function buildDashboard(tenantId) {
@@ -376,30 +338,6 @@ export function registerAetRoutes(app, { resolveOperationalTenant }) {
       console.warn('integrateFromAet:', e.message);
     }
     res.json(report);
-  });
-
-  app.post('/api/aet/processos/:id/assinar', requirePermission('aet:write'), async (req, res) => {
-    const tenantId = await resolveOperationalTenant(req, res, 'AET');
-    if (!tenantId) return;
-    const id = Number(req.params.id);
-    if (!(await getProcessoOr404(tenantId, id))) return res.status(404).json({ error: 'Processo não encontrado' });
-    const nome = sanitizePlainText(req.body?.ergonomistName ?? '', 255);
-    const registro = sanitizePlainText(req.body?.ergonomistRegistry ?? '', 128);
-    if (!nome || !registro) return res.status(400).json({ error: 'Nome e registro profissional obrigatórios' });
-    const { rows } = await query(
-      `UPDATE aet_processos SET
-         ergonomista_nome = $1, ergonomista_registro = $2, assinado_em = NOW(),
-         status = 'ASSINADO', etapa_atual = 'ASSINADO', revisado_por = $3, updated_at = NOW()
-       WHERE id = $4 RETURNING *`,
-      [nome, registro, sanitizePlainText(req.body?.reviewedBy ?? nome, 255), id],
-    );
-    await logAetHistory({ tenantId, processoId: id, action: 'AET_ASSINADA', stage: 'ASSINADO', user: req.user, details: { nome, registro } });
-    try {
-      await integrateFromAet(null, tenantId, id, req.user);
-    } catch (e) {
-      console.warn('integrateFromAet:', e.message);
-    }
-    res.json(mapProcesso(rows[0]));
   });
 
   app.get('/api/aet/mobiliario', requirePermission('aet:read'), async (req, res) => {

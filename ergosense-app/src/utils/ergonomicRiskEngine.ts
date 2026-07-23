@@ -6,7 +6,7 @@ import type { ActivityContext } from '../data/activityProfiles';
 import type { JointAngles, RiskLevel } from '../types';
 import type { LoadParams, LoadRiskResult } from '../types/loadAssessment';
 import type { WorkstationMetrics } from '../types/workstation';
-import { riskFromScore, scoreFromAngles } from './ergonomics';
+import { riskFromScore, scoreFromAngles, riskLabel } from './ergonomics';
 import { calculateReba } from '../methods/reba';
 import { calculateRula } from '../methods/rula';
 import { analyzeLoadHandling, combinedErgonomicScore } from './loadHandling';
@@ -57,11 +57,6 @@ export function evaluateErgonomicSession(input: ErgonomicEvaluationInput): Ergon
 }
 
 export function riskLevelLabelPt(risk: RiskLevel): string {
-  const map: Record<RiskLevel, string> = {
-    baixo: 'Baixo risco',
-    medio: 'Médio risco',
-    alto: 'Alto risco',
-    critico: 'Risco crítico',
-  };
-  return map[risk];
+  if (risk === 'critico') return 'Risco crítico';
+  return `${riskLabel(risk)} risco`;
 }

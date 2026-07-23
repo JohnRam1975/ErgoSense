@@ -10,6 +10,7 @@ const CHECK_INTERVAL_MS = Number(process.env.COMPLIANCE_SCHEDULER_INTERVAL_MS) |
 const SCHEDULER_USER = { name: 'Compliance Scheduler', email: 'scheduler@ergosense.local' };
 
 let schedulerTimer = null;
+let initialTimer = null;
 
 export async function ensureComplianceSchedule(tenantId) {
   await query(
@@ -134,12 +135,16 @@ export function startComplianceScheduler() {
     });
   };
 
-  setTimeout(run, 15000);
+  initialTimer = setTimeout(run, 15000);
   schedulerTimer = setInterval(run, CHECK_INTERVAL_MS);
   console.log(JSON.stringify({ level: 'info', msg: 'compliance_scheduler_started', intervalMs: CHECK_INTERVAL_MS }));
 }
 
 export function stopComplianceScheduler() {
+  if (initialTimer) {
+    clearTimeout(initialTimer);
+    initialTimer = null;
+  }
   if (schedulerTimer) {
     clearInterval(schedulerTimer);
     schedulerTimer = null;

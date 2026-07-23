@@ -97,7 +97,6 @@ vi.mock('../../api/client', () => ({
   apiSaveAetOrganizacao: vi.fn(),
   apiSaveAetMetodos: vi.fn(),
   apiGenerateAetReport: vi.fn(),
-  apiSignAet: vi.fn(),
   apiGetAetMobiliario: vi.fn().mockResolvedValue([]),
   apiSaveAetMobiliario: vi.fn(),
   apiGetAetEquipamentos: vi.fn().mockResolvedValue([]),

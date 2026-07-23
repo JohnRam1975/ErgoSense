@@ -4,6 +4,7 @@
 
 import type { PosePoint } from '../types/pose';
 import { POSE, isVisible, midpoint } from './poseGeometry';
+import { REF_SHOULDER_WIDTH_CM } from './loadDistanceMath';
 
 export interface ScreenPoint {
   /** 0–1 relativo ao container da câmera */
@@ -26,8 +27,6 @@ export interface MeasureDistanceInput {
   calibration?: DistanceCalibration | null;
   mirrored?: boolean;
 }
-
-const REF_SHOULDER_WIDTH_CM = 42;
 
 export function landmarkToContainer(
   p: PosePoint,

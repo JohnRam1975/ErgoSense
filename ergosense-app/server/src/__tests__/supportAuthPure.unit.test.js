@@ -6,21 +6,17 @@ import assert from 'node:assert/strict';
 import {
   PLATFORM_TENANT,
   SUPPORT_DURATIONS,
-  parseUserContext,
   getAuthenticatedUser,
   clientIp,
   isSupportActive,
   mapSupportStatus,
+  assertTenantAdmin,
 } from '../supportAuth.js';
 
 test('PLATFORM_TENANT e SUPPORT_DURATIONS definidos', () => {
   assert.equal(PLATFORM_TENANT, 'ergosense');
   assert.equal(SUPPORT_DURATIONS['1h'], 1);
   assert.equal(SUPPORT_DURATIONS['7d'], 168);
-});
-
-test('parseUserContext — deprecated retorna null', () => {
-  assert.equal(parseUserContext({ headers: {} }), null);
 });
 
 test('getAuthenticatedUser — req.user ou null', () => {
@@ -61,4 +57,42 @@ test('mapSupportStatus — mapeia row para API', () => {
   assert.equal(mapped.userCount, 42);
   assert.equal(mapped.supportAuthorized, true);
   assert.ok(mapped.supportExpiresAt);
+});
+
+test('assertTenantAdmin — ERGONOMISTA recebe 403 com mensagem documentada', async () => {
+  let status;
+  let body;
+  const res = {
+    status(code) {
+      status = code;
+      return this;
+    },
+    json(payload) {
+      body = payload;
+      return this;
+    },
+  };
+  const user = await assertTenantAdmin(
+    { user: { id: 2, role: 'ERGONOMISTA', tenantId: 'acme', email: 'a@t.com' } },
+    res,
+    'acme',
+  );
+  assert.equal(user, null);
+  assert.equal(status, 403);
+  assert.match(body.message, /ADMIN_EMPRESA/i);
+  assert.match(body.message, /administrador da empresa/i);
+});
+
+test('assertTenantAdmin — ADMIN_EMPRESA do tenant passa', async () => {
+  const res = {
+    status() {
+      return this;
+    },
+    json() {
+      return this;
+    },
+  };
+  const admin = { id: 1, role: 'ADMIN_EMPRESA', tenantId: 'acme', name: 'Admin' };
+  const user = await assertTenantAdmin({ user: admin }, res, 'acme');
+  assert.equal(user, admin);
 });

@@ -2,7 +2,9 @@
 
 **Data:** 2026-06-12  
 **Escopo:** Arquitetura completa pré-evolução enterprise  
-**Baseline operacional:** TESTE-OPERACIONAL R3 — nota 88/100
+**Baseline operacional:** [`TESTE-OPERACIONAL-2026-06-12-R3.md`](TESTE-OPERACIONAL-2026-06-12-R3.md) — nota 88/100  
+
+> **Planejamento apenas.** Resultado final da evolução: [`ENTERPRISE-R4-FINAL.md`](ENTERPRISE-R4-FINAL.md). Índice: [`README.md`](README.md).
 
 ---
 

@@ -19,6 +19,12 @@ test('ERGONOMISTA — analyses:*', () => {
   assert.equal(hasPermission('ERGONOMISTA', 'analyses:delete'), true);
 });
 
+test('ERGONOMISTA — collaborators create/update/delete', () => {
+  assert.equal(hasPermission('ERGONOMISTA', 'collaborators:create'), true);
+  assert.equal(hasPermission('ERGONOMISTA', 'collaborators:update'), true);
+  assert.equal(hasPermission('ERGONOMISTA', 'collaborators:delete'), true);
+});
+
 test('OPERADOR — sem analyses:delete', () => {
   assert.equal(hasPermission('OPERADOR', 'analyses:delete'), false);
   assert.equal(hasPermission('OPERADOR', 'analyses:create'), true);

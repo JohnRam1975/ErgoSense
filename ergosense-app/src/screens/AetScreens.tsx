@@ -120,7 +120,7 @@ export function AetWorkflowScreen() {
       {aetProcesses.length === 0 ? (
         <div className="card" style={{ fontSize: 12, color: 'var(--t2)' }}>Nenhum processo AET. Crie o primeiro acima.</div>
       ) : aetProcesses.map((p) => (
-        <div key={p.id} className="card" style={{ cursor: 'pointer' }} onClick={() => { void openAetProcess(p.id); go('aet-detalhe'); }}>
+        <div key={p.id} className="card" style={{ cursor: 'pointer' }} onClick={() => { void openAetProcess(p.id); }}>
           <div className="row gap8 jb">
             <div>
               <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--t0)' }}>{p.title}</div>
@@ -167,7 +167,6 @@ export function AetDetalheScreen() {
     saveAetOrganizacao,
     saveAetMetodos,
     generateAetReport,
-    signAet,
     createAetVersion,
     refreshAetVersionSnapshot,
     generateAetVersionReport,
@@ -190,8 +189,6 @@ export function AetDetalheScreen() {
   const [vMaos, setVMaos] = useState({ aceleracaoMs2: 3, horasExposicao: 4 });
   const [tel, setTel] = useState<Record<string, number>>({});
   const [org, setOrg] = useState<Record<string, number>>({});
-  const [sigNome, setSigNome] = useState('');
-  const [sigReg, setSigReg] = useState('');
   const [rtNome, setRtNome] = useState('');
   const [rtCrea, setRtCrea] = useState('');
   const [rtArt, setRtArt] = useState('');
@@ -318,12 +315,10 @@ export function AetDetalheScreen() {
       {aba === 'CONSOLIDACAO' && (
         <div className="card">
           <button className="btn bp mb8" onClick={() => void generateAetReport()}>Gerar relatório normativo (rápido)</button>
-          <label className="lbl">Assinatura ergonomista (legado)</label>
-          <input className="inp" value={sigNome} onChange={(e) => setSigNome(e.target.value)} placeholder="Nome completo" />
-          <input className="inp" value={sigReg} onChange={(e) => setSigReg(e.target.value)} placeholder="Registro profissional" />
-          <button className="btn bp" onClick={() => void signAet(sigNome, sigReg)}>Assinar AET (legado)</button>
           {p.signedAt && <p style={{ fontSize: 11, color: 'var(--green)', marginTop: 8 }}>✓ Assinado em {new Date(p.signedAt).toLocaleString('pt-BR')}</p>}
-          <p style={{ fontSize: 11, color: 'var(--t2)', marginTop: 8 }}>Para fluxo corporativo completo, use a aba Corporativo.</p>
+          <p style={{ fontSize: 12, color: 'var(--t2)', marginTop: 8 }}>
+            Assinatura e aprovação corporativa: use a aba Corporativo (versões, CREA, fluxo de aprovação).
+          </p>
         </div>
       )}
 

@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:37:23.258Z",
+  "generatedAt": "2026-07-23T16:50:39.498Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "GET /api/tenants": {
       "method": "GET",
@@ -21,7 +21,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 13ms",
+          "detail": "HTTP 200 10ms",
           "classification": null
         },
         "schema_valid": {
@@ -64,7 +64,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 6ms",
+          "detail": "HTTP 400 10ms",
           "classification": null
         },
         "schema_valid": {

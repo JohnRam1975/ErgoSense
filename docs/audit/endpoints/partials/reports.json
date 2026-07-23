@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:37:05.958Z",
+  "generatedAt": "2026-07-23T16:50:21.116Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "GET /api/reports": {
       "method": "GET",
@@ -26,7 +26,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 16ms",
+          "detail": "HTTP 200 21ms",
           "classification": null
         },
         "schema_valid": {

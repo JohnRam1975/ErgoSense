@@ -13,8 +13,9 @@ import {
   pxPerCm,
   trunkCenterFromLandmarks,
 } from './measureLoadDistance';
+import { REF_SHOULDER_WIDTH_CM, dist2d, normToCm } from './loadDistanceMath';
+
 const LOAD_VISIBILITY = 0.2;
-const REF_SHOULDER_WIDTH_CM = 42;
 
 export type LoadTrackMethod =
   | 'tap'
@@ -33,15 +34,6 @@ export interface LoadDistanceTrackResult {
 
 function isLoadVisible(p: PosePoint | undefined): p is PosePoint {
   return !!p && (p.visibility ?? 0) >= LOAD_VISIBILITY;
-}
-
-function dist2d(a: PosePoint, b: PosePoint): number {
-  return Math.hypot(a.x - b.x, a.y - b.y);
-}
-
-function normToCm(normDist: number, shoulderWidthNorm: number): number {
-  if (shoulderWidthNorm <= 0.05) return 0;
-  return Math.max(1, Math.round((normDist / shoulderWidthNorm) * REF_SHOULDER_WIDTH_CM));
 }
 
 function resolveVideoSize(videoW: number, videoH: number, cw: number, ch: number): { videoWidth: number; videoHeight: number } {
@@ -134,7 +126,7 @@ function horizontalDistanceCm(
   if (!isLoadVisible(ls) || !isLoadVisible(rs)) return 0;
   const shoulderWidthNorm = dist2d(ls, rs);
   const horizNorm = Math.abs(loadLm.x - trunkLm.x);
-  return normToCm(horizNorm, shoulderWidthNorm);
+  return normToCm(horizNorm, shoulderWidthNorm, 1);
 }
 
 function screenDistanceCm(

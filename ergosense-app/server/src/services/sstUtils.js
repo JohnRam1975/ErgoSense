@@ -1,10 +1,19 @@
 import { query } from '../db.js';
+import { historyDetailsJson, historyUserId, historyUserName } from '../utils/historyLog.js';
 
 export async function logSstHistory({ tenantId, entityType, entityId, action, user = null, details = null }) {
   await query(
     `INSERT INTO sst_historico (tenant_id, entidade_tipo, entidade_id, acao, usuario_id, usuario_nome, detalhes)
      VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-    [tenantId, entityType, entityId ?? null, action, user?.id ?? null, user?.name || user?.email || null, details ? JSON.stringify(details) : null],
+    [
+      tenantId,
+      entityType,
+      entityId ?? null,
+      action,
+      historyUserId(user),
+      historyUserName(user),
+      historyDetailsJson(details),
+    ],
   );
 }
 

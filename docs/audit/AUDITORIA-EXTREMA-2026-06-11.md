@@ -3,7 +3,8 @@
 **Data:** 11/06/2026  
 **Metodologia:** Documento `AUDITORIA EXTREMA DE QUALIDADE.pdf` (15 fases)  
 **Ambiente:** API local `localhost:3001` + inspeção de código + testes HTTP automatizados  
-**Referência anterior:** `PRODUCTION-AUDIT-2026-06-05.md` (nota 28/100 — REPROVADO)
+**Referência anterior:** baseline de junho/2025 (arquivo removido por duplicação).  
+**Readiness atual:** [`PRODUCTION-READINESS-2026-07-12.md`](PRODUCTION-READINESS-2026-07-12.md) · índice [`README.md`](README.md).
 
 ---
 

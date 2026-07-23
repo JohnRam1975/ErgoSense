@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:36:23.358Z",
+  "generatedAt": "2026-07-23T16:49:39.994Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "GET /api/org/empresa": {
       "method": "GET",
@@ -59,7 +59,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 21ms",
+          "detail": "HTTP 200 37ms",
           "classification": null
         },
         "schema_valid": {
@@ -97,7 +97,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 9ms",
+          "detail": "HTTP 200 10ms",
           "classification": null
         },
         "schema_valid": {
@@ -130,7 +130,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 7ms",
+          "detail": "HTTP 400 11ms",
           "classification": null
         },
         "schema_valid": {
@@ -168,7 +168,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 403 10ms",
+          "detail": "HTTP 403 14ms",
           "classification": null
         },
         "schema_valid": {
@@ -206,12 +206,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 17ms",
+          "detail": "HTTP 404 17ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 200",
+          "detail": "HTTP 404",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -244,7 +244,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 30ms",
+          "detail": "HTTP 200 94ms",
           "classification": null
         },
         "schema_valid": {
@@ -282,7 +282,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 10ms",
+          "detail": "HTTP 200 19ms",
           "classification": null
         },
         "schema_valid": {
@@ -353,7 +353,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 403 6ms",
+          "detail": "HTTP 403 16ms",
           "classification": null
         },
         "schema_valid": {
@@ -391,7 +391,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 10ms",
+          "detail": "HTTP 404 18ms",
           "classification": null
         },
         "schema_valid": {

@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:37:13.210Z",
+  "generatedAt": "2026-07-23T16:50:28.435Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "GET /api/risk-inventory": {
       "method": "GET",
@@ -26,7 +26,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 24ms",
+          "detail": "HTTP 200 250ms",
           "classification": null
         },
         "schema_valid": {
@@ -59,7 +59,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 17ms",
+          "detail": "HTTP 400 30ms",
           "classification": null
         },
         "schema_valid": {
@@ -97,7 +97,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 9ms",
+          "detail": "HTTP 404 15ms",
           "classification": null
         },
         "schema_valid": {
@@ -140,7 +140,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 11ms",
+          "detail": "HTTP 404 19ms",
           "classification": null
         },
         "schema_valid": {
@@ -178,7 +178,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 7ms",
+          "detail": "HTTP 404 11ms",
           "classification": null
         },
         "schema_valid": {
@@ -221,7 +221,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 8ms",
+          "detail": "HTTP 404 20ms",
           "classification": null
         },
         "schema_valid": {
@@ -264,7 +264,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 6ms",
+          "detail": "HTTP 404 16ms",
           "classification": null
         },
         "schema_valid": {
@@ -302,7 +302,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 18ms",
+          "detail": "HTTP 200 27ms",
           "classification": null
         },
         "schema_valid": {

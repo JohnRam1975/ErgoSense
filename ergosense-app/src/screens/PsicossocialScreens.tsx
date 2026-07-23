@@ -18,6 +18,7 @@ import { CampanhaSharePanel } from '../components/CampanhaSharePanel';
 import { ComingSoonPanel } from '../components/UI';
 import type { PsicoActionPlan, PsicoCampanha, PsicoMteFactor, PsicoQuestionnaireType, PsicoRiskLevel } from '../types/psicossocial';
 import { LGPD_CONSENT_TEXT, PSICO_QUESTIONNAIRE_LABELS } from '../types/psicossocial';
+import { riskNivelLabelUpper } from '../utils/riskNivelLabel';
 
 function nivelColor(n: PsicoRiskLevel) {
   return n === 'critico' ? 'var(--red)' : n === 'alto' ? 'var(--orange)' : n === 'medio' ? 'var(--amber)' : 'var(--green)';
@@ -26,7 +27,7 @@ function nivelBg(n: PsicoRiskLevel) {
   return n === 'critico' ? 'var(--r10)' : n === 'alto' ? 'var(--o10)' : n === 'medio' ? 'var(--a10)' : 'var(--g10)';
 }
 function nivelLabel(n: PsicoRiskLevel) {
-  return n === 'critico' ? 'CRÍTICO' : n === 'alto' ? 'ALTO' : n === 'medio' ? 'MÉDIO' : 'BAIXO';
+  return riskNivelLabelUpper(n);
 }
 function statusLabel(s: PsicoActionPlan['status']) {
   return s === 'concluido' ? 'Concluído' : s === 'andamento' ? 'Em andamento' : s === 'atrasado' ? 'Atrasado' : 'Aberto';

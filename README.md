@@ -18,7 +18,7 @@ docker compose --env-file infra/.env -f infra/docker-compose.yml -p ergosense up
 ```
 
 App: http://localhost:8090  
-Login: `ergosense@dejohn.com.br` / `@Ergo!2026/Adm`
+Login: `ergosense@dejohn.com.br` — senha em `SEED_GLOBAL_ADMIN_PASSWORD` no `infra/.env` (após `generate-production-env`, também em `infra/.env.admin-credentials.local`). Dev/CI sem secrets gerados: `@Ergo!2026/Adm`.
 
 Containers: `ergosense-frontend` · `ergosense-backend` · `ergosense-db` · `ergosense-cache` · `ergosense-storage`
 
@@ -38,8 +38,13 @@ cd ergosense-app && npm install && npm run dev
 
 ## Docs
 
+- [Documentação funcional](docs/funcional/README.md) — fonte de verdade do produto
+- [Auditorias e testes](docs/audit/README.md) — índice canônico (sem duplicatas)
 - [Arquitetura](docs/ARCHITECTURE.md)
-- [PostgreSQL](docs/database/postgresql-schema.sql)
+- [PostgreSQL](docs/database/SETUP-POSTGRES.md)
 - [Offline-first](docs/sync/OFFLINE-FIRST.md)
 - [Segurança](docs/security/SECURITY.md)
 - [IA](docs/ai/AI-STRATEGY.md)
+- [Rodar local sem Docker da app](rodar_local.md)
+- [Matriz conformidade MTE](matriz-conformidade-mte.md) · [gap](gap-analysis-psicossocial.md) · [plano NR-01](plano-de-adequacao-nr01.md) · [roadmap MTE](roadmap-implementacao.md)
+- [Comandos rápidos](docs/comandos.md)

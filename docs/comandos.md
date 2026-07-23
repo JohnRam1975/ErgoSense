@@ -2,6 +2,8 @@
 
 Guia para retomar o trabalho no projeto após fechar o Cursor.
 
+> **Canônicos:** stack Docker → [`../README.md`](../README.md) · Node+Postgres → [`../rodar_local.md`](../rodar_local.md) · auditorias → [`audit/README.md`](audit/README.md). Este arquivo é atalho operacional, não substitui aqueles.
+
 ## 1. Abrir o projeto
 
 ```powershell

@@ -34,13 +34,10 @@ export function SupportAccessScreen() {
   const [view, setView] = useState<'panel' | 'history'>('panel');
 
   useEffect(() => {
-    if (!isTenantAdmin) go('dashboard');
-  }, [isTenantAdmin, go]);
-
-  useEffect(() => {
+    if (!isTenantAdmin) return;
     void refreshSupportStatus();
     void refreshSupportAudit();
-  }, [refreshSupportAudit, refreshSupportStatus]);
+  }, [isTenantAdmin, refreshSupportAudit, refreshSupportStatus]);
 
   const confirmAuthorize = () => {
     setModalOpen(false);
@@ -56,6 +53,33 @@ export function SupportAccessScreen() {
       () => void revokeSupport(),
     );
   };
+
+  if (!isTenantAdmin) {
+    return (
+      <>
+        <NavHeader back={() => go('settings')} title="Suporte da Plataforma" home={() => go('dashboard')} />
+        <div className="scroll app-page">
+          <div className="card support-info-card">
+            <div className="admin-section-title">
+              <span className="admin-section-bar" />
+              Acesso restrito
+            </div>
+            <p className="support-intro" style={{ marginTop: 0 }}>
+              Somente o <strong>administrador da empresa</strong> (perfil <strong>ADMIN_EMPRESA</strong>) pode
+              autorizar ou revogar o acesso técnico da ErgoSense aos dados operacionais (LGPD).
+            </p>
+            <p className="support-intro">
+              Seu perfil atual ({session?.roleCode ?? 'ERGONOMISTA'}) não tem essa permissão. Peça ao administrador
+              da empresa para liberar o suporte em <strong>Configurações → Autorizar suporte da plataforma</strong>.
+            </p>
+            <button type="button" className="btn bp" onClick={() => go('settings')}>
+              Ir para Configurações
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   const active = supportStatus?.supportAuthorized;
 
@@ -110,8 +134,10 @@ export function SupportAccessScreen() {
         </div>
 
         <p className="support-intro">
-          O Administrador Global da ErgoSense <strong>não acessa</strong> colaboradores, análises ou dados operacionais
-          sem sua autorização explícita. Toda ação é registrada para auditoria (LGPD).
+          O Administrador Global da ErgoSense <strong>não acessa</strong> colaboradores, análises ou dados
+          operacionais sem autorização explícita do <strong>administrador desta empresa</strong> (ADMIN_EMPRESA).
+          Ergonomistas e demais perfis não podem liberar esse acesso. Toda ação fica registrada para auditoria
+          (LGPD).
         </p>
 
         <div className="support-actions">
@@ -148,6 +174,7 @@ export function SupportAccessScreen() {
             <h2 className="support-modal-title">Autorizar suporte da plataforma</h2>
             <p className="support-modal-desc">
               Escolha por quanto tempo a equipe ErgoSense poderá acessar dados operacionais para suporte técnico.
+              Esta liberação só pode ser feita pelo administrador da empresa.
             </p>
             <label className="lbl">Prazo de liberação</label>
             <select className="inp" value={duration} onChange={(e) => setDuration(e.target.value as typeof duration)}>
@@ -176,4 +203,3 @@ export function SupportAccessScreen() {
     </>
   );
 }
-

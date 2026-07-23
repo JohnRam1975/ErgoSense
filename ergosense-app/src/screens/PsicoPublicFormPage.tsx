@@ -7,9 +7,10 @@ import { PsicoQuestionnaireFields } from '../components/PsicoQuestionnaireFields
 import { calcularPreview } from '../data/psicoQuestionnaires';
 import type { PsicoPublicFormMeta, PsicoRiskLevel } from '../types/psicossocial';
 import { PSICO_QUESTIONNAIRE_LABELS } from '../types/psicossocial';
+import { riskNivelLabelUpper } from '../utils/riskNivelLabel';
 
 function nivelLabel(n: PsicoRiskLevel) {
-  return n === 'critico' ? 'CRÍTICO' : n === 'alto' ? 'ALTO' : n === 'medio' ? 'MÉDIO' : 'BAIXO';
+  return riskNivelLabelUpper(n);
 }
 
 type Props = { token: string };

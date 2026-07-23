@@ -10,6 +10,7 @@ import {
   listCollaborators,
   createCollaborator,
   updateCollaborator,
+  deleteCollaborator,
 } from '../services/collaboratorService.js';
 import {
   listAnalyses,
@@ -156,6 +157,24 @@ export function registerCoreRoutes(app, { resolveOperationalTenant, publicFormRa
         const collab = await updateCollaborator(tenantId, id, req.validatedBody);
         if (!collab) return apiError(res, 'Colaborador não encontrado', 404);
         return apiSuccess(res, collab);
+      } catch (err) {
+        return apiError(res, err.message, err.status ?? 500);
+      }
+    },
+  );
+
+  app.delete(
+    '/api/collaborators/:id',
+    requirePermission('collaborators:delete'),
+    async (req, res) => {
+      const id = Number(req.params.id);
+      if (!Number.isFinite(id) || id <= 0) return apiError(res, 'ID inválido', 400);
+      const tenantId = await resolveOperationalTenant(req, res, 'Colaboradores');
+      if (!tenantId) return;
+      try {
+        const result = await deleteCollaborator(tenantId, id);
+        if (!result) return apiError(res, 'Colaborador não encontrado', 404);
+        return apiSuccess(res, result, 'Colaborador excluído');
       } catch (err) {
         return apiError(res, err.message, err.status ?? 500);
       }

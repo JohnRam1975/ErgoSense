@@ -279,8 +279,6 @@ export function activitiesForContext(context: ActivityContext): string[] {
   return profileForContext(context).activities;
 }
 
-export const ALL_ACTIVITIES: string[] = ACTIVITY_PROFILES.flatMap((p) => p.activities);
-
 export function contextLabel(context: ActivityContext): string {
   return profileForContext(context).label;
 }

@@ -1,14 +1,14 @@
 # Inventário de Endpoints — ErgoSense
 
-Gerado em: 2026-07-01T16:05:13.427Z
+Gerado em: 2026-07-23T16:48:38.572Z
 
 | Métrica | Valor |
 |---------|------:|
-| Rotas registradas | 255 |
-| Operações OpenAPI | 255 |
-| Públicas | 15 |
-| Protegidas (Bearer) | 240 |
-| Admin global | 14 |
+| Rotas registradas | 258 |
+| Operações OpenAPI | 258 |
+| Públicas | 16 |
+| Protegidas (Bearer) | 242 |
+| Admin global | 15 |
 | Sem documentação OpenAPI | 0 |
 | OpenAPI órfão (sem rota) | 0 |
 
@@ -16,37 +16,35 @@ Gerado em: 2026-07-01T16:05:13.427Z
 
 | Tag | Endpoints |
 |-----|----------:|
-| AET | 35 |
+| AET | 34 |
 | SST | 25 |
 | Compliance | 21 |
 | Psicossocial | 21 |
 | IA Expert | 19 |
 | eSocial | 17 |
 | GRO | 17 |
-| Admin | 14 |
+| Admin | 15 |
+| Autenticação | 15 |
 | Denúncias | 12 |
 | PGR | 12 |
 | Organização | 11 |
-| Autenticação | 10 |
 | risk-criteria | 10 |
+| Core | 8 |
 | risk-inventory | 8 |
-| Core | 7 |
-| Suporte | 4 |
-| Sistema | 2 |
-| Público | 2 |
+| Público | 4 |
 | sectors | 2 |
 | tenants | 2 |
 | access-requests | 1 |
+| Sistema | 1 |
 | openapi.json | 1 |
 | reports | 1 |
 | system | 1 |
 
-## Rotas (255)
+## Rotas (258)
 
 | Método | Rota | Auth | Tag | Arquivo |
 |--------|------|------|-----|--------|
 | POST | `/api/access-requests` | public | access-requests | routes/coreRoutes.js |
-| GET | `/api/admin/support/active` | bearer | Admin | index.js |
 | GET | `/api/admin/tenant-requests` | bearer | Admin | routes/tenantOnboardingRoutes.js |
 | GET | `/api/admin/tenant-requests/:id` | bearer | Admin | routes/tenantOnboardingRoutes.js |
 | POST | `/api/admin/tenant-requests/:id/approve` | bearer | Admin | routes/tenantOnboardingRoutes.js |
@@ -57,9 +55,11 @@ Gerado em: 2026-07-01T16:05:13.427Z
 | GET | `/api/admin/tenants/:id` | bearer | Admin | routes/tenantOnboardingRoutes.js |
 | PUT | `/api/admin/tenants/:id` | bearer | Admin | routes/tenantOnboardingRoutes.js |
 | POST | `/api/admin/tenants/:id/block` | bearer | Admin | routes/tenantOnboardingRoutes.js |
+| POST | `/api/admin/tenants/:id/deactivate` | bearer | Admin | routes/tenantOnboardingRoutes.js |
+| POST | `/api/admin/tenants/:id/grant-access` | bearer | Admin | routes/tenantOnboardingRoutes.js |
 | POST | `/api/admin/tenants/:id/reactivate` | bearer | Admin | routes/tenantOnboardingRoutes.js |
 | POST | `/api/admin/tenants/:id/suspend` | bearer | Admin | routes/tenantOnboardingRoutes.js |
-| GET | `/api/admin/tenants/metadata` | bearer | Admin | routes/tenantRoutes.js |
+| GET | `/api/admin/tenants/metadata` | bearer | Admin | routes/tenantOnboardingRoutes.js |
 | GET | `/api/aet/dashboard` | bearer | AET | routes/aetRoutes.js |
 | GET | `/api/aet/equipamentos` | bearer | AET | routes/aetRoutes.js |
 | POST | `/api/aet/equipamentos` | bearer | AET | routes/aetRoutes.js |
@@ -75,7 +75,6 @@ Gerado em: 2026-07-01T16:05:13.427Z
 | GET | `/api/aet/processos/:id` | bearer | AET | routes/aetRoutes.js |
 | PUT | `/api/aet/processos/:id` | bearer | AET | routes/aetRoutes.js |
 | POST | `/api/aet/processos/:id/advance` | bearer | AET | routes/aetRoutes.js |
-| POST | `/api/aet/processos/:id/assinar` | bearer | AET | routes/aetRoutes.js |
 | POST | `/api/aet/processos/:id/gerar-relatorio` | bearer | AET | routes/aetRoutes.js |
 | GET | `/api/aet/processos/:id/integracoes` | bearer | AET | routes/aetRoutes.js |
 | PUT | `/api/aet/processos/:id/metodos` | bearer | AET | routes/aetRoutes.js |
@@ -120,16 +119,22 @@ Gerado em: 2026-07-01T16:05:13.427Z
 | GET | `/api/analyses/:id/video` | bearer | Core | routes/coreRoutes.js |
 | POST | `/api/auth/activate-account` | public | Autenticação | routes/tenantOnboardingRoutes.js |
 | GET | `/api/auth/activate-account/preview` | public | Autenticação | routes/tenantOnboardingRoutes.js |
+| POST | `/api/auth/forgot-password` | bearer | Autenticação | routes/authRoutes.js |
 | POST | `/api/auth/login` | public | Autenticação | routes/authRoutes.js |
 | POST | `/api/auth/logout` | bearer | Autenticação | routes/authRoutes.js |
+| GET | `/api/auth/me` | bearer | Autenticação | routes/authRoutes.js |
 | POST | `/api/auth/mfa/disable` | bearer | Autenticação | routes/mfaRoutes.js |
 | POST | `/api/auth/mfa/enable` | bearer | Autenticação | routes/mfaRoutes.js |
 | POST | `/api/auth/mfa/setup` | bearer | Autenticação | routes/mfaRoutes.js |
 | GET | `/api/auth/mfa/status` | bearer | Autenticação | routes/mfaRoutes.js |
 | POST | `/api/auth/mfa/verify` | public | Autenticação | routes/mfaRoutes.js |
+| PUT | `/api/auth/profile` | bearer | Autenticação | routes/authRoutes.js |
 | POST | `/api/auth/refresh` | public | Autenticação | routes/authRoutes.js |
+| POST | `/api/auth/reset-password` | bearer | Autenticação | routes/authRoutes.js |
+| GET | `/api/auth/reset-password/preview` | bearer | Autenticação | routes/authRoutes.js |
 | GET | `/api/collaborators` | bearer | Core | routes/coreRoutes.js |
 | POST | `/api/collaborators` | bearer | Core | routes/coreRoutes.js |
+| DELETE | `/api/collaborators/:id` | bearer | Core | routes/coreRoutes.js |
 | PUT | `/api/collaborators/:id` | bearer | Core | routes/coreRoutes.js |
 | GET | `/api/compliance/agendamento` | bearer | Compliance | routes/complianceRoutes.js |
 | PUT | `/api/compliance/agendamento` | bearer | Compliance | routes/complianceRoutes.js |
@@ -199,7 +204,6 @@ Gerado em: 2026-07-01T16:05:13.427Z
 | POST | `/api/gro/workflow/:riskId/advance` | bearer | GRO | routes/groRoutes.js |
 | POST | `/api/gro/workflow/:riskId/complete-review` | bearer | GRO | routes/groRoutes.js |
 | POST | `/api/gro/workflow/:riskId/revert` | bearer | GRO | routes/groRoutes.js |
-| GET | `/api/health` | public | Sistema | index.js |
 | GET | `/api/openapi.json` | public | openapi.json | routes/openapiRoutes.js |
 | GET | `/api/org/empresa` | bearer | Organização | routes/orgRoutes.js |
 | PUT | `/api/org/empresa` | bearer | Organização | routes/orgRoutes.js |
@@ -246,6 +250,8 @@ Gerado em: 2026-07-01T16:05:13.427Z
 | POST | `/api/psico/respostas` | bearer | Psicossocial | routes/psicoRoutes.js |
 | GET | `/api/psico/tendencias` | bearer | Psicossocial | routes/psicoRoutes.js |
 | GET | `/api/public/plans` | public | Público | routes/tenantOnboardingRoutes.js |
+| GET | `/api/public/support-contact` | public | Público | routes/coreRoutes.js |
+| POST | `/api/public/support-contact` | public | Público | routes/coreRoutes.js |
 | POST | `/api/public/tenant-request` | public | Público | routes/tenantOnboardingRoutes.js |
 | GET | `/api/reports` | bearer | reports | routes/coreRoutes.js |
 | GET | `/api/risk-criteria/active` | bearer | risk-criteria | routes/riskCriteriaRoutes.js |
@@ -293,10 +299,6 @@ Gerado em: 2026-07-01T16:05:13.427Z
 | GET | `/api/sst/treinamentos` | bearer | SST | routes/sstRoutes.js |
 | POST | `/api/sst/treinamentos` | bearer | SST | routes/sstRoutes.js |
 | PUT | `/api/sst/treinamentos/:id/realizar` | bearer | SST | routes/sstRoutes.js |
-| GET | `/api/support/audit` | bearer | Suporte | index.js |
-| POST | `/api/support/authorize` | bearer | Suporte | index.js |
-| POST | `/api/support/revoke` | bearer | Suporte | index.js |
-| GET | `/api/support/status` | bearer | Suporte | index.js |
 | GET | `/api/system/ai-status` | bearer | system | routes/systemRoutes.js |
 | GET | `/api/tenants` | bearer | tenants | routes/tenantRoutes.js |
 | POST | `/api/tenants` | bearer | tenants | routes/tenantRoutes.js |

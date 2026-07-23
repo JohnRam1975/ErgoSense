@@ -4,6 +4,10 @@
 **Conclusão:** **APROVADO COM RESSALVAS**  
 **Nota QA:** **98/100** (+1 matriz 100%, OpenAPI 100%; cobertura ainda 28,34%)
 
+> Índice de auditorias: [`docs/audit/README.md`](README.md).  
+> Evidências *ao vivo* (pós-P7): matrix [`endpoints/ENDPOINT-MATRIX-2026-07-01.md`](endpoints/ENDPOINT-MATRIX-2026-07-01.md), OpenAPI [`openapi/OPENAPI-GAP-2026-07-01.md`](openapi/OPENAPI-GAP-2026-07-01.md), security [`security/security-advanced.md`](security/security-advanced.md), load → [`fase6/`](fase6/).  
+> Snapshots `*-FINAL-100` de matrix/openapi/security/load foram removidos por duplicação.
+
 > **Não usar "100% VALIDADO COM EVIDÊNCIA" globalmente.** Matriz e OpenAPI atingiram 100% mensurável. Cobertura de código, E2E fluxos completos e performance burst não atingem 100% absoluto.
 
 ---
@@ -13,14 +17,14 @@
 | Etapa | Meta 100% | Resultado real | Evidência |
 |-------|:-----------:|---------------:|-----------|
 | 1 Critérios | Documento | ✅ | `QA-CRITERIOS-100-POR-CENTO.md` |
-| 2 Matrix endpoints | 1462/1462 | ✅ **100%** | `ENDPOINT-MATRIX-FINAL-100.md` |
-| 3 OpenAPI | 0 gaps | ✅ **100%** | `OPENAPI-FINAL-100.md` |
-| 4 Cobertura código | 60%+ progressivo | ❌ **28,34%** | `COVERAGE-FINAL-100.md` |
-| 5 E2E | Fluxos críticos | ⚠️ **~40%** fluxos / **100%** telas smoke | `E2E-FINAL-100.md` |
-| 6 Segurança | 0 CRÍTICO/ALTO | ✅ **100%** checks críticos | `SECURITY-FINAL-100.md` |
-| 7 DB | 7/7 | ✅ **100%** script | `DB-FINAL-100.md` |
-| 8 Load | Leve 0 erro | ⚠️ burst 500 dashboard | `LOAD-FINAL-100.md` |
-| 9 Resiliência | Core | ✅ | `RESILIENCE-FINAL-100.md` |
+| 2 Matrix endpoints | 1462/1462 | ✅ **100%** | `endpoints/ENDPOINT-MATRIX-2026-07-01.md` (live) |
+| 3 OpenAPI | 0 gaps | ✅ **100%** | `openapi/OPENAPI-GAP-2026-07-01.md` (live) |
+| 4 Cobertura código | 60%+ progressivo | ❌ **28,34%** | P8–P10 coverage docs |
+| 5 E2E | Fluxos críticos | ⚠️ **~40%** fluxos / **100%** telas smoke | `e2e/E2E-FINAL-100.md` |
+| 6 Segurança | 0 CRÍTICO/ALTO | ✅ **100%** checks críticos | `security/security-advanced.md` |
+| 7 DB | 7/7 | ✅ **100%** script | `db/DB-FINAL-100.md` |
+| 8 Load | Leve 0 erro | ⚠️ burst 500 dashboard | `fase6/FASE6-DESEMPENHO-2026-07-23.md` |
+| 9 Resiliência | Core | ✅ | `resilience/RESILIENCE-FINAL-100.md` |
 | 10 CI | Pipeline completo | ✅ atualizado | `.github/workflows/ci.yml` |
 | 11 Lint/Build/Unit | 100% | ✅ | abaixo |
 
@@ -84,19 +88,18 @@ node server/scripts/endpoint-matrix-batch.js --tag=Denúncias  # 100%
 
 ---
 
-## Arquivos P7 criados/alterados
+## Arquivos P7 (evidência)
 
 | Arquivo | Tipo |
 |---------|------|
 | `docs/audit/QA-CRITERIOS-100-POR-CENTO.md` | Critérios |
 | `docs/audit/QA-AUDITORIA-100-FINAL.md` | Este relatório |
-| `docs/audit/endpoints/ENDPOINT-MATRIX-FINAL-100.md` | Matrix |
-| `docs/audit/openapi/OPENAPI-FINAL-100.md` | OpenAPI |
-| `docs/audit/coverage/COVERAGE-FINAL-100.md` | Plano cobertura |
+| `docs/audit/endpoints/ENDPOINT-MATRIX-2026-07-01.md` | Matrix (live) |
+| `docs/audit/openapi/OPENAPI-GAP-2026-07-01.md` | OpenAPI (live) |
 | `docs/audit/e2e/E2E-FINAL-100.md` | E2E |
-| `docs/audit/security/SECURITY-FINAL-100.md` | Segurança |
+| `docs/audit/security/security-advanced.md` | Segurança (live) |
 | `docs/audit/db/DB-FINAL-100.md` | DB |
-| `docs/audit/performance/LOAD-FINAL-100.md` | Load |
+| `docs/audit/fase6/` | Load / desempenho atual |
 | `docs/audit/resilience/RESILIENCE-FINAL-100.md` | Resiliência |
 | `server/scripts/endpoint-matrix-batch.js` | `--tag=` |
 | `server/scripts/coverage-baseline-check.js` | CI gate |

@@ -1,14 +1,14 @@
 # Matriz de Endpoints v2 (contrato) — ErgoSense
 
-Gerado: 2026-07-02T01:44:59.331Z
+Gerado: 2026-07-23T17:03:00.424Z
 
 | Métrica | Valor |
 |---------|------:|
-| Rotas | 255 |
-| Checks acionáveis | 1462 |
-| Passou | 1462 |
+| Rotas | 258 |
+| Checks acionáveis | 1479 |
+| Passou | 1479 |
 | Falhou | 0 |
-| Skips (checks N/A) | 371 |
+| Skips (checks N/A) | 392 |
 | **Cobertura acionável** | **100%** |
 | Bugs reais | 0 |
 

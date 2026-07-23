@@ -46,7 +46,7 @@ const TAB_TITLES: Partial<Record<ScreenId, string>> = {
 
 export function AppChrome({ screen }: { screen: ScreenId }) {
 
-  const { go, openMenu, session, selectedCompany, logout, showModal } = useApp();
+  const { go, openMenu, closeMenu, menuOpen, session, selectedCompany, logout, showModal } = useApp();
 
   if (FULLSCREEN_SCREENS.includes(screen)) return null;
 
@@ -91,10 +91,16 @@ export function AppChrome({ screen }: { screen: ScreenId }) {
               key={item.bnId}
               type="button"
               className={`bn-item ${activeBn === item.bnId ? 'on' : ''}`}
+              aria-expanded={item.id === 'menu' ? menuOpen : undefined}
               onClick={() => {
                 vibrate();
-                if (item.id === 'menu') openMenu();
-                else go(item.id as ScreenId);
+                if (item.id === 'menu') {
+                  if (menuOpen) closeMenu();
+                  else openMenu();
+                } else {
+                  closeMenu();
+                  go(item.id as ScreenId);
+                }
               }}
             >
               <div className="ico">{item.icon}</div>
@@ -105,16 +111,6 @@ export function AppChrome({ screen }: { screen: ScreenId }) {
       </div>
     </header>
   );
-
-}
-
-
-
-/** @deprecated Use AppChrome — mantido para compatibilidade interna */
-
-export function BottomNav({ screen }: { screen: ScreenId }) {
-
-  return <AppChrome screen={screen} />;
 
 }
 
@@ -159,6 +155,18 @@ export function MenuDrawer() {
   useEffect(() => {
     if (FULLSCREEN_SCREENS.includes(screen) && menuOpen) closeMenu();
   }, [screen, menuOpen, closeMenu]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeMenu();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [menuOpen, closeMenu]);
 
   if (FULLSCREEN_SCREENS.includes(screen)) return null;
 
@@ -370,6 +378,17 @@ export function MenuDrawer() {
         <div className="drawer-hdr">
 
         <ErgoSenseLogo size="md" showTagline />
+        <button
+          type="button"
+          className="drawer-close"
+          aria-label="Fechar menu"
+          onClick={(e) => {
+            e.stopPropagation();
+            closeMenu();
+          }}
+        >
+          ✕
+        </button>
 
         </div>
 

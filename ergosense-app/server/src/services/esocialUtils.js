@@ -3,6 +3,7 @@ import { buildEsocialXml, generateEventId, hashXml } from './esocialXml.js';
 import { validateEsocialPayload } from './esocialValidator.js';
 import { validateEsocialXsdS13 } from './esocialXsdValidator.js';
 import { createIcpSigner, stripExistingSignatures } from './esocialIcpSigner.js';
+import { historyDetailsJson, historyUserId, historyUserName } from '../utils/historyLog.js';
 
 export async function getEsocialConfig(tenantId) {
   const { rows } = await query(`SELECT * FROM esocial_config WHERE tenant_id = $1`, [tenantId]);
@@ -98,7 +99,14 @@ export async function logEsocialHistory({ tenantId, eventDbId, action, user, det
   await query(
     `INSERT INTO esocial_historico (tenant_id, evento_id, acao, usuario_id, usuario_nome, detalhes)
      VALUES ($1,$2,$3,$4,$5,$6)`,
-    [tenantId, eventDbId ?? null, action, user?.id ?? null, user?.name ?? user?.email ?? '', details ? JSON.stringify(details) : null],
+    [
+      tenantId,
+      eventDbId ?? null,
+      action,
+      historyUserId(user),
+      historyUserName(user) ?? '',
+      historyDetailsJson(details),
+    ],
   );
 }
 

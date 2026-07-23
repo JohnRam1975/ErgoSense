@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:36:37.728Z",
+  "generatedAt": "2026-07-23T16:49:55.918Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "GET /api/public/plans": {
       "method": "GET",
@@ -17,6 +17,47 @@
         "schema_valid": {
           "ok": true,
           "detail": "HTTP 200",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    },
+    "GET /api/public/support-contact": {
+      "method": "GET",
+      "path": "/api/public/support-contact",
+      "tag": "Público",
+      "contractKind": "public",
+      "checks": {
+        "success_auth": {
+          "ok": true,
+          "detail": "HTTP 200",
+          "classification": null
+        },
+        "schema_valid": {
+          "ok": true,
+          "detail": "HTTP 200",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    },
+    "POST /api/public/support-contact": {
+      "method": "POST",
+      "path": "/api/public/support-contact",
+      "tag": "Público",
+      "contractKind": "public",
+      "checks": {
+        "invalid_payload_400": {
+          "ok": true,
+          "detail": "HTTP 400",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -47,11 +88,11 @@
   },
   "classifications": {},
   "summary": {
-    "total": 2,
-    "passed": 5,
+    "total": 4,
+    "passed": 10,
     "failed": 0,
-    "actionable": 5,
-    "skipped": 14,
+    "actionable": 10,
+    "skipped": 28,
     "effectiveFailed": 0
   }
 }

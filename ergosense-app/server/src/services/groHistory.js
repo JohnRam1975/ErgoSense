@@ -2,6 +2,7 @@
  * Trilha de auditoria GRO — histórico persistido
  */
 import { query } from '../db.js';
+import { historyDetailsJson, historyUserId, historyUserName } from '../utils/historyLog.js';
 
 export async function logGroHistory({
   tenantId,
@@ -25,9 +26,9 @@ export async function logGroHistory({
       indicatorId,
       stage,
       action,
-      user?.id ?? null,
-      user?.name || user?.email || null,
-      details ? JSON.stringify(details) : null,
+      historyUserId(user),
+      historyUserName(user),
+      historyDetailsJson(details),
     ],
   );
 }

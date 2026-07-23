@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:36:27.786Z",
+  "generatedAt": "2026-07-23T16:49:44.739Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "GET /api/pgr/history": {
       "method": "GET",
@@ -26,7 +26,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 36ms",
+          "detail": "HTTP 200 40ms",
           "classification": null
         },
         "schema_valid": {
@@ -64,7 +64,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 14ms",
+          "detail": "HTTP 200 19ms",
           "classification": null
         },
         "schema_valid": {
@@ -97,7 +97,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 29ms",
+          "detail": "HTTP 200 41ms",
           "classification": null
         },
         "schema_valid": {
@@ -135,7 +135,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 19ms",
+          "detail": "HTTP 200 30ms",
           "classification": null
         },
         "schema_valid": {
@@ -178,7 +178,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 21ms",
+          "detail": "HTTP 200 43ms",
           "classification": null
         },
         "schema_valid": {
@@ -216,7 +216,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 22ms",
+          "detail": "HTTP 200 31ms",
           "classification": null
         },
         "schema_valid": {
@@ -254,7 +254,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 12ms",
+          "detail": "HTTP 400 10ms",
           "classification": null
         },
         "schema_valid": {
@@ -292,7 +292,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 39ms",
+          "detail": "HTTP 200 31ms",
           "classification": null
         },
         "schema_valid": {
@@ -330,7 +330,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 201 144ms",
+          "detail": "HTTP 201 84ms",
           "classification": null
         },
         "schema_valid": {
@@ -349,7 +349,7 @@
       "method": "POST",
       "path": "/api/pgr/versions/:id/sign",
       "tag": "PGR",
-      "contractKind": "create",
+      "contractKind": "actionPost",
       "checks": {
         "no_auth_401": {
           "ok": true,
@@ -368,7 +368,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 6ms",
+          "detail": "HTTP 400 9ms",
           "classification": null
         },
         "schema_valid": {
@@ -406,7 +406,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 11ms",
+          "detail": "HTTP 400 18ms",
           "classification": null
         },
         "schema_valid": {

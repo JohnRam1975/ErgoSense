@@ -35,6 +35,35 @@ export function pdfSafeText(text: string): string {
     .trim();
 }
 
+/** Nome de arquivo seguro para download de PDF */
+export function pdfSafeFilename(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9_-]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 48);
+}
+
+/** Salva PDF; fallback via blob URL se doc.save falhar */
+export function downloadPdfBlob(doc: jsPDF, filename: string): void {
+  try {
+    doc.save(filename);
+    return;
+  } catch {
+    /* fallback */
+  }
+  const blob = doc.output('blob');
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
 export function bodyLineHeight(fontSize: number): number {
   return Math.max(5.2, fontSize * 0.55);
 }
@@ -300,15 +329,4 @@ export function drawNr17ChecklistItem(
   doc.setTextColor(50, 50, 50);
   cy = wrapTextJustified(doc, item.detalhe, cy, 10, onNewPage);
   return cy + 6;
-}
-
-/** Compatibilidade com exportadores antigos */
-export const A4_TOP = A4_TOP_FIRST;
-export function ensurePageSpace(
-  doc: jsPDF,
-  y: number,
-  neededMm: number,
-  onNewPage?: PageBreakHandler,
-): number {
-  return ensureSpace(doc, y, neededMm, onNewPage);
 }

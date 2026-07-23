@@ -3,11 +3,6 @@ import { query } from './db.js';
 export const PLATFORM_TENANT = 'ergosense';
 export const SUPPORT_DURATIONS = { '1h': 1, '24h': 24, '7d': 168 };
 
-/** @deprecated Headers X-ErgoSense-* não são mais aceitos — use JWT via authenticate middleware */
-export function parseUserContext(_req) {
-  return null;
-}
-
 export function getAuthenticatedUser(req) {
   return req.user ?? null;
 }
@@ -104,16 +99,23 @@ export async function assertGlobalOperationalAccess(req, res, requestedTenantId,
 export async function assertTenantAdmin(req, res, tenantId) {
   const user = getAuthenticatedUser(req);
   if (!user) {
-    res.status(401).json({ error: 'Autenticação necessária' });
+    res.status(401).json({
+      success: false,
+      message: 'Autenticação necessária',
+      error: 'Autenticação necessária',
+    });
     return null;
   }
   const allowed = user.role === 'ADMIN_EMPRESA' || user.role === 'ADMIN_GLOBAL';
   if (!allowed) {
-    res.status(403).json({ error: 'Apenas administradores da empresa podem executar esta ação.' });
+    const msg =
+      'Apenas o administrador da empresa (perfil ADMIN_EMPRESA) pode autorizar ou revogar o suporte da plataforma.';
+    res.status(403).json({ success: false, message: msg, error: msg });
     return null;
   }
   if (user.role === 'ADMIN_EMPRESA' && user.tenantId !== tenantId) {
-    res.status(403).json({ error: 'Acesso restrito ao seu tenant.' });
+    const msg = 'Acesso restrito ao seu tenant.';
+    res.status(403).json({ success: false, message: msg, error: msg });
     return null;
   }
   return user;

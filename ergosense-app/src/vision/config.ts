@@ -1,5 +1,8 @@
 /** Configuração central — modelos de visão computacional ErgoSense */
 
+/** Deve bater com a versão de @mediapipe/tasks-vision no package.json (não usar @latest). */
+const MEDIAPIPE_TASKS_VERSION = '0.10.35';
+
 export const VISION_CONFIG = {
   pose: {
     /** MediaPipe Pose Landmarker — suporte multi-pessoa */
@@ -7,7 +10,7 @@ export const VISION_CONFIG = {
       'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task',
     liteModelUrl:
       'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
-    wasmCdn: 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm',
+    wasmCdn: `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MEDIAPIPE_TASKS_VERSION}/wasm`,
     maxPoses: 4,
     minDetectionConfidence: 0.5,
     minTrackingConfidence: 0.5,

@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:18:59.536Z",
+  "generatedAt": "2026-07-23T17:02:56.582Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "POST /api/auth/activate-account": {
       "method": "POST",
@@ -33,6 +33,24 @@
           "classification": null
         },
         "schema_valid": {
+          "ok": true,
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    },
+    "POST /api/auth/forgot-password": {
+      "method": "POST",
+      "path": "/api/auth/forgot-password",
+      "tag": "Autenticação",
+      "contractKind": "public",
+      "checks": {
+        "invalid_payload_400": {
           "ok": true,
           "detail": "HTTP 400",
           "classification": null
@@ -78,14 +96,57 @@
           "detail": "HTTP 401",
           "classification": null
         },
+        "invalid_payload_400": {
+          "ok": true,
+          "detail": "HTTP 403",
+          "classification": null
+        },
+        "empty_payload_400": {
+          "ok": true,
+          "detail": "HTTP 403",
+          "classification": null
+        },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 403 9ms",
+          "detail": "HTTP 403 16ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
           "detail": "HTTP 403",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    },
+    "GET /api/auth/me": {
+      "method": "GET",
+      "path": "/api/auth/me",
+      "tag": "Autenticação",
+      "contractKind": "list",
+      "checks": {
+        "no_auth_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "invalid_token_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "success_auth": {
+          "ok": true,
+          "detail": "HTTP 200 15ms",
+          "classification": null
+        },
+        "schema_valid": {
+          "ok": true,
+          "detail": "HTTP 200",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -146,7 +207,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 403 12ms",
+          "detail": "HTTP 403 17ms",
           "classification": null
         },
         "schema_valid": {
@@ -179,7 +240,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 403 6ms",
+          "detail": "HTTP 403 27ms",
           "classification": null
         },
         "schema_valid": {
@@ -212,7 +273,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 10ms",
+          "detail": "HTTP 200 13ms",
           "classification": null
         },
         "schema_valid": {
@@ -250,6 +311,49 @@
         }
       }
     },
+    "PUT /api/auth/profile": {
+      "method": "PUT",
+      "path": "/api/auth/profile",
+      "tag": "Autenticação",
+      "contractKind": "update",
+      "checks": {
+        "no_auth_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "invalid_token_401": {
+          "ok": true,
+          "detail": "HTTP 401",
+          "classification": null
+        },
+        "invalid_payload_400": {
+          "ok": true,
+          "detail": "HTTP 403",
+          "classification": null
+        },
+        "empty_payload_400": {
+          "ok": true,
+          "detail": "HTTP 403",
+          "classification": null
+        },
+        "success_auth": {
+          "ok": true,
+          "detail": "HTTP 403 11ms",
+          "classification": null
+        },
+        "schema_valid": {
+          "ok": true,
+          "detail": "HTTP 403",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    },
     "POST /api/auth/refresh": {
       "method": "POST",
       "path": "/api/auth/refresh",
@@ -272,15 +376,56 @@
           "classification": null
         }
       }
+    },
+    "POST /api/auth/reset-password": {
+      "method": "POST",
+      "path": "/api/auth/reset-password",
+      "tag": "Autenticação",
+      "contractKind": "public",
+      "checks": {
+        "invalid_payload_400": {
+          "ok": true,
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
+    },
+    "GET /api/auth/reset-password/preview": {
+      "method": "GET",
+      "path": "/api/auth/reset-password/preview",
+      "tag": "Autenticação",
+      "contractKind": "public",
+      "checks": {
+        "success_auth": {
+          "ok": true,
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "schema_valid": {
+          "ok": true,
+          "detail": "HTTP 400",
+          "classification": null
+        },
+        "no_sensitive_leak": {
+          "ok": true,
+          "detail": "OK",
+          "classification": null
+        }
+      }
     }
   },
   "classifications": {},
   "summary": {
-    "total": 10,
-    "passed": 38,
+    "total": 15,
+    "passed": 59,
     "failed": 0,
-    "actionable": 38,
-    "skipped": 44,
+    "actionable": 59,
+    "skipped": 66,
     "effectiveFailed": 0
   }
 }

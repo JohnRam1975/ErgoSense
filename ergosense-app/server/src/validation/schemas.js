@@ -25,7 +25,21 @@ export const collaboratorSchema = z.object({
   cargo: z.string().trim().optional().nullable(),
   setor: z.string().trim().optional().nullable(),
   turno: z.string().trim().optional().nullable(),
-  birthDate: z.string().optional().nullable(),
+  birthDate: z
+    .union([
+      z.literal(''),
+      z.null(),
+      z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, 'Data inválida (use AAAA-MM-DD)')
+        .refine((v) => {
+          const [y, m, d] = v.split('-').map(Number);
+          const dt = new Date(Date.UTC(y, m - 1, d));
+          return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
+        }, 'Data inválida'),
+    ])
+    .optional()
+    .nullable(),
   notes: z.string().optional().nullable(),
   consent: z.boolean().optional(),
 });
@@ -35,26 +49,35 @@ export const sectorSchema = z.object({
 });
 
 export const accessRequestSchema = z.object({
-  nome: z.string().trim().min(2),
-  email: z.string().email(),
-  funcao: z.string().trim().min(1),
-  matricula: z.string().trim().min(1),
+  nome: z.string({ error: 'Nome obrigatório' }).trim().min(2, 'Nome obrigatório'),
+  email: z.string({ error: 'E-mail obrigatório' }).email('E-mail inválido'),
+  funcao: z.string({ error: 'Função obrigatória' }).trim().min(1, 'Função obrigatória'),
+  matricula: z.string({ error: 'Matrícula obrigatória' }).trim().min(1, 'Matrícula obrigatória'),
   tenantId: z.string().optional().nullable(),
 });
 
 export const tenantRequestPublicSchema = z
   .object({
     tipoCadastro: z.enum(['EMPRESA', 'AUTONOMO']).default('EMPRESA'),
-    razaoSocial: z.string().trim().min(2, 'Nome / razão social obrigatório'),
+    razaoSocial: z
+      .string({ error: 'Nome / razão social obrigatório' })
+      .trim()
+      .min(2, 'Nome / razão social obrigatório'),
     nomeFantasia: z.string().trim().optional(),
     cnpj: z.string().trim().optional(),
     cpf: z.string().trim().optional(),
-    segmento: z.string().trim().min(1, 'Segmento / área de atuação obrigatório'),
+    segmento: z
+      .string({ error: 'Segmento / área de atuação obrigatório' })
+      .trim()
+      .min(1, 'Segmento / área de atuação obrigatório'),
     quantidadeFuncionarios: z.coerce.number().int().positive().optional(),
-    responsavelNome: z.string().trim().min(2, 'Nome do responsável obrigatório'),
-    email: z.string().email('E-mail inválido'),
-    telefone: z.string().trim().min(8, 'Telefone obrigatório'),
-    responsavelEmail: z.string().email().optional(),
+    responsavelNome: z
+      .string({ error: 'Nome do responsável obrigatório' })
+      .trim()
+      .min(2, 'Nome do responsável obrigatório'),
+    email: z.string({ error: 'E-mail obrigatório' }).email('E-mail inválido'),
+    telefone: z.string({ error: 'Telefone obrigatório' }).trim().min(8, 'Telefone obrigatório'),
+    responsavelEmail: z.string().email('E-mail do responsável inválido').optional(),
     responsavelTelefone: z.string().trim().optional(),
     responsavelCargo: z.string().trim().optional(),
     plano: z.enum(['STARTER', 'PROFESSIONAL', 'ENTERPRISE']).optional(),
@@ -65,11 +88,11 @@ export const tenantRequestPublicSchema = z
     complemento: z.string().trim().optional(),
     bairro: z.string().trim().optional(),
     cidade: z.string().trim().optional(),
-    estado: z.string().trim().max(2).optional(),
+    estado: z.string().trim().max(2, 'UF deve ter 2 letras').optional(),
     cep: z.string().trim().optional(),
-    observacoes: z.string().trim().max(2000).optional(),
-    password: z.string().optional(),
-    confirmPassword: z.string().optional(),
+    observacoes: z.string().trim().max(2000, 'Observações: máx. 2000 caracteres').optional(),
+    password: z.string({ error: 'Senha obrigatória' }).optional(),
+    confirmPassword: z.string({ error: 'Confirmação de senha obrigatória' }).optional(),
   })
   .superRefine((data, ctx) => {
     if (data.tipoCadastro === 'AUTONOMO') {
@@ -120,16 +143,26 @@ export const activateAccountSchema = z.object({
   mfaCode: z.string().trim().min(6).max(8),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email('E-mail inválido'),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(16, 'Token inválido'),
+  password: z.string().min(8, 'Senha deve ter ao menos 8 caracteres'),
+  confirmPassword: z.string().min(8, 'Confirmação obrigatória'),
+});
+
 export const tenantRejectSchema = z.object({
-  reason: z.string().trim().min(3).max(2000),
+  reason: z.string({ error: 'Motivo obrigatório' }).trim().min(3, 'Motivo obrigatório').max(2000),
 });
 
 export const tenantAdjustSchema = z.object({
-  message: z.string().trim().min(3).max(2000),
+  message: z.string({ error: 'Mensagem obrigatória' }).trim().min(3, 'Mensagem obrigatória').max(2000),
 });
 
 export const tenantBlockSchema = z.object({
-  reason: z.string().trim().min(3, 'Motivo obrigatório').max(500),
+  reason: z.string({ error: 'Motivo obrigatório' }).trim().min(3, 'Motivo obrigatório').max(500),
 });
 
 export const tenantReactivateSchema = z.object({
@@ -164,15 +197,15 @@ export const tenantUpdateSchema = z.object({
 export const analysisSchema = z.object({
   collaboratorId: z.union([z.string(), z.number()]),
   activity: z.string().trim().min(1, 'Atividade obrigatória'),
-  score: z.number().optional(),
-  risk: z.string().optional(),
-  rula: z.number().optional(),
-  reba: z.number().optional(),
+  score: z.coerce.number().min(0).max(100).optional(),
+  risk: z.string().trim().min(1).optional(),
+  rula: z.coerce.number().optional(),
+  reba: z.coerce.number().optional(),
   date: z.string().optional(),
   time: z.string().optional(),
   mode: z.string().optional(),
   notes: z.string().optional().nullable(),
-  angles: z.record(z.unknown()).optional(),
+  angles: z.record(z.string(), z.unknown()).optional(),
   synced: z.boolean().optional(),
 });
 

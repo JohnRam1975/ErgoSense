@@ -229,6 +229,12 @@ export async function detectObjectsYolo(
 }
 
 export function disposeYoloSession() {
+  const sess = session as (ort.InferenceSession & { release?: () => void | Promise<void> }) | null;
+  try {
+    void sess?.release?.();
+  } catch {
+    /* ignore */
+  }
   session = null;
   loading = null;
   status = 'idle';

@@ -42,8 +42,8 @@ export function GlobalAdminScreen() {
   const openCompany = (id: string, supportActive: boolean) => {
     if (!supportActive) {
       showModal(
-        'Acesso não autorizado',
-        'Este tenant não autorizou suporte da plataforma. Apenas metadados estão disponíveis até que o administrador da empresa libere o acesso.',
+        'Suporte não autorizado',
+        'Este tenant ainda não liberou acesso de suporte. Peça ao administrador da empresa (perfil ADMIN_EMPRESA) para autorizar em Configurações → Autorizar suporte da plataforma. Ergonomistas não podem liberar esse acesso. Ou use Ver / Editar para ver apenas metadados.',
         'Entendi',
       );
       return;
@@ -253,10 +253,14 @@ export function GlobalAdminScreen() {
                               <button
                                 type="button"
                                 className={`btn btn-sm btn-inline ${c.supportActive ? 'bp' : 'bs'} admin-table-btn`}
-                                disabled={!c.supportActive}
+                                title={
+                                  c.supportActive
+                                    ? 'Entrar no ambiente do tenant (suporte autorizado)'
+                                    : 'Suporte ainda não autorizado — clique para ver como liberar'
+                                }
                                 onClick={() => openCompany(c.id, c.supportActive)}
                               >
-                                Acessar ambiente
+                                {c.supportActive ? 'Acessar ambiente' : 'Suporte pendente'}
                               </button>
                             </div>
                           </td>
@@ -306,10 +310,14 @@ export function GlobalAdminScreen() {
                       <button
                         type="button"
                         className={`btn btn-sm btn-inline ${c.supportActive ? 'bp' : 'bs'} admin-table-btn`}
-                        disabled={!c.supportActive}
+                        title={
+                          c.supportActive
+                            ? 'Entrar no ambiente do tenant (suporte autorizado)'
+                            : 'Suporte ainda não autorizado — clique para ver como liberar'
+                        }
                         onClick={() => openCompany(c.id, c.supportActive)}
                       >
-                        Acessar
+                        {c.supportActive ? 'Acessar' : 'Suporte pendente'}
                       </button>
                     </div>
                   );

@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-01  
 **Escopo:** Correção ESLint (48 erros → 0) + E2E onboarding (7 telas)  
-**Relatório anterior:** [`QA-AUDITORIA-COMPLETA-2026-07-01.md`](QA-AUDITORIA-COMPLETA-2026-07-01.md)
+**Relatório seguinte (canônico P7):** [`QA-AUDITORIA-100-FINAL.md`](QA-AUDITORIA-100-FINAL.md) · índice [`README.md`](README.md)
 
 ---
 

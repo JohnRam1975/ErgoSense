@@ -37,7 +37,7 @@ function drawFooter(doc: jsPDF, pageNum: number) {
   doc.setTextColor(0);
 }
 
-export function exportPgrPdf(program: PgrProgram, version: PgrVersionDetail): void {
+export function buildPgrPdf(program: PgrProgram, version: PgrVersionDetail): jsPDF {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const snap = version.snapshot;
   let pageNum = 1;
@@ -164,6 +164,11 @@ export function exportPgrPdf(program: PgrProgram, version: PgrVersionDetail): vo
 
   drawFooter(doc, pageNum);
 
+  return doc;
+}
+
+export function exportPgrPdf(program: PgrProgram, version: PgrVersionDetail): void {
+  const snap = version.snapshot;
   const slug = snap.empresa.nome.replace(/\W+/g, '-').slice(0, 30);
-  doc.save(`PGR-${slug}-v${version.number}.pdf`);
+  buildPgrPdf(program, version).save(`PGR-${slug}-v${version.number}.pdf`);
 }

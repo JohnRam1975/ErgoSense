@@ -6,6 +6,7 @@ import { riskLabel } from './ergonomics';
 import {
   A4_TOP_FIRST,
   addDocumentFooter,
+  downloadPdfBlob,
   drawContentRule,
   drawNr17ChecklistItem,
   drawPageHeader,
@@ -13,37 +14,11 @@ import {
   ensureSpace,
   getA4Sizes,
   imageXForWidth,
+  pdfSafeFilename,
   sectionTitle,
   wrapTextJustified,
   wrapTextLeft,
 } from './pdfA4Layout';
-
-function safeFilename(name: string): string {
-  return name
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-zA-Z0-9_-]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .slice(0, 48);
-}
-
-function downloadPdfBlob(doc: jsPDF, filename: string): void {
-  try {
-    doc.save(filename);
-    return;
-  } catch {
-    /* fallback */
-  }
-  const blob = doc.output('blob');
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-}
 
 function compressImageForPdf(
   dataUrl: string,
@@ -73,7 +48,7 @@ function compressImageForPdf(
 
 export function exportCaptureImage(analysis: Analysis): string | null {
   if (!analysis.captureImage) return null;
-  const filename = `ErgoSense_Captura_${safeFilename(analysis.collaboratorName)}_${analysis.date.replace(/\//g, '-')}.jpg`;
+  const filename = `ErgoSense_Captura_${pdfSafeFilename(analysis.collaboratorName)}_${analysis.date.replace(/\//g, '-')}.jpg`;
   const link = document.createElement('a');
   link.href = analysis.captureImage;
   link.download = filename;
@@ -427,7 +402,7 @@ export async function exportAnalysisPdf(
 
   addDocumentFooter(doc, 'ErgoSense · NR-17 · Uso corporativo');
 
-  const filename = `ErgoSense_NR17_${safeFilename(full.collaboratorName)}_${full.date.replace(/\//g, '-')}.pdf`;
+  const filename = `ErgoSense_NR17_${pdfSafeFilename(full.collaboratorName)}_${full.date.replace(/\//g, '-')}.pdf`;
   downloadPdfBlob(doc, filename);
   return filename;
 }

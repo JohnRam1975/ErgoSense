@@ -9,5 +9,4 @@ export const FUTURE_MODULES = [
   { id: 'glasses', title: 'Óculos inteligentes', status: 'backlog' },
   { id: 'apr', title: 'Geração automática de APR', status: 'backlog' },
   { id: 'pgr', title: 'Geração automática de PGR', status: 'backlog' },
-  { id: 'aet', title: 'Geração automática de AET', status: 'planned' },
 ] as const;

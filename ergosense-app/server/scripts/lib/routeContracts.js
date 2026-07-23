@@ -187,6 +187,9 @@ export function classifyFailure(route, check, detail, contract) {
   if (check === 'wrong_tenant_403' && !contract.tenantScoped) {
     return { classification: 'FALSO_POSITIVO_HEURISTICA', reason: 'Rota tenant-agnostic' };
   }
+  if ((check === 'no_auth_401' || check === 'invalid_token_401') && contract.kind === 'public') {
+    return { classification: 'COMPORTAMENTO_ESPERADO', reason: 'Rota pública — auth não obrigatória' };
+  }
   if (check === 'no_sensitive_leak' && (route.path === '/api/openapi.json' || route.path === '/api/docs')) {
     return { classification: 'COMPORTAMENTO_ESPERADO', reason: 'Schema OpenAPI documenta campos sensíveis sem valores' };
   }

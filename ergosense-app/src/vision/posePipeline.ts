@@ -13,38 +13,90 @@ import { LandmarkSmoother } from './temporalSmoother';
 export { ERGOSENSE_VISION_STACK };
 
 let sharedLandmarker: PoseLandmarker | null = null;
+let sharedLandmarkerPromise: Promise<PoseLandmarker> | null = null;
+/** Quantos consumidores ativos (câmera / vídeo) — só fecha quando zera */
+let landmarkerRefCount = 0;
 
-export async function getPoseLandmarker(useFullModel = true): Promise<PoseLandmarker> {
-  if (sharedLandmarker) return sharedLandmarker;
-
+async function createPoseLandmarker(useFullModel: boolean): Promise<PoseLandmarker> {
   const vision = await FilesetResolver.forVisionTasks(VISION_CONFIG.pose.wasmCdn);
   const modelAssetPath = useFullModel ? VISION_CONFIG.pose.modelUrl : VISION_CONFIG.pose.liteModelUrl;
+  const common = {
+    runningMode: 'VIDEO' as const,
+    numPoses: VISION_CONFIG.pose.maxPoses,
+    minPoseDetectionConfidence: VISION_CONFIG.pose.minDetectionConfidence,
+    minPosePresenceConfidence: VISION_CONFIG.pose.minDetectionConfidence,
+    minTrackingConfidence: VISION_CONFIG.pose.minTrackingConfidence,
+  };
 
   try {
-    sharedLandmarker = await PoseLandmarker.createFromOptions(vision, {
+    return await PoseLandmarker.createFromOptions(vision, {
       baseOptions: { modelAssetPath, delegate: 'GPU' },
-      runningMode: 'VIDEO',
-      numPoses: VISION_CONFIG.pose.maxPoses,
-      minPoseDetectionConfidence: VISION_CONFIG.pose.minDetectionConfidence,
-      minPosePresenceConfidence: VISION_CONFIG.pose.minDetectionConfidence,
-      minTrackingConfidence: VISION_CONFIG.pose.minTrackingConfidence,
+      ...common,
     });
   } catch {
-    sharedLandmarker = await PoseLandmarker.createFromOptions(vision, {
+    return await PoseLandmarker.createFromOptions(vision, {
       baseOptions: { modelAssetPath, delegate: 'CPU' },
-      runningMode: 'VIDEO',
-      numPoses: VISION_CONFIG.pose.maxPoses,
-      minPoseDetectionConfidence: VISION_CONFIG.pose.minDetectionConfidence,
-      minPosePresenceConfidence: VISION_CONFIG.pose.minDetectionConfidence,
-      minTrackingConfidence: VISION_CONFIG.pose.minTrackingConfidence,
+      ...common,
     });
   }
-  return sharedLandmarker;
 }
 
+/**
+ * Adquire landmarker compartilhado (refcount).
+ * Sempre parear com {@link releasePoseLandmarker} no cleanup.
+ */
+export async function getPoseLandmarker(useFullModel = true): Promise<PoseLandmarker> {
+  landmarkerRefCount += 1;
+
+  if (sharedLandmarker) return sharedLandmarker;
+
+  if (!sharedLandmarkerPromise) {
+    sharedLandmarkerPromise = createPoseLandmarker(useFullModel)
+      .then((lm) => {
+        sharedLandmarker = lm;
+        return lm;
+      })
+      .catch((err) => {
+        sharedLandmarkerPromise = null;
+        throw err;
+      })
+      .finally(() => {
+        /* promise slot limpo após settle; instância fica em sharedLandmarker */
+        sharedLandmarkerPromise = null;
+      });
+  }
+
+  try {
+    return await sharedLandmarkerPromise;
+  } catch (err) {
+    landmarkerRefCount = Math.max(0, landmarkerRefCount - 1);
+    throw err;
+  }
+}
+
+/** Libera um consumidor; fecha o modelo só quando ninguém mais usa. */
+export function releasePoseLandmarker() {
+  landmarkerRefCount = Math.max(0, landmarkerRefCount - 1);
+  if (landmarkerRefCount === 0) {
+    disposePoseLandmarker();
+  }
+}
+
+/** Força dispose (ex.: fim do processador de vídeo offline). */
 export function disposePoseLandmarker() {
-  sharedLandmarker?.close();
+  try {
+    sharedLandmarker?.close();
+  } catch {
+    /* already closed */
+  }
   sharedLandmarker = null;
+  sharedLandmarkerPromise = null;
+  landmarkerRefCount = 0;
+}
+
+/** Testes / diagnóstico */
+export function getPoseLandmarkerRefCount() {
+  return landmarkerRefCount;
 }
 
 export interface ProcessedVisionFrame {
@@ -62,6 +114,7 @@ export class VisionPipeline {
   private smoother = new LandmarkSmoother();
   private repCounter = new RepetitionCounter();
   private frameId = 0;
+  private acquired = false;
 
   reset() {
     this.tracker.reset();
@@ -70,12 +123,27 @@ export class VisionPipeline {
     this.frameId = 0;
   }
 
+  async acquire() {
+    if (this.acquired) return;
+    await getPoseLandmarker();
+    this.acquired = true;
+  }
+
+  release() {
+    if (!this.acquired) return;
+    this.acquired = false;
+    releasePoseLandmarker();
+  }
+
   async processVideoFrame(
     video: HTMLVideoElement,
     timestampMs: number,
     detectObjects = true,
   ): Promise<ProcessedVisionFrame | null> {
-    const landmarker = await getPoseLandmarker();
+    await this.acquire();
+    const landmarker = sharedLandmarker;
+    if (!landmarker) return null;
+
     const result = landmarker.detectForVideo(video, timestampMs);
 
     const allRaw: PosePoint[][] = (result.landmarks ?? []).map((raw) =>

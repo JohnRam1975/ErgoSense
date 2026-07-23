@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-21T19:23:38.275Z",
-  "base": "http://localhost:3001",
+  "generatedAt": "2026-07-23T17:02:54.199Z",
+  "base": "http://127.0.0.1:8090",
   "totals": {
-    "endpoints": 253,
-    "passed": 456,
+    "endpoints": 258,
+    "passed": 461,
     "failed": 0,
     "skipped": 36,
     "smokeCoveragePct": 93
@@ -20,7 +20,7 @@
       "skipped": 1
     },
     "AET": {
-      "passed": 61,
+      "passed": 59,
       "failed": 0,
       "skipped": 9
     },
@@ -30,12 +30,12 @@
       "skipped": 0
     },
     "Core": {
-      "passed": 13,
+      "passed": 15,
       "failed": 0,
       "skipped": 1
     },
     "Autenticação": {
-      "passed": 18,
+      "passed": 21,
       "failed": 0,
       "skipped": 1
     },
@@ -85,7 +85,7 @@
       "skipped": 3
     },
     "Público": {
-      "passed": 2,
+      "passed": 4,
       "failed": 0,
       "skipped": 0
     },

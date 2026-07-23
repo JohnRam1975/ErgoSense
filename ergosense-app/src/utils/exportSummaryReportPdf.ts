@@ -4,38 +4,13 @@ import { riskLabel } from './ergonomics';
 import {
   A4_TOP_FIRST,
   addDocumentFooter,
+  downloadPdfBlob,
   ensureSpace,
   getA4Sizes,
+  pdfSafeFilename,
   sectionTitle,
   wrapTextLeft,
 } from './pdfA4Layout';
-
-function safeFilename(name: string): string {
-  return name
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-zA-Z0-9_-]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .slice(0, 48);
-}
-
-function downloadPdfBlob(doc: jsPDF, filename: string): void {
-  try {
-    doc.save(filename);
-    return;
-  } catch {
-    /* fallback */
-  }
-  const blob = doc.output('blob');
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-}
 
 function typeTitle(type: ReportType): string {
   if (type === 'colab') return 'Relatorio por Colaborador';
@@ -137,7 +112,7 @@ export function exportAnalysesSummaryPdf(
   }
 
   addDocumentFooter(doc, 'ErgoSense — relatorio consolidado');
-  const filename = `ErgoSense_${safeFilename(title)}_${safeFilename(opts.companyName)}.pdf`;
+  const filename = `ErgoSense_${pdfSafeFilename(title)}_${pdfSafeFilename(opts.companyName)}.pdf`;
   downloadPdfBlob(doc, filename);
   return filename;
 }

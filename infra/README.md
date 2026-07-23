@@ -73,6 +73,25 @@ powershell -File infra/docker-publish.ps1 -SkipPush
 docker compose --env-file infra/.env -f infra/docker-compose.yml up -d
 ```
 
+## Produção — secrets, backup e deploy
+
+```powershell
+# 1) Gerar secrets fortes (cria infra/.env.production — gitignored)
+powershell -File infra/scripts/generate-production-env.ps1
+
+# 2) No servidor: copiar para infra/.env e revisar domínio/tags
+# 3) Deploy orquestrado (backup → pull → migrate → health → rollback auto)
+powershell -File infra/deploy.ps1
+
+# Backup / restore manuais
+powershell -File infra/scripts/db-backup.ps1
+powershell -File infra/scripts/db-restore.ps1 -ConfirmRestore
+```
+
+Linux: `infra/scripts/generate-production-env.sh`, `infra/deploy.sh`, `infra/scripts/db-backup.sh`.
+
+Migrations: `npm --prefix ergosense-app/server run migrate:status` · rollback fino só com `ALLOW_DESTRUCTIVE_ROLLBACK=true` + down SQL; em produção prefira restore do dump.
+
 ## Containers esperados
 
 | Nome | Função |
@@ -85,5 +104,7 @@ docker compose --env-file infra/.env -f infra/docker-compose.yml up -d
 
 ## Login seed
 
-- `ergosense@dejohn.com.br` / (senha do `.env` `SEED_GLOBAL_ADMIN_PASSWORD`)
-- Suporte: `ergosense.suporte@dejohn.com.br` (formulário no app)
+- E-mail/senha do `.env`: `SEED_GLOBAL_ADMIN_EMAIL` / `SEED_GLOBAL_ADMIN_PASSWORD`
+- Ao rodar `generate-production-env`, a senha é impressa no terminal e salva em `infra/.env.admin-credentials.local` (gitignored) — guarde fora do repositório
+- E2E local: exporte `E2E_GLOBAL_PASSWORD` com o mesmo valor (ou carregue o `.env.admin-credentials.local`)
+- Suporte: `SUPPORT_CONTACT_EMAIL` (formulário no app)

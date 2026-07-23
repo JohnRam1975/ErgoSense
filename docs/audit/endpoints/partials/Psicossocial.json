@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:36:32.481Z",
+  "generatedAt": "2026-07-23T16:49:49.861Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "GET /api/psico/alertas": {
       "method": "GET",
@@ -26,7 +26,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 12ms",
+          "detail": "HTTP 200 21ms",
           "classification": null
         },
         "schema_valid": {
@@ -64,7 +64,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 9ms",
+          "detail": "HTTP 404 35ms",
           "classification": null
         },
         "schema_valid": {
@@ -102,7 +102,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 15ms",
+          "detail": "HTTP 200 71ms",
           "classification": null
         },
         "schema_valid": {
@@ -135,7 +135,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 7ms",
+          "detail": "HTTP 400 32ms",
           "classification": null
         },
         "schema_valid": {
@@ -173,7 +173,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 19ms",
+          "detail": "HTTP 200 34ms",
           "classification": null
         },
         "schema_valid": {
@@ -211,7 +211,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 22ms",
+          "detail": "HTTP 200 32ms",
           "classification": null
         },
         "schema_valid": {
@@ -249,7 +249,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 32ms",
+          "detail": "HTTP 200 40ms",
           "classification": null
         },
         "schema_valid": {
@@ -287,7 +287,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 7ms",
+          "detail": "HTTP 200 13ms",
           "classification": null
         },
         "schema_valid": {
@@ -325,7 +325,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 6ms",
+          "detail": "HTTP 404 22ms",
           "classification": null
         },
         "schema_valid": {
@@ -363,7 +363,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 10ms",
+          "detail": "HTTP 200 19ms",
           "classification": null
         },
         "schema_valid": {
@@ -401,7 +401,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 10ms",
+          "detail": "HTTP 200 8ms",
           "classification": null
         },
         "schema_valid": {
@@ -434,7 +434,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 6ms",
+          "detail": "HTTP 200 7ms",
           "classification": null
         },
         "schema_valid": {
@@ -472,7 +472,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 8ms",
+          "detail": "HTTP 200 20ms",
           "classification": null
         },
         "schema_valid": {
@@ -510,7 +510,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 9ms",
+          "detail": "HTTP 200 11ms",
           "classification": null
         },
         "schema_valid": {
@@ -543,7 +543,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 8ms",
+          "detail": "HTTP 400 12ms",
           "classification": null
         },
         "schema_valid": {
@@ -581,7 +581,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 15ms",
+          "detail": "HTTP 200 16ms",
           "classification": null
         },
         "schema_valid": {
@@ -619,7 +619,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 8ms",
+          "detail": "HTTP 404 19ms",
           "classification": null
         },
         "schema_valid": {
@@ -698,7 +698,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 7ms",
+          "detail": "HTTP 400 30ms",
           "classification": null
         },
         "schema_valid": {
@@ -736,7 +736,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 10ms",
+          "detail": "HTTP 200 17ms",
           "classification": null
         },
         "schema_valid": {

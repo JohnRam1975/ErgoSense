@@ -1,0 +1,187 @@
+{
+  "generatedAt": "2026-07-23T18:02:21.192Z",
+  "target": "http://127.0.0.1:8090",
+  "holdMs": 20000,
+  "thinkMs": 50,
+  "levels": [
+    500
+  ],
+  "baseline": {
+    "docker": {
+      "at": "2026-07-23T18:01:16.823Z",
+      "containers": [
+        {
+          "name": "ergosense-frontend",
+          "cpuPct": 0,
+          "memMiB": 25.72,
+          "memPct": 0.68,
+          "memUsageRaw": "25.72MiB / 3.71GiB"
+        },
+        {
+          "name": "ergosense-backend",
+          "cpuPct": 0.15,
+          "memMiB": 234.4,
+          "memPct": 6.17,
+          "memUsageRaw": "234.4MiB / 3.71GiB"
+        },
+        {
+          "name": "ergosense-db",
+          "cpuPct": 0.02,
+          "memMiB": 37.84,
+          "memPct": 1,
+          "memUsageRaw": "37.84MiB / 3.71GiB"
+        },
+        {
+          "name": "ergosense-storage",
+          "cpuPct": 0,
+          "memMiB": 97.5,
+          "memPct": 2.57,
+          "memUsageRaw": "97.5MiB / 3.71GiB"
+        },
+        {
+          "name": "ergosense-cache",
+          "cpuPct": 0.57,
+          "memMiB": 12.27,
+          "memPct": 0.32,
+          "memUsageRaw": "12.27MiB / 3.71GiB"
+        }
+      ]
+    },
+    "db": {
+      "at": "2026-07-23T18:01:16.835Z",
+      "connections": 3,
+      "active": 1,
+      "waiting": 2,
+      "dbBytes": 19946519
+    },
+    "heap": {
+      "at": "2026-07-23T18:01:19.898Z",
+      "rssMiB": 45,
+      "heapUsedMiB": 4,
+      "heapTotalMiB": 5
+    }
+  },
+  "results": [
+    {
+      "vus": 500,
+      "http": {
+        "n": 1302,
+        "ok": 1302,
+        "fail": 0,
+        "okPct": 100,
+        "avg": 9175,
+        "p50": 8413,
+        "p95": 15623,
+        "p99": 15724,
+        "max": 15778,
+        "byStatus": {
+          "200": 1302
+        },
+        "errors": [],
+        "rps": 53,
+        "vus": 500,
+        "holdMs": 20000,
+        "wallMs": 24661
+      },
+      "resources": {
+        "backendCpuMaxPct": 83.13,
+        "backendMemMaxMiB": 301.8,
+        "dbCpuMaxPct": 45.22,
+        "dbMemMaxMiB": 205.7,
+        "dbConnectionsMax": 81,
+        "dbActiveMax": 1,
+        "heapUsedMaxMiB": 4,
+        "heapUsedEndMiB": 4,
+        "heapDeltaFromBaselineMiB": 0,
+        "heapAfterCooldownMiB": 4
+      },
+      "sampleCount": 3
+    }
+  ],
+  "final": {
+    "heap": {
+      "at": "2026-07-23T18:02:12.132Z",
+      "rssMiB": 45,
+      "heapUsedMiB": 4,
+      "heapTotalMiB": 5
+    },
+    "docker": {
+      "at": "2026-07-23T18:02:16.749Z",
+      "containers": [
+        {
+          "name": "ergosense-frontend",
+          "cpuPct": 0,
+          "memMiB": 29.86,
+          "memPct": 0.79,
+          "memUsageRaw": "29.86MiB / 3.71GiB"
+        },
+        {
+          "name": "ergosense-backend",
+          "cpuPct": 16.49,
+          "memMiB": 305,
+          "memPct": 8.03,
+          "memUsageRaw": "305MiB / 3.71GiB"
+        },
+        {
+          "name": "ergosense-db",
+          "cpuPct": 208.46,
+          "memMiB": 55.09,
+          "memPct": 1.45,
+          "memUsageRaw": "55.09MiB / 3.71GiB"
+        },
+        {
+          "name": "ergosense-storage",
+          "cpuPct": 0.19,
+          "memMiB": 96.73,
+          "memPct": 2.55,
+          "memUsageRaw": "96.73MiB / 3.71GiB"
+        },
+        {
+          "name": "ergosense-cache",
+          "cpuPct": 0.95,
+          "memMiB": 12.35,
+          "memPct": 0.33,
+          "memUsageRaw": "12.35MiB / 3.71GiB"
+        }
+      ]
+    },
+    "db": {
+      "at": "2026-07-23T18:02:16.749Z",
+      "connections": 11,
+      "active": 1,
+      "waiting": 2,
+      "dbBytes": 19946519
+    }
+  },
+  "findings": [
+    {
+      "sev": "MÉDIO",
+      "vus": 500,
+      "area": "Latência",
+      "detail": "p95=15623ms em 500 VUs"
+    },
+    {
+      "sev": "ALTO",
+      "vus": 500,
+      "area": "Pool DB",
+      "detail": "Conexões Postgres pico 81"
+    },
+    {
+      "sev": "INFO",
+      "vus": 500,
+      "area": "Gargalo",
+      "detail": "Degradação relevante a partir de 500 VUs — dominante: CPU do backend"
+    }
+  ],
+  "limitEstimate": {
+    "softLimitVus": 500,
+    "hardLimitVus": 500,
+    "note": "Sistema degrada de forma clara a partir de ~500 usuários concorrentes sustentados"
+  },
+  "leakCheck": {
+    "baselineHeapMiB": 4,
+    "finalHeapMiB": 4,
+    "deltaMiB": 0,
+    "suspected": false
+  }
+}

@@ -1,0 +1,127 @@
+﻿[
+    {
+        "KB":  146.9,
+        "Lines":  3930,
+        "Path":  "ergosense-app\\src\\context\\AppContext.tsx"
+    },
+    {
+        "KB":  69.3,
+        "Lines":  1696,
+        "Path":  "ergosense-app\\src\\api\\client.ts"
+    },
+    {
+        "KB":  66,
+        "Lines":  1449,
+        "Path":  "ergosense-app\\src\\screens\\AnalysisScreens.tsx"
+    },
+    {
+        "KB":  50.8,
+        "Lines":  1323,
+        "Path":  "ergosense-app\\src\\screens\\TenantOnboardingScreens.tsx"
+    },
+    {
+        "KB":  40.7,
+        "Lines":  1009,
+        "Path":  "ergosense-app\\src\\screens\\MainScreens.tsx"
+    },
+    {
+        "KB":  33.3,
+        "Lines":  829,
+        "Path":  "ergosense-app\\server\\src\\routes\\psicoRoutes.js"
+    },
+    {
+        "KB":  39.4,
+        "Lines":  776,
+        "Path":  "ergosense-app\\src\\screens\\PsicossocialScreens.tsx"
+    },
+    {
+        "KB":  26.3,
+        "Lines":  748,
+        "Path":  "ergosense-app\\server\\src\\services\\tenantRequestService.js"
+    },
+    {
+        "KB":  29.5,
+        "Lines":  730,
+        "Path":  "ergosense-app\\src\\context\\__tests__\\AppContext.modules.test.tsx"
+    },
+    {
+        "KB":  33.2,
+        "Lines":  684,
+        "Path":  "ergosense-app\\src\\screens\\UtilityScreens.tsx"
+    },
+    {
+        "KB":  27.6,
+        "Lines":  679,
+        "Path":  "ergosense-app\\server\\src\\routes\\groRoutes.js"
+    },
+    {
+        "KB":  29.5,
+        "Lines":  678,
+        "Path":  "ergosense-app\\server\\src\\services\\riskIntegrationHub.js"
+    },
+    {
+        "KB":  31,
+        "Lines":  652,
+        "Path":  "ergosense-app\\server\\src\\routes\\aetRoutes.js"
+    },
+    {
+        "KB":  24.3,
+        "Lines":  632,
+        "Path":  "ergosense-app\\server\\src\\services\\aetCorporateService.js"
+    },
+    {
+        "KB":  26.6,
+        "Lines":  544,
+        "Path":  "ergosense-app\\src\\screens\\RiskInventoryScreens.tsx"
+    },
+    {
+        "KB":  23.7,
+        "Lines":  528,
+        "Path":  "ergosense-app\\server\\src\\routes\\riskInventoryRoutes.js"
+    },
+    {
+        "KB":  21,
+        "Lines":  518,
+        "Path":  "ergosense-app\\src\\context\\__tests__\\AppContext.domains.test.tsx"
+    },
+    {
+        "KB":  26.3,
+        "Lines":  517,
+        "Path":  "ergosense-app\\src\\screens\\AetScreens.tsx"
+    },
+    {
+        "KB":  17.9,
+        "Lines":  491,
+        "Path":  "ergosense-app\\server\\src\\services\\orgUtils.js"
+    },
+    {
+        "KB":  18,
+        "Lines":  463,
+        "Path":  "ergosense-app\\server\\src\\services\\AIExpertService.js"
+    },
+    {
+        "KB":  15.7,
+        "Lines":  457,
+        "Path":  "ergosense-app\\server\\src\\services\\riskCriteriaService.js"
+    },
+    {
+        "KB":  18,
+        "Lines":  434,
+        "Path":  "ergosense-app\\server\\src\\routes\\pgrRoutes.js"
+    },
+    {
+        "KB":  20.2,
+        "Lines":  433,
+        "Path":  "ergosense-app\\src\\screens\\ComplianceScreens.tsx"
+    },
+    {
+        "KB":  18.2,
+        "Lines":  418,
+        "Path":  "ergosense-app\\src\\services\\videoErgonomicEngine.ts"
+    },
+    {
+        "KB":  14.7,
+        "Lines":  417,
+        "Path":  "ergosense-app\\src\\context\\__tests__\\AppContext.test.tsx"
+    }
+]

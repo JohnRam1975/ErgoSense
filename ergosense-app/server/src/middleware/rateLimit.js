@@ -87,6 +87,7 @@ export const publicFormRateLimit = createRateLimiter({
   windowMs: 60 * 1000,
   max: 10,
   keyPrefix: 'public',
+  skip: () => shouldSkipDev(),
 });
 
 export const criticalApiRateLimit = createRateLimiter({

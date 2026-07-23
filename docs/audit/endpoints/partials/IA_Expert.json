@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:36:11.170Z",
+  "generatedAt": "2026-07-23T16:49:34.098Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "POST /api/ai/engine/queue/:jobType": {
       "method": "POST",
@@ -26,7 +26,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 22ms",
+          "detail": "HTTP 400 32ms",
           "classification": null
         },
         "schema_valid": {
@@ -59,12 +59,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 16ms",
+          "detail": "HTTP 503 26ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -92,7 +92,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 9ms",
+          "detail": "HTTP 200 21ms",
           "classification": null
         },
         "schema_valid": {
@@ -125,12 +125,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 2073ms",
+          "detail": "HTTP 503 10ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -158,12 +158,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 385ms",
+          "detail": "HTTP 503 16ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -191,12 +191,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 462ms",
+          "detail": "HTTP 503 8ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -229,7 +229,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 21ms",
+          "detail": "HTTP 200 53ms",
           "classification": null
         },
         "schema_valid": {
@@ -262,12 +262,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 344ms",
+          "detail": "HTTP 503 9ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -295,12 +295,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 390ms",
+          "detail": "HTTP 503 13ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -328,12 +328,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 27ms",
+          "detail": "HTTP 503 9ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -361,12 +361,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 398ms",
+          "detail": "HTTP 503 7ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -394,12 +394,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 336ms",
+          "detail": "HTTP 503 9ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -427,12 +427,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 317ms",
+          "detail": "HTTP 503 9ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -460,12 +460,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 466ms",
+          "detail": "HTTP 503 12ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -493,12 +493,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 410ms",
+          "detail": "HTTP 503 8ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -526,12 +526,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 333ms",
+          "detail": "HTTP 503 8ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -559,12 +559,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 341ms",
+          "detail": "HTTP 503 8ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -592,12 +592,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 532ms",
+          "detail": "HTTP 503 12ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {
@@ -625,12 +625,12 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 369ms",
+          "detail": "HTTP 503 7ms",
           "classification": null
         },
         "schema_valid": {
           "ok": true,
-          "detail": "HTTP 400",
+          "detail": "HTTP 503",
           "classification": null
         },
         "no_sensitive_leak": {

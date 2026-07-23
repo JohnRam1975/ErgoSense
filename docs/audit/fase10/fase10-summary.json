@@ -1,0 +1,32 @@
+{
+  "generatedAt": "2026-07-23T20:50:00-03:00",
+  "verdict": "PASS_WITH_ARCH_DEBT",
+  "allGatesOk": true,
+  "gates": {
+    "eslintErrors": 0,
+    "eslintWarnings": 0,
+    "tsc": 0,
+    "vitestSample": "5/5"
+  },
+  "doneThisRound": [
+    "aetMethodsFromAnalysis.js shared service",
+    "riskNivelLabel.ts shared labels",
+    "riskLevelLabelPt DRY via riskLabel",
+    "REF_SHOULDER_WIDTH_CM single source",
+    "AppContext offlineQueueLen hooks fix",
+    "TenantOnboarding hooks deps fix"
+  ],
+  "hotspots": [
+    { "path": "AppContext.tsx", "lines": 3980 },
+    { "path": "api/client.ts", "lines": 1701 },
+    { "path": "AnalysisScreens.tsx", "lines": 1441 },
+    { "path": "TenantOnboardingScreens.tsx", "lines": 1323 },
+    { "path": "MainScreens.tsx", "lines": 1009 }
+  ],
+  "recommendedNext": [
+    "Split AppContext by domain",
+    "Split api/client.ts by area",
+    "Feature folders for large screens",
+    "ESLint for server JS"
+  ]
+}

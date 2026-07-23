@@ -139,8 +139,6 @@ async function invokeApiExport(name: string, fn: (...args: unknown[]) => Promise
     case 'apiAdvanceAetStage':
     case 'apiGenerateAetReport':
       return fn(tenantId, id);
-    case 'apiSignAet':
-      return fn(tenantId, id, 'Nome', 'CREA-1');
     case 'apiSaveAetVibracaoCorpo':
     case 'apiSaveAetVibracaoMaos':
       return fn(tenantId, id, { aceleracaoMs2: 1, horasExposicao: 2 });

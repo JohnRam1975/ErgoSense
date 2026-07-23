@@ -37,6 +37,7 @@ vi.mock('../components/SupportModeBar', () => ({
 vi.mock('../screens/MainScreens', () => ({
   SplashScreen: () => <div>Splash</div>,
   LoginScreen: () => <div>Login</div>,
+  ResetPasswordScreen: () => null,
   RegisterCompanyScreen: () => null,
   CompanyScreen: () => null,
   DashboardScreen: () => <div>Dashboard</div>,

@@ -1,0 +1,45 @@
+{
+  "at": "2026-07-23T19:46:56.259Z",
+  "results": [
+    {
+      "id": "tenant-request",
+      "ok": true,
+      "detail": "HTTP 201"
+    },
+    {
+      "id": "approve",
+      "ok": true,
+      "detail": "tenant=fix_inv_1784836015270_688354"
+    },
+    {
+      "id": "login-tenant",
+      "ok": true,
+      "detail": "mfa ok"
+    },
+    {
+      "id": "analysis",
+      "ok": true,
+      "detail": "HTTP 201 id=40 {\"success\":true,\"message\":\"Recurso criado com sucesso\",\"data\":{\"id\":\"40\"}}"
+    },
+    {
+      "id": "aet",
+      "ok": true,
+      "detail": "id=16"
+    },
+    {
+      "id": "inventario-nr01",
+      "ok": true,
+      "detail": "HTTP 201 {\"id\":\"48\",\"tenantId\":\"fix_inv_1784836015270_688354\",\"type\":\"ERGONOMICO\",\"sectorId\":null,\"sectorName\":null,\"collaboratorId\":null,\"collaboratorName\":null,\"unitId\":null,\"unitName\":nu"
+    },
+    {
+      "id": "denuncia-public",
+      "ok": true,
+      "detail": "HTTP 201 {\"protocol\":\"DEN-2026-00001\",\"accessToken\":\"aebd4b3a23b4e17cd690ebad4ed28d3826b37df52e699fb3\",\"message\":\"Denúncia regist"
+    },
+    {
+      "id": "autonomo-429-retry",
+      "ok": true,
+      "detail": "HTTP 201"
+    }
+  ]
+}

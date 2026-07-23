@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:19:03.328Z",
+  "generatedAt": "2026-07-23T16:49:11.211Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "GET /api/compliance/agendamento": {
       "method": "GET",
@@ -26,7 +26,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 52ms",
+          "detail": "HTTP 200 24ms",
           "classification": null
         },
         "schema_valid": {
@@ -59,7 +59,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 96ms",
+          "detail": "HTTP 200 27ms",
           "classification": null
         },
         "schema_valid": {
@@ -97,7 +97,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 39ms",
+          "detail": "HTTP 200 33ms",
           "classification": null
         },
         "schema_valid": {
@@ -135,7 +135,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 11ms",
+          "detail": "HTTP 200 27ms",
           "classification": null
         },
         "schema_valid": {
@@ -173,7 +173,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 99ms",
+          "detail": "HTTP 200 45ms",
           "classification": null
         },
         "schema_valid": {
@@ -211,7 +211,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 13ms",
+          "detail": "HTTP 200 33ms",
           "classification": null
         },
         "schema_valid": {
@@ -254,7 +254,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 34ms",
+          "detail": "HTTP 200 31ms",
           "classification": null
         },
         "schema_valid": {
@@ -292,7 +292,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 8ms",
+          "detail": "HTTP 400 16ms",
           "classification": null
         },
         "schema_valid": {
@@ -330,7 +330,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 111ms",
+          "detail": "HTTP 200 23ms",
           "classification": null
         },
         "schema_valid": {
@@ -368,7 +368,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 404 8ms",
+          "detail": "HTTP 404 15ms",
           "classification": null
         },
         "schema_valid": {
@@ -406,7 +406,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 17ms",
+          "detail": "HTTP 200 18ms",
           "classification": null
         },
         "schema_valid": {
@@ -444,7 +444,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 19ms",
+          "detail": "HTTP 200 14ms",
           "classification": null
         },
         "schema_valid": {
@@ -487,7 +487,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 8ms",
+          "detail": "HTTP 200 22ms",
           "classification": null
         },
         "schema_valid": {
@@ -530,7 +530,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 400 13ms",
+          "detail": "HTTP 400 11ms",
           "classification": null
         },
         "schema_valid": {
@@ -568,7 +568,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 115ms",
+          "detail": "HTTP 200 13ms",
           "classification": null
         },
         "schema_valid": {
@@ -587,7 +587,7 @@
       "method": "POST",
       "path": "/api/compliance/relatorios/gerar",
       "tag": "Compliance",
-      "contractKind": "create",
+      "contractKind": "actionPost",
       "checks": {
         "no_auth_401": {
           "ok": true,
@@ -601,7 +601,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 386ms",
+          "detail": "HTTP 200 37ms",
           "classification": null
         },
         "schema_valid": {
@@ -620,7 +620,7 @@
       "method": "POST",
       "path": "/api/compliance/scan",
       "tag": "Compliance",
-      "contractKind": "create",
+      "contractKind": "actionPost",
       "checks": {
         "no_auth_401": {
           "ok": true,
@@ -634,7 +634,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 136ms",
+          "detail": "HTTP 200 57ms",
           "classification": null
         },
         "schema_valid": {
@@ -672,7 +672,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 14ms",
+          "detail": "HTTP 200 23ms",
           "classification": null
         },
         "schema_valid": {
@@ -710,7 +710,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 25ms",
+          "detail": "HTTP 200 12ms",
           "classification": null
         },
         "schema_valid": {
@@ -748,7 +748,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 18ms",
+          "detail": "HTTP 200 14ms",
           "classification": null
         },
         "schema_valid": {
@@ -786,7 +786,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 9ms",
+          "detail": "HTTP 200 20ms",
           "classification": null
         },
         "schema_valid": {

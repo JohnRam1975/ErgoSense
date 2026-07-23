@@ -52,6 +52,29 @@ export function isValidCpfDigits(value: string) {
   return d2 === Number(cpf[10]);
 }
 
+export function isValidCnpjDigits(value: string) {
+  const cnpj = onlyDigits(value);
+  if (cnpj.length !== 14 || /^(\d)\1+$/.test(cnpj)) return false;
+  const calc = (base: string) => {
+    let sum = 0;
+    let pos = base.length - 7;
+    for (let i = base.length; i >= 1; i -= 1) {
+      sum += Number(base[base.length - i]) * pos;
+      pos -= 1;
+      if (pos < 2) pos = 9;
+    }
+    return sum % 11 < 2 ? 0 : 11 - (sum % 11);
+  };
+  const base = cnpj.slice(0, 12);
+  const d1 = calc(base);
+  const d2 = calc(base + String(d1));
+  return cnpj === base + String(d1) + String(d2);
+}
+
+export function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
 export type ViaCepResult = {
   logradouro: string;
   bairro: string;

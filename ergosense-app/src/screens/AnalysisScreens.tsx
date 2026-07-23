@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { getErrorMessage } from '../utils/errors';
 import { useApp } from '../context/AppContext';
 import { SECTORS, TURNOS, SELF_COLLABORATOR_MATRICULA } from '../data/constants';
 import { ACTIVITY_PROFILES, activitiesForContext, contextLabel, profileForContext, type ActivityContext } from '../data/activityProfiles';
@@ -24,13 +25,10 @@ import { LoadAssessmentForm } from '../components/LoadAssessmentForm';
 import { CameraFramingGuide } from '../components/CameraFramingGuide';
 import { LoadRiskPanel } from '../components/LoadRiskPanel';
 import { useLoadAssessment } from '../hooks/useLoadAssessment';
-import { evaluateErgonomicSession } from '../utils/ergonomicRiskEngine';
-import { normalizeLoadParams } from '../utils/loadHandling';
+import { evaluateErgonomicSession, riskLevelLabelPt } from '../utils/ergonomicRiskEngine';
+import { normalizeLoadParams, handlingModeLabel, LOAD_DISTANCE_OPTIMAL_CM } from '../utils/loadHandling';
 import { DEFAULT_LOAD_MANUAL_INPUT } from '../types/loadAssessment';
-import { riskLevelLabelPt } from '../utils/ergonomicRiskEngine';
-import { handlingModeLabel } from '../utils/loadHandling';
 import { LoadEffortReportPanel } from '../components/LoadEffortReportPanel';
-import { LOAD_DISTANCE_OPTIMAL_CM } from '../utils/loadHandling';
 import { UpgradeBanner } from '../components/UpgradeBanner';
 import { AiExpertAnalysisPanel } from '../components/AiExpertAnalysisPanel';
 import { LoadMeasureDock } from '../components/LoadMeasureDock';
@@ -40,16 +38,10 @@ import { useLoadDistanceTracker } from '../hooks/useLoadDistanceTracker';
 import { trackLoadDistance, type LoadDistanceTrackResult } from '../utils/trackLoadDistance';
 import { playRiskSoundAlert } from '../utils/soundAlert';
 import { shareAnalysisResult } from '../utils/shareAnalysis';
-
-const EDIT_COLLAB_KEY = 'ergosense_edit_collab_id';
-
-export function openCollaboratorEditor(id: string | null) {
-  if (id) sessionStorage.setItem(EDIT_COLLAB_KEY, id);
-  else sessionStorage.removeItem(EDIT_COLLAB_KEY);
-}
+import { takeCollaboratorEditorId } from '../utils/collaboratorEdit';
 
 export function NewCollabScreen() {
-  const { go, saveCollaborator, sectors, collaborators, selectedCompany, showToast } = useApp();
+  const { go, saveCollaborator, deleteCollaborator, sectors, collaborators, selectedCompany, showToast } = useApp();
   const sectorOptions = useMemo(() => {
     const fromDb = sectors.length ? sectors : [];
     const fromCollabs = [...new Set(collaborators.map((c) => c.setor).filter(Boolean))];
@@ -70,8 +62,7 @@ export function NewCollabScreen() {
   });
 
   useEffect(() => {
-    const id = sessionStorage.getItem(EDIT_COLLAB_KEY);
-    sessionStorage.removeItem(EDIT_COLLAB_KEY);
+    const id = takeCollaboratorEditorId();
     if (!id) {
       setEditId(null);
       return;
@@ -95,6 +86,7 @@ export function NewCollabScreen() {
   }, [collaborators, sectorOptions]);
 
   const set = (k: string, v: string | boolean) => setForm((f) => ({ ...f, [k]: v }));
+  const editingSelf = Boolean(editId && form.matricula === SELF_COLLABORATOR_MATRICULA);
 
   return (
     <>
@@ -173,6 +165,11 @@ export function NewCollabScreen() {
         >
           {editId ? 'Salvar alterações' : 'Salvar Funcionário'}
         </button>
+        {editId && !editingSelf ? (
+          <button type="button" className="btn br" onClick={() => deleteCollaborator(editId)}>
+            Excluir colaborador
+          </button>
+        ) : null}
         <button className="btn bs" onClick={() => go('collabs')}>
           Cancelar
         </button>
@@ -257,7 +254,7 @@ export function NewAnalysisScreen() {
         await prepareCollaborator();
         go('camera');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Não foi possível iniciar a análise', 'warn');
+        showToast(getErrorMessage(err, 'Não foi possível iniciar a análise'), 'warn');
       } finally {
         setStarting(false);
       }
@@ -295,7 +292,7 @@ export function NewAnalysisScreen() {
           notesOverride,
         });
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Não foi possível salvar a análise', 'warn');
+        showToast(getErrorMessage(err, 'Não foi possível salvar a análise'), 'warn');
       } finally {
         setStarting(false);
       }
@@ -559,12 +556,13 @@ export function CameraScreen() {
   );
 
   const poseEnabled = status !== 'error' && hasPreview;
+  const mirrorPose = facingMode === 'user';
   const { status: poseStatus, poseFrame, error: poseError, tracking: poseTracking } = usePoseDetection(
     videoRef,
     camWrapRef,
     {
       enabled: poseEnabled,
-      mirrored: true,
+      mirrored: mirrorPose,
       onAngles: onPoseAngles,
     },
   );
@@ -904,7 +902,7 @@ export function CameraScreen() {
           ? { realCm: loadManual.calibrationRealCm, pxSize: loadManual.calibrationPx }
           : null,
       estimate: loadEstimate ?? analysisDraft.loadAssessment.estimate ?? null,
-      mirrored: true,
+      mirrored: mirrorPose,
     },
     applyDistanceTrack,
   );
@@ -945,7 +943,13 @@ export function CameraScreen() {
       <div className="cam-video-wrap" ref={camWrapRef}>
         {status !== 'error' ? (
           <>
-            <video ref={setVideoNode} className="cam-video" playsInline muted autoPlay />
+            <video
+              ref={setVideoNode}
+              className={`cam-video${facingMode === 'user' ? ' cam-video--mirror' : ''}`}
+              playsInline
+              muted
+              autoPlay
+            />
             {status === 'loading' && (
               <div className="cam-loading">
                 <div style={{ fontFamily: 'var(--fd)', fontSize: 13, fontWeight: 700, color: 'var(--amber)', letterSpacing: 1, textTransform: 'uppercase' }}>
@@ -994,7 +998,7 @@ export function CameraScreen() {
                         loadManual.calibrationRealCm && loadManual.calibrationPx
                           ? { realCm: loadManual.calibrationRealCm, pxSize: loadManual.calibrationPx }
                           : null,
-                      mirrored: true,
+                      mirrored: mirrorPose,
                       estimate: loadEstimate ?? analysisDraft.loadAssessment.estimate ?? null,
                     });
                     applyDistanceTrack(track, pt);
@@ -1017,6 +1021,13 @@ export function CameraScreen() {
               evaluateRisk={evaluateRisk}
               activityContext={activityContext}
               minimal
+            />
+            <div
+              hidden
+              data-testid="pose-debug"
+              data-pose-status={poseStatus}
+              data-pose-tracking={poseTracking ? '1' : '0'}
+              data-pose-error={poseError || ''}
             />
             {loadEnabled && hasPreview && (
               <LoadRiskPanel

@@ -190,10 +190,14 @@ export async function validateDetection(tenantId, deteccaoId, payload, user) {
 
     let normId = det[0].norma_id;
     if (!normId && det[0].codigo_norma) {
+      const modulosImpactados =
+        typeof det[0].modulos_afetados === 'string'
+          ? det[0].modulos_afetados
+          : JSON.stringify(det[0].modulos_afetados ?? []);
       const { rows: nr } = await query(
         `INSERT INTO compliance_normas (tenant_id, codigo, titulo, orgao, fonte, modulos_impactados, status)
-         VALUES ($1,$2,$3,$4,$5,$6,'VIGENTE') RETURNING id`,
-        [tenantId, det[0].codigo_norma, det[0].titulo, det[0].fonte, det[0].fonte, det[0].modulos_afetados ?? '[]'],
+         VALUES ($1,$2,$3,$4,$5,$6::jsonb,'VIGENTE') RETURNING id`,
+        [tenantId, det[0].codigo_norma, det[0].titulo, det[0].fonte, det[0].fonte, modulosImpactados],
       );
       normId = nr[0].id;
     }
@@ -222,7 +226,7 @@ export async function validateDetection(tenantId, deteccaoId, payload, user) {
           validatorName,
         ],
       );
-      await query(`UPDATE compliance_normas SET versao_ativa_id = $2, updated_at = NOW() WHERE id = $1`, [normId, ver[0].id]);
+      await query(`UPDATE compliance_normas SET versao_atual_id = $2, updated_at = NOW() WHERE id = $1`, [normId, ver[0].id]);
       if (det[0].tipo_evento === 'REVOGACAO') await query(`UPDATE compliance_normas SET status = 'REVOGADA' WHERE id = $1`, [normId]);
     }
 

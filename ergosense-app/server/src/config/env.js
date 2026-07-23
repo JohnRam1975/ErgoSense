@@ -117,3 +117,5 @@ export const config = {
 export function isProduction() {
   return config.nodeEnv === 'production';
 }
+
+export { assertProductionSecrets } from './productionGuard.js';

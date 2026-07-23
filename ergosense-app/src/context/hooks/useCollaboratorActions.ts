@@ -2,6 +2,7 @@
  * Ações de colaboradores — extraído do AppContext (SRP)
  */
 import { useCallback } from 'react';
+import { getErrorMessage } from '../../utils/errors';
 import { apiSaveCollaborator, apiUpdateCollaborator } from '../../api/client';
 import type { Collaborator, ScreenId } from '../../types';
 import type { StoredState } from '../contextTypes';
@@ -57,7 +58,7 @@ export function useCollaboratorActions({
             void loadTenantData(selectedCompanyId);
           } catch (err) {
             console.error('saveCollaborator', err);
-            showToast(err instanceof Error ? err.message : 'Erro ao salvar funcionário', 'warn');
+            showToast(getErrorMessage(err, 'Erro ao salvar funcionário'), 'warn');
           }
         })();
         return;

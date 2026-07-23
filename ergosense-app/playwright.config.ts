@@ -1,12 +1,18 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const baseURL = process.env.E2E_BASE_URL ?? 'http://localhost:5173';
+const skipWebServer =
+  process.env.E2E_SKIP_WEBSERVER === '1' ||
+  Boolean(process.env.CI) ||
+  /:8090\b/.test(baseURL);
+
 export default defineConfig({
   testDir: './e2e',
   timeout: 180_000,
   workers: 1,
   retries: process.env.CI ? 1 : 0,
   use: {
-    baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:5173',
+    baseURL,
     trace: 'on-first-retry',
     permissions: ['camera'],
   },
@@ -19,7 +25,7 @@ export default defineConfig({
       },
     },
   }],
-  webServer: process.env.CI
+  webServer: skipWebServer
     ? undefined
     : [
         {

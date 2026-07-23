@@ -19,7 +19,12 @@ import {
 import { validatePassword } from '../auth/password.js';
 import { sanitizeEmail } from '../auth/sanitize.js';
 import { validateBody } from '../validation/validateRequest.js';
-import { loginSchema, updateProfileSchema } from '../validation/schemas.js';
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  resetPasswordSchema,
+  updateProfileSchema,
+} from '../validation/schemas.js';
 import { apiError, apiSuccess } from '../utils/apiResponse.js';
 import { csrfProtection, clearAuthCookies, setCsrfCookie, setRefreshCookie } from '../middleware/csrf.js';
 import { authenticate } from '../middleware/authenticate.js';
@@ -31,6 +36,12 @@ import {
 } from '../services/mfa/MfaService.js';
 import { sessionService } from '../services/session/SessionService.js';
 import { emitSecurityEvent } from '../services/enterpriseAudit.js';
+import {
+  getPasswordResetPreview,
+  requestPasswordReset,
+  resetPassword,
+} from '../services/passwordResetService.js';
+import { criticalApiRateLimit } from '../middleware/rateLimit.js';
 
 const MAX_FAILED_LOGINS = 10;
 
@@ -167,7 +178,7 @@ export function registerAuthRoutes(app, { loginRateLimit }) {
       csrfToken,
     });
     } catch (err) {
-      console.error(JSON.stringify({ level: 'error', msg: 'login_failed', error: err.message }));
+      console.error(JSON.stringify({ level: 'error', msg: 'login_failed', error: err.message, stack: err.stack ?? null }));
       return apiError(res, 'Erro ao processar login', 500);
     }
   });
@@ -297,6 +308,42 @@ export function registerAuthRoutes(app, { loginRateLimit }) {
       tenantId: req.user.tenantId,
     });
   });
+
+  app.post(
+    '/api/auth/forgot-password',
+    loginRateLimit,
+    validateBody(forgotPasswordSchema),
+    async (req, res) => {
+      try {
+        const result = await requestPasswordReset({ email: req.validatedBody.email, req });
+        return apiSuccess(res, result, result.message);
+      } catch (err) {
+        return apiError(res, err.message || 'Falha ao solicitar redefinição', err.status ?? 500);
+      }
+    },
+  );
+
+  app.get('/api/auth/reset-password/preview', async (req, res) => {
+    const token = req.query.token?.toString();
+    if (!token) return apiError(res, 'Token obrigatório', 400);
+    const preview = await getPasswordResetPreview(token);
+    if (!preview) return apiError(res, 'Link inválido ou expirado', 404);
+    return apiSuccess(res, preview);
+  });
+
+  app.post(
+    '/api/auth/reset-password',
+    criticalApiRateLimit,
+    validateBody(resetPasswordSchema),
+    async (req, res) => {
+      try {
+        const result = await resetPassword({ ...req.validatedBody, req });
+        return apiSuccess(res, result, 'Senha redefinida com sucesso');
+      } catch (err) {
+        return apiError(res, err.message || 'Falha ao redefinir senha', err.status ?? 500);
+      }
+    },
+  );
 }
 
 export { validatePassword };

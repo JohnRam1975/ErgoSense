@@ -2,23 +2,24 @@
 # Deploy recomendado: Compose from URL
 #   https://raw.githubusercontent.com/JohnRam1975/ErgoSense/main/infra/docker-compose.yml
 #
-# IMPORTANTE: após atualizar o compose, faça PULL das imagens (não só Restart).
-# Tag pinada abaixo — se o .env ainda tiver :latest antigo, o container não muda.
+# Secrets: use infra/.env a partir de generate-production-env (sem defaults fracos).
+# Deploy orquestrado: infra/deploy.ps1 ou infra/deploy.sh (backup + health + rollback).
 #
-# Se a porta 80 já estiver com o FinCare (fincare-proxy), use PUBLIC_HTTP_PORT=8088 no .env
-# e aponte o domínio SSL para essa porta (ou reverse proxy).
+# IMPORTANTE: após atualizar o compose, faça PULL das imagens (não só Restart).
+# Se a porta 80 já estiver com o FinCare (fincare-proxy), use PUBLIC_HTTP_PORT=8088.
 
 name: ergosense
 
 services:
   db:
-    image: ${ERGOSENSE_POSTGRES_IMAGE:-ghcr.io/johnram1975/ergosense-postgres:20260722-apifix}
+    image: ${ERGOSENSE_POSTGRES_IMAGE:?ERGOSENSE_POSTGRES_IMAGE must be set}
     container_name: ergosense-db
     restart: unless-stopped
+    command: ["postgres", "-c", "max_connections=200", "-c", "shared_buffers=256MB"]
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-ergosense}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ergosense_change_me}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB must be set}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER must be set}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
     volumes:
       - ergosense_pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -46,20 +47,27 @@ services:
       - ergosense
 
   storage:
-    image: minio/minio:latest
+    # Pin recente (xl meta v3). Evite :latest flutuante em VPS; atualize a tag conscientemente.
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
     container_name: ergosense-storage
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-ergosense}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-ergosense_minio_change_me}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER must be set}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD must be set}
     volumes:
       - ergosense_minio:/data
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
       - ergosense
 
   backend:
-    image: ${ERGOSENSE_API_IMAGE:-ghcr.io/johnram1975/ergosense-api:20260722-apifix}
+    image: ${ERGOSENSE_API_IMAGE:?ERGOSENSE_API_IMAGE must be set}
     container_name: ergosense-backend
     restart: unless-stopped
     depends_on:
@@ -68,38 +76,46 @@ services:
       cache:
         condition: service_healthy
       storage:
-        condition: service_started
+        condition: service_healthy
     environment:
       NODE_ENV: production
       PORT: 3001
       RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
       PGHOST: db
       PGPORT: 5432
-      PGDATABASE: ${POSTGRES_DB:-ergosense}
-      PGUSER: ${POSTGRES_USER:-postgres}
-      PGPASSWORD: ${POSTGRES_PASSWORD:-ergosense_change_me}
+      PGDATABASE: ${POSTGRES_DB}
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
       REDIS_ENABLED: "true"
       REDIS_URL: redis://cache:6379
       CACHE_ENABLED: "true"
       SESSION_REDIS_ENABLED: "true"
       RABBITMQ_ENABLED: "false"
-      STORAGE_DRIVER: ${STORAGE_DRIVER:-database}
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-minio}
       STORAGE_ENDPOINT: http://storage:9000
       STORAGE_BUCKET: ${STORAGE_BUCKET:-ergosense-media}
-      STORAGE_ACCESS_KEY: ${MINIO_ROOT_USER:-ergosense}
-      STORAGE_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-ergosense_minio_change_me}
+      STORAGE_ACCESS_KEY: ${MINIO_ROOT_USER}
+      STORAGE_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       TRUST_PROXY: "true"
       CSRF_ENABLED: ${CSRF_ENABLED:-true}
-      MFA_ENABLED: ${MFA_ENABLED:-false}
-      CORS_ORIGINS: ${CORS_ORIGINS:-https://ergosense.dejohn.com.br}
-      APP_PUBLIC_URL: ${APP_PUBLIC_URL:-https://ergosense.dejohn.com.br}
-      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-access-secret-min-32-chars}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh-secret-min-32-chars}
-      MFA_ENCRYPTION_KEY: ${MFA_ENCRYPTION_KEY:-}
-      MFA_PENDING_SECRET: ${MFA_PENDING_SECRET:-}
+      MFA_ENABLED: ${MFA_ENABLED:-true}
+      CORS_ORIGINS: ${CORS_ORIGINS:?CORS_ORIGINS must be set}
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:?APP_PUBLIC_URL must be set}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?JWT_ACCESS_SECRET must be set}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET must be set}
+      MFA_ENCRYPTION_KEY: ${MFA_ENCRYPTION_KEY:?MFA_ENCRYPTION_KEY must be set}
+      MFA_PENDING_SECRET: ${MFA_PENDING_SECRET:?MFA_PENDING_SECRET must be set}
       RATE_LIMIT_SKIP_DEV: ${RATE_LIMIT_SKIP_DEV:-false}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-120}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
+      LOGIN_RATE_LIMIT_MAX: ${LOGIN_RATE_LIMIT_MAX:-10}
+      CRITICAL_RATE_LIMIT_MAX: ${CRITICAL_RATE_LIMIT_MAX:-30}
+      PGPOOL_MAX: ${PGPOOL_MAX:-20}
+      API_WORKERS: ${API_WORKERS:-4}
+      LISTEN_BACKLOG: ${LISTEN_BACKLOG:-2048}
+      UV_THREADPOOL_SIZE: ${UV_THREADPOOL_SIZE:-16}
       METRICS_ENABLED: "true"
-      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      METRICS_TOKEN: ${METRICS_TOKEN:?METRICS_TOKEN must be set}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       AI_PROVIDER: ${AI_PROVIDER:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
@@ -107,6 +123,7 @@ services:
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
       SEED_GLOBAL_ADMIN_EMAIL: ${SEED_GLOBAL_ADMIN_EMAIL:-}
       SEED_GLOBAL_ADMIN_PASSWORD: ${SEED_GLOBAL_ADMIN_PASSWORD:-}
+      PURGE_DEMO_TENANTS: ${PURGE_DEMO_TENANTS:-false}
       SUPPORT_CONTACT_EMAIL: ${SUPPORT_CONTACT_EMAIL:-ergosense.suporte@dejohn.com.br}
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3001/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
@@ -118,14 +135,13 @@ services:
       - ergosense
 
   frontend:
-    image: ${ERGOSENSE_WEB_IMAGE:-ghcr.io/johnram1975/ergosense-web:20260722-apifix}
+    image: ${ERGOSENSE_WEB_IMAGE:?ERGOSENSE_WEB_IMAGE must be set}
     container_name: ergosense-frontend
     restart: unless-stopped
     depends_on:
       backend:
         condition: service_healthy
     ports:
-      # No VPS compartilhado com FinCare a 80 já está ocupada → padrão 8088
       - "${PUBLIC_HTTP_PORT:-8088}:80"
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]

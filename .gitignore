@@ -7,8 +7,12 @@ node_modules/
 .env.*
 !.env.example
 !**/.env.example
+!.env.production.example
+!**/.env.production.example
 infra/docker/.env
 ergosense-app/server/.env
+infra/backups/
+infra/*.bak
 
 # Build & coverage
 dist/

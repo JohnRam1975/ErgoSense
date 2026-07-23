@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:36:54.240Z",
+  "generatedAt": "2026-07-23T16:50:09.498Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "POST /api/access-requests": {
       "method": "POST",

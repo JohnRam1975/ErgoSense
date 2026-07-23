@@ -174,7 +174,6 @@ vi.mock('../../api/client', () => ({
   apiSaveAetOrganizacao: vi.fn(),
   apiSaveAetMetodos: vi.fn(),
   apiGenerateAetReport: vi.fn(),
-  apiSignAet: vi.fn(),
   apiGetAetMobiliario: vi.fn().mockResolvedValue([]),
   apiSaveAetMobiliario: vi.fn(),
   apiGetAetEquipamentos: vi.fn().mockResolvedValue([]),
@@ -412,6 +411,31 @@ describe('AppContext — SST', () => {
     expect(mocks.apiCreateSstApr).toHaveBeenCalled();
     expect(mocks.apiCreateSstCapa).toHaveBeenCalled();
     expect(result.current.toast?.type).toBe('success');
+  });
+
+  it('createSstNc vazio mostra toast e não chama API', async () => {
+    const { result } = renderHook(() => useApp(), { wrapper });
+    await loginAsErgonomist(result);
+    mocks.apiCreateSstNc.mockClear();
+    await act(async () => {
+      const ok = await result.current.createSstNc({ description: '   ' });
+      expect(ok).toBe(false);
+    });
+    expect(mocks.apiCreateSstNc).not.toHaveBeenCalled();
+    expect(result.current.toast?.type).toBe('warn');
+    expect(result.current.toast?.msg).toMatch(/descrição da NC/i);
+  });
+
+  it('createSstNc erro de API mostra toast', async () => {
+    mocks.apiCreateSstNc.mockRejectedValueOnce(new Error('description obrigatório'));
+    const { result } = renderHook(() => useApp(), { wrapper });
+    await loginAsErgonomist(result);
+    await act(async () => {
+      const ok = await result.current.createSstNc({ description: 'NC com falha' });
+      expect(ok).toBe(false);
+    });
+    expect(result.current.toast?.type).toBe('warn');
+    expect(result.current.toast?.msg).toMatch(/description obrigatório|Erro ao registrar/i);
   });
 
   it('generateSstReport e downloadSstPdf', async () => {

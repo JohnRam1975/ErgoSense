@@ -584,48 +584,6 @@
         }
       }
     },
-    "/api/aet/processos/:id/assinar": {
-      "post": {
-        "tags": [
-          "AET"
-        ],
-        "summary": "POST /api/aet/processos/:id/assinar",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Sucesso"
-          },
-          "400": {
-            "description": "Requisição inválida"
-          },
-          "401": {
-            "description": "Não autenticado"
-          },
-          "403": {
-            "description": "Sem permissão"
-          },
-          "429": {
-            "description": "Rate limit"
-          },
-          "500": {
-            "description": "Erro interno"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/aet/mobiliario": {
       "get": {
         "tags": [
@@ -2328,6 +2286,198 @@
         }
       }
     },
+    "/api/auth/profile": {
+      "put": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "PUT /api/auth/profile",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Sem permissão"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "GET /api/auth/me",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Sem permissão"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        }
+      }
+    },
+    "/api/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "POST /api/auth/forgot-password",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Sem permissão"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password/preview": {
+      "get": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "GET /api/auth/reset-password/preview",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Sem permissão"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "POST /api/auth/reset-password",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Sem permissão"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/compliance/dashboard": {
       "get": {
         "tags": [
@@ -3197,6 +3347,79 @@
         }
       }
     },
+    "/api/public/support-contact": {
+      "get": {
+        "tags": [
+          "Público"
+        ],
+        "summary": "GET /api/public/support-contact",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Sem permissão"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Público"
+        ],
+        "summary": "POST /api/public/support-contact",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Sem permissão"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/collaborators": {
       "get": {
         "tags": [
@@ -3308,6 +3531,37 @@
                 "type": "object"
               }
             }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "collaborators"
+        ],
+        "summary": "DELETE /api/collaborators/:id",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Sem permissão"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "500": {
+            "description": "Erro interno"
           }
         }
       }
@@ -9106,6 +9360,39 @@
         }
       }
     },
+    "/api/admin/tenants/metadata": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "GET /api/admin/tenants/metadata",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Sem permissão"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        }
+      }
+    },
     "/api/admin/tenants/:id": {
       "get": {
         "tags": [
@@ -9263,6 +9550,90 @@
         }
       }
     },
+    "/api/admin/tenants/:id/deactivate": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "POST /api/admin/tenants/:id/deactivate",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Sem permissão"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/tenants/:id/grant-access": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "POST /api/admin/tenants/:id/grant-access",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Sem permissão"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "500": {
+            "description": "Erro interno"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/tenants/:id/reactivate": {
       "post": {
         "tags": [
@@ -9374,39 +9745,6 @@
                 "type": "object"
               }
             }
-          }
-        }
-      }
-    },
-    "/api/admin/tenants/metadata": {
-      "get": {
-        "tags": [
-          "Admin"
-        ],
-        "summary": "GET /api/admin/tenants/metadata",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Sucesso"
-          },
-          "400": {
-            "description": "Requisição inválida"
-          },
-          "401": {
-            "description": "Não autenticado"
-          },
-          "403": {
-            "description": "Sem permissão"
-          },
-          "429": {
-            "description": "Rate limit"
-          },
-          "500": {
-            "description": "Erro interno"
           }
         }
       }

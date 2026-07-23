@@ -40,6 +40,14 @@ async function api(path, { method = 'GET', token, body } = {}) {
   return { status: res.status, json };
 }
 
+/** Normaliza payloads `{ data }` / `{ items }` / array. */
+function asList(json) {
+  if (Array.isArray(json)) return json;
+  if (Array.isArray(json?.data)) return json.data;
+  if (Array.isArray(json?.items)) return json.items;
+  return [];
+}
+
 /** Postura típica de teleatendimento inadequado (inspeção em campo) */
 const FIELD_ANGLES = {
   lombar: 28,
@@ -155,24 +163,29 @@ async function main() {
   ]);
 
   if (sectors.status !== 200) issue('Reconhecimento', 'alto', 'Setores inacessíveis', `HTTP ${sectors.status}`);
-  else ok('Reconhecimento', `${sectors.json.length} setores mapeados`);
+  else ok('Reconhecimento', `${asList(sectors.json).length} setores mapeados`);
 
-  if (collabs.status !== 200 || !collabs.json?.length) {
+  const collabList = asList(collabs.json);
+  if (collabs.status !== 200 || !collabList.length) {
     issue('Reconhecimento', 'critico', 'Sem colaboradores cadastrados — impossível iniciar AEP');
   } else {
-    ok('Reconhecimento', `${collabs.json.length} colaboradores no tenant`);
+    ok('Reconhecimento', `${collabList.length} colaboradores no tenant`);
   }
 
   if (org.status === 200) ok('Reconhecimento', 'Estrutura organizacional carregada');
   else issue('Reconhecimento', 'medio', 'Árvore organizacional indisponível', `HTTP ${org.status}`);
 
-  const collab = collabs.json?.[0];
+  const collab =
+    collabList.find((c) => {
+      const n = String(c.name ?? c.nome ?? '');
+      return n && !n.includes('script') && !n.includes('&lt;');
+    }) ?? collabList[0];
   if (!collab) {
     printReport();
     process.exit(1);
   }
 
-  console.log(`\n  📋 Colaborador inspecionado: ${collab.name} · Mat. ${collab.matricula} · Setor ${collab.setor ?? '—'}`);
+  console.log(`\n  📋 Colaborador inspecionado: ${collab.name ?? collab.nome} · Mat. ${collab.matricula} · Setor ${collab.setor ?? collab.sector ?? '—'}`);
 
   // ── FASE 2: Avaliação ergonômica in loco ──
   console.log('\n── FASE 2 · Avaliação postural (teleatendimento) ──');
@@ -180,7 +193,7 @@ async function main() {
   const nr17Report = buildFieldNr17Report();
   const analysisPayload = {
     collaboratorId: collab.id,
-    collaboratorName: collab.name,
+    collaboratorName: collab.name ?? collab.nome,
     activity: 'Atendimento telefônico — pausa programada insuficiente',
     activityContext: 'teleatendimento',
     mode: 'complete',
@@ -209,18 +222,22 @@ async function main() {
     body: analysisPayload,
   });
 
-  if (createAnalysis.status !== 201) {
-    issue('Análise', 'critico', 'Falha ao registrar análise de campo', createAnalysis.json?.error ?? `HTTP ${createAnalysis.status}`);
+  if (createAnalysis.status !== 201 && createAnalysis.status !== 200) {
+    issue('Análise', 'critico', 'Falha ao registrar análise de campo', createAnalysis.json?.error ?? createAnalysis.json?.message ?? `HTTP ${createAnalysis.status}`);
   } else {
-    ok('Análise', `Análise registrada ID ${createAnalysis.json.id}`);
+    ok(
+      'Análise',
+      `Análise registrada ID ${createAnalysis.json?.id ?? createAnalysis.json?.data?.id ?? createAnalysis.json?.analysis?.id}`,
+    );
   }
 
-  const analysisId = createAnalysis.json?.id;
+  const analysisId =
+    createAnalysis.json?.id ?? createAnalysis.json?.data?.id ?? createAnalysis.json?.analysis?.id;
 
   // Validar leitura e consistência
   if (analysisId) {
     const list = await q('/api/analyses');
-    const saved = list.json?.find((a) => String(a.id) === String(analysisId));
+    const saved = asList(list.json).find((a) => String(a.id) === String(analysisId));
     if (!saved) {
       issue('Análise', 'alto', 'Análise criada não aparece na listagem');
     } else {
@@ -304,8 +321,9 @@ async function main() {
 
   const reports = await q('/api/reports');
   if (reports.status === 200) {
-    const nr17Reports = reports.json?.filter((r) => r.type === 'NR17' || r.tipo === 'NR17') ?? [];
-    ok('Relatórios', `${reports.json?.length ?? 0} relatórios · ${nr17Reports.length} NR-17`);
+    const reportList = asList(reports.json);
+    const nr17Reports = reportList.filter((r) => r.type === 'NR17' || r.tipo === 'NR17');
+    ok('Relatórios', `${reportList.length} relatórios · ${nr17Reports.length} NR-17`);
   } else issue('Relatórios', 'medio', 'Listagem de relatórios falhou', `HTTP ${reports.status}`);
 
   printReport();

@@ -68,21 +68,3 @@ export function buildAetDocument(
     generatedAt: new Date().toISOString(),
   };
 }
-
-export function signAetDocument(
-  aet: AetDocument,
-  signature: Omit<ProfessionalSignature, 'digitalSignatureHash'>,
-): AetDocument {
-  const payload = `${signature.ergonomistName}|${signature.professionalRegistry}|${signature.signatureDate}|${aet.generatedAt}`;
-  let hash = 0;
-  for (let i = 0; i < payload.length; i++) hash = (hash * 31 + payload.charCodeAt(i)) >>> 0;
-
-  return {
-    ...aet,
-    validation: {
-      status: 'validado',
-      signature: { ...signature, digitalSignatureHash: `ES-${hash.toString(16)}` },
-      validationNotes: 'Validado digitalmente via ErgoSense.',
-    },
-  };
-}

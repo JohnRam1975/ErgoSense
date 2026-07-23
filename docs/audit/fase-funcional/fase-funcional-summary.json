@@ -1,0 +1,1254 @@
+{
+  "generatedAt": "2026-07-23T20:38:43.081Z",
+  "baseUrl": "http://127.0.0.1:8090",
+  "prompt": "prompt-teste-funcional-ergosense.md",
+  "summary": {
+    "by": {
+      "PASS": 114,
+      "WARN": 0,
+      "FAIL": 0,
+      "BLOCKED": 13
+    },
+    "flows": {
+      "F1": {
+        "total": 15,
+        "pass": 15,
+        "warn": 0,
+        "fail": 0,
+        "blocked": 0,
+        "verdict": "PASS"
+      },
+      "F2": {
+        "total": 13,
+        "pass": 11,
+        "warn": 0,
+        "fail": 0,
+        "blocked": 2,
+        "verdict": "PASS"
+      },
+      "F3": {
+        "total": 17,
+        "pass": 17,
+        "warn": 0,
+        "fail": 0,
+        "blocked": 0,
+        "verdict": "PASS"
+      },
+      "F4": {
+        "total": 11,
+        "pass": 10,
+        "warn": 0,
+        "fail": 0,
+        "blocked": 1,
+        "verdict": "PASS"
+      },
+      "F5": {
+        "total": 5,
+        "pass": 5,
+        "warn": 0,
+        "fail": 0,
+        "blocked": 0,
+        "verdict": "PASS"
+      },
+      "F6": {
+        "total": 13,
+        "pass": 12,
+        "warn": 0,
+        "fail": 0,
+        "blocked": 1,
+        "verdict": "PASS"
+      },
+      "F7": {
+        "total": 9,
+        "pass": 9,
+        "warn": 0,
+        "fail": 0,
+        "blocked": 0,
+        "verdict": "PASS"
+      },
+      "F8": {
+        "total": 6,
+        "pass": 5,
+        "warn": 0,
+        "fail": 0,
+        "blocked": 1,
+        "verdict": "PASS"
+      },
+      "F9": {
+        "total": 7,
+        "pass": 7,
+        "warn": 0,
+        "fail": 0,
+        "blocked": 0,
+        "verdict": "PASS"
+      },
+      "F10": {
+        "total": 6,
+        "pass": 1,
+        "warn": 0,
+        "fail": 0,
+        "blocked": 5,
+        "verdict": "PASS"
+      }
+    },
+    "flowPassStrict": 10,
+    "flowPassSoft": 10,
+    "total": 127
+  },
+  "results": [
+    {
+      "modulo": "SETUP",
+      "id": "health",
+      "title": "API health/ready",
+      "status": "PASS",
+      "detail": "{\"status\":\"READY\",\"checks\":{\"database\":{\"ok\":true,\"latencyMs\":2},\"redis\":{\"ok\":true,\"latencyMs\":2}},\"timestamp\":\"2026-07-23T20:37:39.603Z\"}",
+      "role": "",
+      "at": "2026-07-23T20:37:39.624Z"
+    },
+    {
+      "modulo": "SETUP",
+      "id": "login-global",
+      "title": "Login ADMIN_GLOBAL",
+      "status": "PASS",
+      "detail": "status=ok",
+      "role": "ADMIN_GLOBAL",
+      "at": "2026-07-23T20:37:39.814Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "tenant-request-empresa",
+      "title": "POST /api/public/tenant-request empresa",
+      "status": "PASS",
+      "detail": "HTTP 201 {\"success\":true,\"message\":\"Solicitação registrada. Protocolo: ESP-20260723-C6E5D0\",\"data\":{\"id\":\"69\",\"protocolo\":\"ESP-20260723-C6E5D0\",\"tipoCadastro\":\"EMPRESA\",\"razaoSocial\":\"Func ",
+      "role": "",
+      "at": "2026-07-23T20:37:39.978Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "tenant-request-autonomo",
+      "title": "POST tenant-request AUTONOMO",
+      "status": "PASS",
+      "detail": "HTTP 201 {\"success\":true,\"message\":\"Solicitação registrada. Protocolo: ESP-20260723-1B8D12\",\"data\":{\"id\":\"70\",\"protocolo\":\"ESP-20260723-1B8D12\",\"tipoCadastro\":\"AUTONOMO\",\"razaoSocial\":\"Auto",
+      "role": "",
+      "at": "2026-07-23T20:37:40.061Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "admin-list-requests",
+      "title": "Listar solicitações PENDENTE",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "ADMIN_GLOBAL",
+      "at": "2026-07-23T20:37:44.817Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "admin-request-detail",
+      "title": "Detalhe solicitação",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "ADMIN_GLOBAL",
+      "at": "2026-07-23T20:37:44.835Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "approve",
+      "title": "Aprovar solicitação tenant A",
+      "status": "PASS",
+      "detail": "HTTP 200 tenant=func_tenant_a_1784839059526_432872",
+      "role": "ADMIN_GLOBAL",
+      "at": "2026-07-23T20:37:44.905Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "activate-preview",
+      "title": "Preview ativação + MFA QR",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:45.043Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "activate-account",
+      "title": "Ativar conta + MFA",
+      "status": "PASS",
+      "detail": "HTTP 200 {\"success\":true,\"message\":\"Conta ativada com sucesso\",\"data\":{\"ok\":true,\"email\":\"func.empresa.a.1784839059526@teste.loca",
+      "role": "",
+      "at": "2026-07-23T20:37:45.086Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "grant-access",
+      "title": "Liberar acesso pós-pagamento",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "ADMIN_GLOBAL",
+      "at": "2026-07-23T20:37:45.121Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "tenants-active",
+      "title": "Empresa em tenants ativos",
+      "status": "PASS",
+      "detail": "found=true HTTP 200",
+      "role": "ADMIN_GLOBAL",
+      "at": "2026-07-23T20:37:45.139Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "login-new-admin",
+      "title": "Login nova conta → sessão tenant",
+      "status": "PASS",
+      "detail": "token ok",
+      "role": "ADMIN_EMPRESA",
+      "at": "2026-07-23T20:37:45.229Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "activate-reuse",
+      "title": "Token ativação reusado deve falhar",
+      "status": "PASS",
+      "detail": "HTTP 400",
+      "role": "",
+      "at": "2026-07-23T20:37:45.243Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "reject",
+      "title": "Ação reject em solicitação distinta",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "ADMIN_GLOBAL",
+      "at": "2026-07-23T20:37:45.266Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "adjust",
+      "title": "Ação adjust em solicitação distinta",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "ADMIN_GLOBAL",
+      "at": "2026-07-23T20:37:45.299Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "block",
+      "title": "Bloquear tenant após aprovação",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "ADMIN_GLOBAL",
+      "at": "2026-07-23T20:37:45.340Z"
+    },
+    {
+      "modulo": "F1",
+      "id": "tenant-b-free",
+      "title": "Tenant B (free) criado",
+      "status": "PASS",
+      "detail": "tenant=tenant_b_1784839059526_640077",
+      "role": "",
+      "at": "2026-07-23T20:37:46.093Z"
+    },
+    {
+      "modulo": "SETUP",
+      "id": "seed-ERGONOMISTA",
+      "title": "Seed ERGONOMISTA",
+      "status": "PASS",
+      "detail": "DO",
+      "role": "",
+      "at": "2026-07-23T20:37:46.442Z"
+    },
+    {
+      "modulo": "SETUP",
+      "id": "seed-SUPERVISOR",
+      "title": "Seed SUPERVISOR",
+      "status": "PASS",
+      "detail": "DO",
+      "role": "",
+      "at": "2026-07-23T20:37:46.701Z"
+    },
+    {
+      "modulo": "SETUP",
+      "id": "seed-OPERADOR",
+      "title": "Seed OPERADOR",
+      "status": "PASS",
+      "detail": "DO",
+      "role": "",
+      "at": "2026-07-23T20:37:46.915Z"
+    },
+    {
+      "modulo": "SETUP",
+      "id": "login-roles",
+      "title": "Login papéis tenant A",
+      "status": "PASS",
+      "detail": "ergo=true sup=true op=true",
+      "role": "",
+      "at": "2026-07-23T20:37:47.127Z"
+    },
+    {
+      "modulo": "F2",
+      "id": "rbac-operador-admin",
+      "title": "OPERADOR bloqueado em /api/admin/*",
+      "status": "PASS",
+      "detail": "HTTP 403",
+      "role": "OPERADOR",
+      "at": "2026-07-23T20:37:47.137Z"
+    },
+    {
+      "modulo": "F2",
+      "id": "new-collab",
+      "title": "Cadastrar colaborador",
+      "status": "PASS",
+      "detail": "HTTP 201 via ERGONOMISTA",
+      "role": "ERGONOMISTA",
+      "at": "2026-07-23T20:37:47.238Z"
+    },
+    {
+      "modulo": "F2",
+      "id": "esp-self",
+      "title": "Colaborador ESP-SELF",
+      "status": "PASS",
+      "detail": "HTTP 201",
+      "role": "ERGONOMISTA",
+      "at": "2026-07-23T20:37:47.262Z"
+    },
+    {
+      "modulo": "F2",
+      "id": "sectors",
+      "title": "Listar/usar setores",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:47.271Z"
+    },
+    {
+      "modulo": "F2",
+      "id": "analysis-complete",
+      "title": "Criar análise modo complete",
+      "status": "PASS",
+      "detail": "HTTP 201 {\"success\":true,\"message\":\"Recurso criado com sucesso\",\"data\":{\"id\":\"58\",\"aetProcessId\":\"29\",\"aetCreated\":true,\"aetReportGenerated\":true}}",
+      "role": "ERGONOMISTA",
+      "at": "2026-07-23T20:37:47.472Z"
+    },
+    {
+      "modulo": "F2",
+      "id": "analysis-offline",
+      "title": "Criar análise offline synced=false",
+      "status": "PASS",
+      "detail": "HTTP 201",
+      "role": "ERGONOMISTA",
+      "at": "2026-07-23T20:37:47.629Z"
+    },
+    {
+      "modulo": "F2",
+      "id": "history",
+      "title": "Listar histórico análises",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:47.651Z"
+    },
+    {
+      "modulo": "F2",
+      "id": "reports",
+      "title": "GET /api/reports",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:47.667Z"
+    },
+    {
+      "modulo": "F2",
+      "id": "rbac-delete",
+      "title": "OPERADOR sem DELETE análise",
+      "status": "PASS",
+      "detail": "403",
+      "role": "OPERADOR",
+      "at": "2026-07-23T20:37:47.681Z"
+    },
+    {
+      "modulo": "F2",
+      "id": "history-delete",
+      "title": "Excluir análise (ergonomista)",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:47.698Z"
+    },
+    {
+      "modulo": "F2",
+      "id": "plan-free-history",
+      "title": "Tenant free: histórico listável",
+      "status": "PASS",
+      "detail": "count=0 (limite UI=5)",
+      "role": "",
+      "at": "2026-07-23T20:37:47.714Z"
+    },
+    {
+      "modulo": "F2",
+      "id": "camera-ui",
+      "title": "Captura câmera/skeleton UI",
+      "status": "BLOCKED",
+      "detail": "requer browser + câmera — não automatizado nesta rodada API",
+      "role": "",
+      "at": "2026-07-23T20:37:47.714Z"
+    },
+    {
+      "modulo": "F2",
+      "id": "pdf-share-ui",
+      "title": "PDF NR-17 + share UI",
+      "status": "BLOCKED",
+      "detail": "export client-side — validar manualmente / Playwright",
+      "role": "",
+      "at": "2026-07-23T20:37:47.714Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "criterios-active",
+      "title": "Critérios ativos",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:47.729Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "criterios-config",
+      "title": "Metodologias critérios",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:47.743Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "inventario-create",
+      "title": "Cadastrar risco inventário",
+      "status": "PASS",
+      "detail": "HTTP 201 {\"id\":\"99\",\"tenantId\":\"func_tenant_a_1784839059526_432872\",\"type\":\"ERGONOMICO\",\"sectorId\":null,\"sectorName\":null,\"collaboratorId\":null,\"collaboratorNa",
+      "role": "",
+      "at": "2026-07-23T20:37:47.962Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "inventario-lista",
+      "title": "Listar inventário",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:48.000Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "inventario-matriz",
+      "title": "Summary/matriz inventário",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:48.018Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "gro-dashboard",
+      "title": "GRO dashboard",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:48.040Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "gro-advance",
+      "title": "GRO avançar estágio",
+      "status": "PASS",
+      "detail": "HTTP 200 {\"ok\":true,\"stage\":\"AVALIACAO\",\"label\":\"Avaliação\"}",
+      "role": "",
+      "at": "2026-07-23T20:37:48.058Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "gro-revert",
+      "title": "GRO reverter estágio",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:48.072Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "gro-plano",
+      "title": "GRO plano de ação",
+      "status": "PASS",
+      "detail": "HTTP 201 {\"id\":\"51\",\"tenantId\":\"func_tenant_a_1784839059526_432872\",\"riskId\":\"99\",\"riskHazard\":\"Postura força",
+      "role": "",
+      "at": "2026-07-23T20:37:48.091Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "gro-indicadores",
+      "title": "GRO indicadores",
+      "status": "PASS",
+      "detail": "HTTP 201 {\"id\":\"53\",\"tenantId\":\"func_tenant_a_1784839059526_432872\",\"riskId\":null,\"riskHazard\":null,\"name\":\"I",
+      "role": "",
+      "at": "2026-07-23T20:37:48.107Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "gro-historico",
+      "title": "GRO histórico",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:48.121Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "pgr-generate",
+      "title": "Gerar versão PGR",
+      "status": "PASS",
+      "detail": "HTTP 201 {\"id\":\"25\",\"tenantId\":\"func_tenant_a_1784839059526_432872\",\"programId\":\"13\",\"number\":\"1.1\",\"sequential\":1,\"status\":\"RASC",
+      "role": "",
+      "at": "2026-07-23T20:37:48.228Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "pgr-submit",
+      "title": "PGR submit approval",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:48.255Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "pgr-approve",
+      "title": "PGR approve",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:48.280Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "pgr-sign",
+      "title": "PGR sign",
+      "status": "PASS",
+      "detail": "HTTP 201 {\"id\":\"4\",\"versionId\":\"25\",\"type\":\"RESPONSAVEL_TECNICO\",\"name\":\"Assinante Teste\"",
+      "role": "",
+      "at": "2026-07-23T20:37:48.313Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "pgr-historico",
+      "title": "PGR histórico",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:48.371Z"
+    },
+    {
+      "modulo": "F3",
+      "id": "integracao-inv-pgr",
+      "title": "Editar risco após PGR",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:48.473Z"
+    },
+    {
+      "modulo": "F4",
+      "id": "psico-dashboard",
+      "title": "Psico dashboard",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:48.506Z"
+    },
+    {
+      "modulo": "F4",
+      "id": "campanha-create",
+      "title": "Criar campanha psico",
+      "status": "PASS",
+      "detail": "HTTP 201 {\"id\":\"12\",\"type\":\"COPSOQ_III\",\"title\":\"Campanha 1784839059526\",\"sectorId\":null,\"sectorName\":null,\"anonymous\":true,\"acti",
+      "role": "",
+      "at": "2026-07-23T20:37:48.527Z"
+    },
+    {
+      "modulo": "F4",
+      "id": "campanha-link",
+      "title": "Link público gerado",
+      "status": "PASS",
+      "detail": "http://localhost:5173/form/56655161d6f662a7c9bb55d36f064eacf470cbf97e1bd173",
+      "role": "",
+      "at": "2026-07-23T20:37:48.527Z"
+    },
+    {
+      "modulo": "F4",
+      "id": "form-public-get",
+      "title": "GET form público sem auth",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:37:48.539Z"
+    },
+    {
+      "modulo": "F4",
+      "id": "form-public-post",
+      "title": "Respostas anônimas (5)",
+      "status": "PASS",
+      "detail": "ok=4/5",
+      "role": "",
+      "at": "2026-07-23T20:38:41.510Z"
+    },
+    {
+      "modulo": "F4",
+      "id": "psico-fatores",
+      "title": "13 fatores MTE",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:41.530Z"
+    },
+    {
+      "modulo": "F4",
+      "id": "psico-matriz",
+      "title": "Matriz 5x5",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:41.541Z"
+    },
+    {
+      "modulo": "F4",
+      "id": "psico-plano",
+      "title": "Plano de ação psico",
+      "status": "PASS",
+      "detail": "HTTP 201",
+      "role": "",
+      "at": "2026-07-23T20:38:41.559Z"
+    },
+    {
+      "modulo": "F4",
+      "id": "psico-conformidade",
+      "title": "Checklist conformidade",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:41.576Z"
+    },
+    {
+      "modulo": "F4",
+      "id": "psico-ia-ui",
+      "title": "psicossocial-ia Em breve",
+      "status": "BLOCKED",
+      "detail": "UI ComingSoon — validar no browser",
+      "role": "",
+      "at": "2026-07-23T20:38:41.577Z"
+    },
+    {
+      "modulo": "F4",
+      "id": "lgpd-anon",
+      "title": "LGPD: sem identificação individual",
+      "status": "PASS",
+      "detail": "form público sem login; agregação mínima depende UI",
+      "role": "",
+      "at": "2026-07-23T20:38:41.577Z"
+    },
+    {
+      "modulo": "F5",
+      "id": "denuncia-public",
+      "title": "Denúncia pública sem login",
+      "status": "PASS",
+      "detail": "HTTP 201 {\"protocol\":\"DEN-2026-00001\",\"accessToken\":\"52b9ddcee87111c6ad52cde0e649480633c68292e3cc0bad\",\"message\":\"Denúncia registrada. Guarde o protocolo e o t",
+      "role": "",
+      "at": "2026-07-23T20:38:41.660Z"
+    },
+    {
+      "modulo": "F5",
+      "id": "denuncia-status",
+      "title": "Consulta status por protocolo",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:41.670Z"
+    },
+    {
+      "modulo": "F5",
+      "id": "denuncia-lista",
+      "title": "Listar denúncias autenticado",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "ERGONOMISTA",
+      "at": "2026-07-23T20:38:41.684Z"
+    },
+    {
+      "modulo": "F5",
+      "id": "denuncia-tratar",
+      "title": "Tratar denúncia",
+      "status": "PASS",
+      "detail": "status=200 trat=201",
+      "role": "ERGONOMISTA",
+      "at": "2026-07-23T20:38:41.767Z"
+    },
+    {
+      "modulo": "F5",
+      "id": "rbac-operador-tratar",
+      "title": "OPERADOR não trata denúncia",
+      "status": "PASS",
+      "detail": "HTTP 403",
+      "role": "OPERADOR",
+      "at": "2026-07-23T20:38:41.776Z"
+    },
+    {
+      "modulo": "F6",
+      "id": "aet-dashboard",
+      "title": "AET dashboard",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:41.800Z"
+    },
+    {
+      "modulo": "F6",
+      "id": "aet-create",
+      "title": "Criar processo AET",
+      "status": "PASS",
+      "detail": "HTTP 201 {\"id\":\"33\",\"tenantId\":\"func_tenant_a_1784839059526_432872\",\"title\":\"AET 1784839059526\",\"collaboratorId\":null,\"sectorId\":",
+      "role": "",
+      "at": "2026-07-23T20:38:41.817Z"
+    },
+    {
+      "modulo": "F6",
+      "id": "aet-advance",
+      "title": "Avançar etapa AET",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:41.833Z"
+    },
+    {
+      "modulo": "F6",
+      "id": "aet-retreat",
+      "title": "Recuar etapa AET",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:41.848Z"
+    },
+    {
+      "modulo": "F6",
+      "id": "aet-cadastros",
+      "title": "Cadastro mobiliário AET",
+      "status": "PASS",
+      "detail": "HTTP 201",
+      "role": "",
+      "at": "2026-07-23T20:38:41.863Z"
+    },
+    {
+      "modulo": "F6",
+      "id": "sst-dashboard",
+      "title": "SST dashboard",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:41.894Z"
+    },
+    {
+      "modulo": "F6",
+      "id": "sst-apr",
+      "title": "Registrar APR",
+      "status": "PASS",
+      "detail": "HTTP 201",
+      "role": "",
+      "at": "2026-07-23T20:38:41.916Z"
+    },
+    {
+      "modulo": "F6",
+      "id": "sst-epi",
+      "title": "Cadastrar EPI",
+      "status": "PASS",
+      "detail": "HTTP 201",
+      "role": "",
+      "at": "2026-07-23T20:38:41.932Z"
+    },
+    {
+      "modulo": "F6",
+      "id": "sst-inspecoes",
+      "title": "Programar inspeção",
+      "status": "PASS",
+      "detail": "HTTP 201",
+      "role": "",
+      "at": "2026-07-23T20:38:41.946Z"
+    },
+    {
+      "modulo": "F6",
+      "id": "sst-nc",
+      "title": "Abrir NC",
+      "status": "PASS",
+      "detail": "HTTP 201",
+      "role": "",
+      "at": "2026-07-23T20:38:42.002Z"
+    },
+    {
+      "modulo": "F6",
+      "id": "sst-treinamentos",
+      "title": "Treinamento SST",
+      "status": "PASS",
+      "detail": "HTTP 201",
+      "role": "",
+      "at": "2026-07-23T20:38:42.018Z"
+    },
+    {
+      "modulo": "F6",
+      "id": "sst-relatorios",
+      "title": "Relatórios SST",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:42.032Z"
+    },
+    {
+      "modulo": "F6",
+      "id": "pdf-aet-sst-ui",
+      "title": "PDFs AET/SST",
+      "status": "BLOCKED",
+      "detail": "export client-side",
+      "role": "",
+      "at": "2026-07-23T20:38:42.032Z"
+    },
+    {
+      "modulo": "F7",
+      "id": "compliance-fontes",
+      "title": "Listar fontes",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:42.095Z"
+    },
+    {
+      "modulo": "F7",
+      "id": "compliance-scan",
+      "title": "Varredura manual",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:42.349Z"
+    },
+    {
+      "modulo": "F7",
+      "id": "compliance-alertas",
+      "title": "Alertas (não auto-aplicados)",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:42.361Z"
+    },
+    {
+      "modulo": "F7",
+      "id": "compliance-deteccoes",
+      "title": "Listar detecções",
+      "status": "PASS",
+      "detail": "HTTP 200 n=7",
+      "role": "",
+      "at": "2026-07-23T20:38:42.371Z"
+    },
+    {
+      "modulo": "F7",
+      "id": "compliance-aprovar",
+      "title": "Validação humana APROVAR",
+      "status": "PASS",
+      "detail": "HTTP 200 {\"status\":\"APROVADA\",\"autoApplyExecuted\":false,\"flaggedModules\":[],\"notice\":\"Regras do motor ErgoSen",
+      "role": "",
+      "at": "2026-07-23T20:38:42.399Z"
+    },
+    {
+      "modulo": "F7",
+      "id": "compliance-rejeitar",
+      "title": "Validação humana REJEITAR",
+      "status": "PASS",
+      "detail": "HTTP 200 {\"status\":\"REJEITADA\",\"autoApplyExecuted\":false,\"flaggedModules\":[],\"notice\":\"Regras do motor ErgoSe",
+      "role": "",
+      "at": "2026-07-23T20:38:42.416Z"
+    },
+    {
+      "modulo": "F7",
+      "id": "compliance-adequacao",
+      "title": "Tarefas adequação",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:42.425Z"
+    },
+    {
+      "modulo": "F7",
+      "id": "compliance-relatorios",
+      "title": "Relatórios impacto",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:42.440Z"
+    },
+    {
+      "modulo": "F7",
+      "id": "no-auto-apply",
+      "title": "Sem endpoint aplicar-automatico",
+      "status": "PASS",
+      "detail": "HTTP 404",
+      "role": "",
+      "at": "2026-07-23T20:38:42.454Z"
+    },
+    {
+      "modulo": "F8",
+      "id": "authorize",
+      "title": "Admin empresa autoriza suporte",
+      "status": "PASS",
+      "detail": "HTTP 200 {\"tenantId\":\"func_tenant_a_1784839059526_432872\",\"tenantName\":\"Func Tenant A 1784839059526\",\"plan\":\"PROFESSIONAL\",\"activ",
+      "role": "ADMIN_EMPRESA",
+      "at": "2026-07-23T20:38:42.478Z"
+    },
+    {
+      "modulo": "F8",
+      "id": "support-status",
+      "title": "Status suporte",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:42.489Z"
+    },
+    {
+      "modulo": "F8",
+      "id": "support-active-global",
+      "title": "Global vê suporte ativo",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "ADMIN_GLOBAL",
+      "at": "2026-07-23T20:38:42.508Z"
+    },
+    {
+      "modulo": "F8",
+      "id": "support-audit",
+      "title": "Auditoria suporte",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:42.521Z"
+    },
+    {
+      "modulo": "F8",
+      "id": "revoke",
+      "title": "Revogar suporte",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "ADMIN_EMPRESA",
+      "at": "2026-07-23T20:38:42.536Z"
+    },
+    {
+      "modulo": "F8",
+      "id": "support-bar-ui",
+      "title": "SupportModeBar UI",
+      "status": "BLOCKED",
+      "detail": "requer browser login global no tenant",
+      "role": "",
+      "at": "2026-07-23T20:38:42.536Z"
+    },
+    {
+      "modulo": "F9",
+      "id": "tenants-active",
+      "title": "Listar tenants active",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "ADMIN_GLOBAL",
+      "at": "2026-07-23T20:38:42.551Z"
+    },
+    {
+      "modulo": "F9",
+      "id": "tenants-blocked",
+      "title": "Listar tenants blocked",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "ADMIN_GLOBAL",
+      "at": "2026-07-23T20:38:42.563Z"
+    },
+    {
+      "modulo": "F9",
+      "id": "tenants-expired",
+      "title": "Listar tenants expired",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "ADMIN_GLOBAL",
+      "at": "2026-07-23T20:38:42.574Z"
+    },
+    {
+      "modulo": "F9",
+      "id": "tenant-detail",
+      "title": "Detalhe tenant",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:42.585Z"
+    },
+    {
+      "modulo": "F9",
+      "id": "tenant-update",
+      "title": "Atualizar metadados",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:42.607Z"
+    },
+    {
+      "modulo": "F9",
+      "id": "register-company",
+      "title": "POST /api/tenants ADMIN_GLOBAL",
+      "status": "PASS",
+      "detail": "HTTP 201 {\"success\":true,\"message\":\"Empresa cadastrada com sucesso\",\"data\":{\"tenant\":{\"id\":\"direct_co_1784839059526\",\"name\":\"Dire",
+      "role": "",
+      "at": "2026-07-23T20:38:42.676Z"
+    },
+    {
+      "modulo": "F9",
+      "id": "rbac-empresa-admin",
+      "title": "ADMIN_EMPRESA sem admin tenants",
+      "status": "PASS",
+      "detail": "HTTP 403",
+      "role": "ADMIN_EMPRESA",
+      "at": "2026-07-23T20:38:42.686Z"
+    },
+    {
+      "modulo": "F10",
+      "id": "v2-methods-data",
+      "title": "Dados para métodos V2 (análises)",
+      "status": "PASS",
+      "detail": "HTTP 200 — scoring V2 é client-side",
+      "role": "",
+      "at": "2026-07-23T20:38:42.703Z"
+    },
+    {
+      "modulo": "F10",
+      "id": "v2-video-ui",
+      "title": "Upload/live vídeo UI",
+      "status": "BLOCKED",
+      "detail": "requer browser + arquivo de vídeo",
+      "role": "",
+      "at": "2026-07-23T20:38:42.703Z"
+    },
+    {
+      "modulo": "F10",
+      "id": "v2-environmental-ui",
+      "title": "Ambientais simulação UI",
+      "status": "BLOCKED",
+      "detail": "requer browser",
+      "role": "",
+      "at": "2026-07-23T20:38:42.703Z"
+    },
+    {
+      "modulo": "F10",
+      "id": "v2-dashboard-ui",
+      "title": "Dashboard V2 UI",
+      "status": "BLOCKED",
+      "detail": "requer browser",
+      "role": "",
+      "at": "2026-07-23T20:38:42.703Z"
+    },
+    {
+      "modulo": "F10",
+      "id": "v2-roadmap-ui",
+      "title": "Roadmap informativo",
+      "status": "BLOCKED",
+      "detail": "requer browser — esperado não-interativo",
+      "role": "",
+      "at": "2026-07-23T20:38:42.703Z"
+    },
+    {
+      "modulo": "F10",
+      "id": "v2-audit-ui",
+      "title": "Audit trail local",
+      "status": "BLOCKED",
+      "detail": "localStorage client",
+      "role": "",
+      "at": "2026-07-23T20:38:42.703Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "rbac-OPERADOR-tenants",
+      "title": "RBAC OPERADOR GET /api/admin/tenants",
+      "status": "PASS",
+      "detail": "HTTP 403 expect 403",
+      "role": "OPERADOR",
+      "at": "2026-07-23T20:38:42.712Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "rbac-OPERADOR-999999",
+      "title": "RBAC OPERADOR DELETE /api/collaborators/999999",
+      "status": "PASS",
+      "detail": "HTTP 403 expect 403|404",
+      "role": "OPERADOR",
+      "at": "2026-07-23T20:38:42.723Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "rbac-SUPERVISOR-analyses",
+      "title": "RBAC SUPERVISOR POST /api/analyses",
+      "status": "PASS",
+      "detail": "HTTP 403 expect 403",
+      "role": "SUPERVISOR",
+      "at": "2026-07-23T20:38:42.730Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "rbac-ERGONOMISTA-risk-inventory",
+      "title": "RBAC ERGONOMISTA GET /api/risk-inventory",
+      "status": "PASS",
+      "detail": "HTTP 200 expect 200",
+      "role": "ERGONOMISTA",
+      "at": "2026-07-23T20:38:42.790Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "rbac-ADMIN_EMPRESA-status",
+      "title": "RBAC ADMIN_EMPRESA GET /api/support/status",
+      "status": "PASS",
+      "detail": "HTTP 200 expect 200|404",
+      "role": "ADMIN_EMPRESA",
+      "at": "2026-07-23T20:38:42.813Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "tenant-isolation",
+      "title": "Tenant B não lê colab A",
+      "status": "PASS",
+      "detail": "HTTP 404",
+      "role": "",
+      "at": "2026-07-23T20:38:42.839Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "login-bad-pass",
+      "title": "Senha errada",
+      "status": "PASS",
+      "detail": "HTTP 401",
+      "role": "",
+      "at": "2026-07-23T20:38:42.860Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "login-bad-email",
+      "title": "E-mail inexistente",
+      "status": "PASS",
+      "detail": "HTTP 401",
+      "role": "",
+      "at": "2026-07-23T20:38:42.871Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "forgot-password",
+      "title": "Forgot password",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:42.892Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "mfa-flow",
+      "title": "MFA no onboarding F1",
+      "status": "PASS",
+      "detail": "ver F1",
+      "role": "",
+      "at": "2026-07-23T20:38:42.892Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "logout",
+      "title": "Logout",
+      "status": "PASS",
+      "detail": "HTTP 200 {\"success\":true,\"message\":\"Logout realizado\"}",
+      "role": "",
+      "at": "2026-07-23T20:38:43.001Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "ai-status",
+      "title": "GET /api/system/ai-status",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:43.008Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "ai-api",
+      "title": "AI expert/analyze-ergonomics API",
+      "status": "PASS",
+      "detail": "HTTP 503 esperado sem AI_PROVIDER",
+      "role": "",
+      "at": "2026-07-23T20:38:43.018Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "esocial-api",
+      "title": "eSocial dashboard API (UI em breve)",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:43.036Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "org-tree",
+      "title": "Árvore organizacional",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "role": "",
+      "at": "2026-07-23T20:38:43.062Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "org-create",
+      "title": "Criar unidade org",
+      "status": "PASS",
+      "detail": "HTTP 201",
+      "role": "",
+      "at": "2026-07-23T20:38:43.080Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "pwa-offline-ui",
+      "title": "PWA install + offline UI",
+      "status": "BLOCKED",
+      "detail": "requer browser",
+      "role": "",
+      "at": "2026-07-23T20:38:43.080Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "exports-ui",
+      "title": "Exports PDF todos",
+      "status": "BLOCKED",
+      "detail": "client-side — Playwright",
+      "role": "",
+      "at": "2026-07-23T20:38:43.080Z"
+    },
+    {
+      "modulo": "TX",
+      "id": "coming-soon-ui",
+      "title": "Placeholders Em breve",
+      "status": "BLOCKED",
+      "detail": "browser: psico-ia, AI Expert, esocial-*, v2-roadmap",
+      "role": "",
+      "at": "2026-07-23T20:38:43.080Z"
+    }
+  ],
+  "bugs": [],
+  "gaps": [
+    "UI câmera/skeleton/workstation (F2)",
+    "Export PDFs client-side e shareAnalysis",
+    "PWA install + offline forçado",
+    "V2 vídeo upload/live, ambientais, dashboard, roadmap, audit local",
+    "Placeholders Em breve (psico-ia, AI Expert panel, esocial-* UI)",
+    "SupportModeBar visual",
+    "Limite hard 10 análises/mês free (enforcement UI/API completo)",
+    "Matriz RBAC 100% de cada permissão documentada"
+  ]
+}

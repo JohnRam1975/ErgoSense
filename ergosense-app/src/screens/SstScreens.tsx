@@ -163,6 +163,27 @@ export function SstNcCapaScreen() {
   const [aba, setAba] = useState<'nc' | 'capa'>('nc');
   const [desc, setDesc] = useState('');
   const [ncId, setNcId] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const handleSubmit = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      if (aba === 'nc') {
+        const ok = await createSstNc({ description: desc });
+        if (ok) setDesc('');
+      } else {
+        const ok = await createSstCapa({ description: desc, ncId: ncId || undefined, syncGro: true });
+        if (ok) {
+          setDesc('');
+          setNcId('');
+        }
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="scroll">
       <div className="row gap8 mb12">
@@ -177,11 +198,9 @@ export function SstNcCapaScreen() {
             {sstNc.filter((n) => n.status !== 'fechada').map((n) => <option key={n.id} value={n.id}>{n.title}</option>)}
           </select>
         )}
-        <button className="btn bp" onClick={() => {
-          if (aba === 'nc') void createSstNc({ description: desc });
-          else void createSstCapa({ description: desc, ncId: ncId || undefined, syncGro: true });
-          setDesc('');
-        }}>{aba === 'nc' ? 'Registrar NC' : 'Criar CAPA (+ GRO)'}</button>
+        <button className="btn bp" disabled={busy} onClick={() => void handleSubmit()}>
+          {busy ? 'Salvando…' : aba === 'nc' ? 'Registrar NC' : 'Criar CAPA (+ GRO)'}
+        </button>
       </div>
       {aba === 'nc' ? sstNc.map((n) => (
         <div key={n.id} className="card" style={{ borderLeft: `3px solid ${sevColor(n.severity)}` }}>

@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:37:20.182Z",
+  "generatedAt": "2026-07-23T16:50:36.338Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "GET /api/system/ai-status": {
       "method": "GET",
@@ -21,7 +21,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 11ms",
+          "detail": "HTTP 200 9ms",
           "classification": null
         },
         "schema_valid": {

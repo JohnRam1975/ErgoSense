@@ -1,0 +1,30 @@
+﻿{
+  "@types/node": {
+    "current": "24.12.4",
+    "wanted": "24.13.3",
+    "latest": "26.1.1",
+    "dependent": "ergosense-app",
+    "location": "C:\\Users\\Djohn\\Desktop\\SOFTWARE\\ERGOSENSE\\ergosense-app\\node_modules\\@types\\node"
+  },
+  "onnxruntime-web": {
+    "current": "1.21.0",
+    "wanted": "1.27.0",
+    "latest": "1.27.0",
+    "dependent": "ergosense-app",
+    "location": "C:\\Users\\Djohn\\Desktop\\SOFTWARE\\ERGOSENSE\\ergosense-app\\node_modules\\onnxruntime-web"
+  },
+  "react": {
+    "current": "19.2.6",
+    "wanted": "19.2.8",
+    "latest": "19.2.8",
+    "dependent": "ergosense-app",
+    "location": "C:\\Users\\Djohn\\Desktop\\SOFTWARE\\ERGOSENSE\\ergosense-app\\node_modules\\react"
+  },
+  "react-dom": {
+    "current": "19.2.6",
+    "wanted": "19.2.8",
+    "latest": "19.2.8",
+    "dependent": "ergosense-app",
+    "location": "C:\\Users\\Djohn\\Desktop\\SOFTWARE\\ERGOSENSE\\ergosense-app\\node_modules\\react-dom"
+  }
+}

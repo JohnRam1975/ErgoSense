@@ -28,6 +28,9 @@ const ROLE_PERMISSIONS = {
   ],
   ERGONOMISTA: [
     'collaborators:read',
+    'collaborators:create',
+    'collaborators:update',
+    'collaborators:delete',
     'analyses:*',
     'reports:read',
     'sectors:read',

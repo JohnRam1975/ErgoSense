@@ -1,10 +1,17 @@
 name: ErgoSense CI
 
+# CI de validação — não faz deploy nem publica secrets.
+# Deploy produção: infra/deploy.ps1 | infra/deploy.sh (backup + rollback).
+# Secrets de produção NUNCA devem ir para este workflow.
+
 on:
   push:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+
+permissions:
+  contents: read
 
 env:
   NODE_VERSION: "22"

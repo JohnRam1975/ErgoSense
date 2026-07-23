@@ -1,6 +1,9 @@
 # Roadmap de Ajustes Futuros — ErgoSense
 **Data:** 08/06/2026 | Baseado na análise de gap vs. Guia MTE 2025
 
+> **Planejamento histórico do app.** Plano legal canônico: [`../../roadmap-implementacao.md`](../../roadmap-implementacao.md).  
+> Produto atual (fonte de verdade): [`../../docs/funcional/README.md`](../../docs/funcional/README.md).
+
 ---
 
 ## Estado atual (v3.0)

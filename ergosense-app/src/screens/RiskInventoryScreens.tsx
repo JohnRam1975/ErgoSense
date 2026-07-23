@@ -3,6 +3,8 @@
  */
 import { useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { PaginationBar } from '../components/PaginationBar';
+import { useClientPagination } from '../hooks/useClientPagination';
 import type { RiskLevel } from '../types';
 import {
   EXPOSURE_FREQUENCY_OPTIONS,
@@ -13,6 +15,7 @@ import {
   type RiskInventoryItem,
   type RiskInventoryType,
 } from '../types/riskInventory';
+import { riskNivelLabelUpper } from '../utils/riskNivelLabel';
 
 function nivelColor(n: RiskLevel) {
   return n === 'critico' ? 'var(--red)' : n === 'alto' ? 'var(--orange)' : n === 'medio' ? 'var(--amber)' : 'var(--green)';
@@ -21,7 +24,7 @@ function nivelBg(n: RiskLevel) {
   return n === 'critico' ? 'var(--r10)' : n === 'alto' ? 'var(--o10)' : n === 'medio' ? 'var(--a10)' : 'var(--g10)';
 }
 function nivelLabel(n: RiskLevel) {
-  return n === 'critico' ? 'CRÍTICO' : n === 'alto' ? 'ALTO' : n === 'medio' ? 'MÉDIO' : 'BAIXO';
+  return riskNivelLabelUpper(n);
 }
 function matrizCor(score: number): { bg: string; text: string } {
   if (score >= 20) return { bg: 'var(--red)', text: '#fff' };
@@ -172,6 +175,8 @@ export function RiskInventoryListScreen() {
     });
   }, [riskInventory, filterType, filterLevel]);
 
+  const pager = useClientPagination(filtered, { resetKey: `${filterType}|${filterLevel}` });
+
   return (
     <div className="scroll">
       <div className="sec row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
@@ -202,31 +207,44 @@ export function RiskInventoryListScreen() {
       ) : filtered.length === 0 ? (
         <EmptyState message="Nenhum risco encontrado com os filtros selecionados." action={() => openRiskForm()} />
       ) : (
-        filtered.map((r) => (
-          <div key={r.id} className="card" style={{ marginBottom: 10 }}>
-            <div className="row" style={{ justifyContent: 'space-between', marginBottom: 6 }}>
-              <span style={{ fontSize: 11, color: 'var(--t2)' }}>
-                {RISK_INVENTORY_TYPES.find((t) => t.value === r.type)?.icon} {riskTypeLabel(r.type)}
-              </span>
-              <RiskBadge level={r.riskLevel} />
+        <>
+          {pager.pageItems.map((r) => (
+            <div key={r.id} className="card" style={{ marginBottom: 10 }}>
+              <div className="row" style={{ justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 11, color: 'var(--t2)' }}>
+                  {RISK_INVENTORY_TYPES.find((t) => t.value === r.type)?.icon} {riskTypeLabel(r.type)}
+                </span>
+                <RiskBadge level={r.riskLevel} />
+              </div>
+              <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{r.hazard}</div>
+              <div style={{ fontSize: 12, color: 'var(--t1)', marginBottom: 4 }}>
+                <strong>Fonte:</strong> {r.generatingSource}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--t2)', marginBottom: 4 }}>
+                Exposição: {r.exposureDuration || '—'} · {r.exposureFrequency || '—'} · {r.exposureIntensity || '—'}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--t2)', marginBottom: 8 }}>
+                GHE: {r.homogeneousExposureGroup || '—'} · {r.exposedWorkersCount} trab. · Score {r.riskScore}
+              </div>
+              <LinkBadges item={r} />
+              <div className="row gap8 mt8">
+                <button type="button" className="btn bs" style={{ flex: 1, marginBottom: 0 }} onClick={() => openRiskForm(r)}>Editar</button>
+                <button type="button" className="btn br" style={{ flex: 1, marginBottom: 0 }} onClick={() => void deleteRiskInventory(r.id)}>Excluir</button>
+              </div>
             </div>
-            <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{r.hazard}</div>
-            <div style={{ fontSize: 12, color: 'var(--t1)', marginBottom: 4 }}>
-              <strong>Fonte:</strong> {r.generatingSource}
-            </div>
-            <div style={{ fontSize: 11, color: 'var(--t2)', marginBottom: 4 }}>
-              Exposição: {r.exposureDuration || '—'} · {r.exposureFrequency || '—'} · {r.exposureIntensity || '—'}
-            </div>
-            <div style={{ fontSize: 11, color: 'var(--t2)', marginBottom: 8 }}>
-              GHE: {r.homogeneousExposureGroup || '—'} · {r.exposedWorkersCount} trab. · Score {r.riskScore}
-            </div>
-            <LinkBadges item={r} />
-            <div className="row gap8 mt8">
-              <button type="button" className="btn bs" style={{ flex: 1, marginBottom: 0 }} onClick={() => openRiskForm(r)}>Editar</button>
-              <button type="button" className="btn br" style={{ flex: 1, marginBottom: 0 }} onClick={() => void deleteRiskInventory(r.id)}>Excluir</button>
-            </div>
-          </div>
-        ))
+          ))}
+          <PaginationBar
+            page={pager.page}
+            totalPages={pager.totalPages}
+            total={pager.total}
+            start={pager.start}
+            end={pager.end}
+            hasPrev={pager.hasPrev}
+            hasNext={pager.hasNext}
+            onPrev={pager.prev}
+            onNext={pager.next}
+          />
+        </>
       )}
 
       <button type="button" className="btn bs mt8" onClick={() => go('inventario-dashboard')}>Voltar ao dashboard</button>

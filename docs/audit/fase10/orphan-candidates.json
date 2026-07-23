@@ -1,0 +1,202 @@
+[
+  {
+    "file": "ergosense-app/src/components/WorkstationPanel.tsx",
+    "importHits": 0
+  },
+  {
+    "file": "ergosense-app/src/e2e-bridge.d.ts",
+    "importHits": 0
+  },
+  {
+    "file": "ergosense-app/src/hooks/useArDistance.ts",
+    "importHits": 0
+  },
+  {
+    "file": "ergosense-app/src/test/fixtures/tenantBundle.ts",
+    "importHits": 0
+  },
+  {
+    "file": "ergosense-app/src/test/utils/renderWithApp.tsx",
+    "importHits": 0
+  },
+  {
+    "file": "ergosense-app/src/types/onnxruntime-web.d.ts",
+    "importHits": 0
+  },
+  {
+    "file": "ergosense-app/src/vite-env.d.ts",
+    "importHits": 0
+  },
+  {
+    "file": "ergosense-app/server/src/config/productionGuard.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/loadRiskValidate.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/middleware/cacheInvalidation.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/middleware/dashboardCache.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/routes/aetRoutes.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/routes/aiExpertRoutes.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/routes/authRoutes.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/routes/complianceRoutes.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/routes/coreRoutes.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/routes/denunciaRoutes.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/routes/esocialRoutes.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/routes/mfaRoutes.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/routes/openapiRoutes.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/routes/orgRoutes.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/routes/riskCriteriaRoutes.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/routes/systemRoutes.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/routes/tenantOnboardingRoutes.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/routes/tenantRoutes.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/services/aiExpertConstants.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/services/aiExpertPdf.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/services/AIExpertService.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/services/analysisService.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/services/collaboratorService.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/services/complianceDiff.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/services/complianceDiffCore.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/services/complianceSourceAdapters.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/services/contactSupportService.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/services/esocialGovbrAdapter.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/services/esocialIcpSigner.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/services/esocialValidator.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/services/passwordResetService.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/server/src/services/tenantRequestService.js",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/src/api/dto/analysis.dto.ts",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/src/components/AiExpertAnalysisPanel.tsx",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/src/components/CameraAnalysisDock.tsx",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/src/components/CameraFramingGuide.tsx",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/src/components/CampanhaSharePanel.tsx",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/src/components/ErgoBodyHeatmap.tsx",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/src/components/ErgoIndicesPanel.tsx",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/src/components/ErgoVideoTimeline.tsx",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/src/components/LoadAssessmentForm.tsx",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/src/components/LoadEffortReportPanel.tsx",
+    "importHits": 1
+  },
+  {
+    "file": "ergosense-app/src/components/LoadFactorsPanel.tsx",
+    "importHits": 1
+  }
+]

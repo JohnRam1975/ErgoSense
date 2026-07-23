@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { getErrorMessage } from '../utils/errors';
+import { validatePasswordForm } from '../utils/passwordForm';
 import { useApp } from '../context/AppContext';
 import { ErgoSenseLogo } from '../components/ErgoSenseLogo';
 import { PasswordField } from '../components/PasswordField';
@@ -27,7 +29,9 @@ import {
   formatCnpjInput,
   formatCpfInput,
   formatPhoneInput,
+  isValidCnpjDigits,
   isValidCpfDigits,
+  isValidEmail,
   lookupCep,
   onlyDigits,
 } from '../utils/brMasks';
@@ -52,24 +56,21 @@ export function TenantRequestAccessScreen() {
   const set = (key: keyof typeof form, value: string) => setForm((f) => ({ ...f, [key]: value }));
 
   const handleSubmit = () => {
-    if (!form.razaoSocial.trim() || form.cnpj.replace(/\D/g, '').length < 14) {
+    if (!form.razaoSocial.trim() || !isValidCnpjDigits(form.cnpj)) {
       showToast('Informe razão social e CNPJ válido', 'warn');
       return;
     }
-    if (!form.email.includes('@') || !form.responsavelNome.trim() || !form.telefone.trim()) {
-      showToast('Preencha responsável, e-mail e telefone', 'warn');
+    if (!form.segmento.trim()) {
+      showToast('Informe o segmento', 'warn');
       return;
     }
-    if (form.password.length < 8) {
-      showToast('Senha deve ter ao menos 8 caracteres', 'warn');
+    if (!isValidEmail(form.email) || !form.responsavelNome.trim() || onlyDigits(form.telefone).length < 10) {
+      showToast('Preencha responsável, e-mail e telefone válidos', 'warn');
       return;
     }
-    if (!/[A-Z]/.test(form.password) || !/[a-z]/.test(form.password) || !/\d/.test(form.password)) {
-      showToast('Senha deve conter maiúscula, minúscula e número', 'warn');
-      return;
-    }
-    if (form.password !== form.confirmPassword) {
-      showToast('Senhas não conferem', 'warn');
+    const check = validatePasswordForm(form.password, form.confirmPassword, { requireComplexity: true });
+    if (!check.ok) {
+      showToast(check.message, 'warn');
       return;
     }
     void (async () => {
@@ -91,7 +92,7 @@ export function TenantRequestAccessScreen() {
         setProtocolo(res.protocolo);
         showToast('Solicitação registrada!', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro ao enviar', 'warn');
+        showToast(getErrorMessage(err, 'Erro ao enviar'), 'warn');
       } finally {
         setLoading(false);
       }
@@ -210,20 +211,13 @@ export function AutonomoRequestAccessScreen() {
       showToast('Informe nome completo e CPF válido', 'warn');
       return;
     }
-    if (!form.email.includes('@') || onlyDigits(form.telefone).length < 10) {
+    if (!isValidEmail(form.email) || onlyDigits(form.telefone).length < 10) {
       showToast('Preencha e-mail e telefone válidos', 'warn');
       return;
     }
-    if (form.password.length < 8) {
-      showToast('Senha deve ter ao menos 8 caracteres', 'warn');
-      return;
-    }
-    if (!/[A-Z]/.test(form.password) || !/[a-z]/.test(form.password) || !/\d/.test(form.password)) {
-      showToast('Senha deve conter maiúscula, minúscula e número', 'warn');
-      return;
-    }
-    if (form.password !== form.confirmPassword) {
-      showToast('Senhas não conferem', 'warn');
+    const check = validatePasswordForm(form.password, form.confirmPassword, { requireComplexity: true });
+    if (!check.ok) {
+      showToast(check.message, 'warn');
       return;
     }
     if (
@@ -264,7 +258,7 @@ export function AutonomoRequestAccessScreen() {
         setProtocolo(res.protocolo);
         showToast('Cadastro enviado!', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro ao enviar', 'warn');
+        showToast(getErrorMessage(err, 'Erro ao enviar'), 'warn');
       } finally {
         setLoading(false);
       }
@@ -427,12 +421,9 @@ export function ActivateAccountScreen() {
   const handleActivate = () => {
     const passwordPreset = Boolean(preview?.passwordPreset);
     if (!passwordPreset) {
-      if (password.length < 8) {
-        showToast('Senha deve ter ao menos 8 caracteres', 'warn');
-        return;
-      }
-      if (password !== confirm) {
-        showToast('Senhas não conferem', 'warn');
+      const check = validatePasswordForm(password, confirm);
+      if (!check.ok) {
+        showToast(check.message, 'warn');
         return;
       }
     } else if (password || confirm) {
@@ -457,7 +448,7 @@ export function ActivateAccountScreen() {
         window.history.replaceState({}, '', '/');
         go('login');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro na ativação', 'warn');
+        showToast(getErrorMessage(err, 'Erro na ativação'), 'warn');
       } finally {
         setLoading(false);
       }
@@ -581,7 +572,7 @@ export function ContactSupportScreen() {
         if (res.supportEmail) setSupportEmail(res.supportEmail);
         showToast('Mensagem enviada ao suporte', 'success');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Erro ao enviar', 'warn');
+        showToast(getErrorMessage(err, 'Erro ao enviar'), 'warn');
       } finally {
         setLoading(false);
       }
@@ -853,13 +844,13 @@ export function AdminTenantsListScreen({ filter }: { filter: 'active' | 'blocked
   const titles = { active: 'Empresas Ativas', blocked: 'Empresas Bloqueadas', expired: 'Empresas Expiradas' };
   const nav = { active: 'active' as const, blocked: 'blocked' as const, expired: 'expired' as const };
 
-  const reload = () => {
+  const reload = useCallback(() => {
     void apiListAdminTenants(filter).then(setItems).catch(() => showToast('Erro ao carregar', 'warn'));
-  };
+  }, [filter, showToast]);
 
   useEffect(() => {
     reload();
-  }, [filter, showToast]);
+  }, [reload]);
 
   return (
     <AdminTenantShell active={nav[filter]} title={titles[filter]}>
@@ -974,7 +965,7 @@ export function AdminAccessControlScreen() {
       showToast(okMsg, 'success');
       reload();
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Falha na operação', 'warn');
+      showToast(getErrorMessage(err, 'Falha na operação'), 'warn');
     } finally {
       setBusyId(null);
     }
@@ -1183,10 +1174,10 @@ export function AdminTenantDetailScreen() {
         setForm({
           name: data.name ?? '',
           industry: data.industry ?? '',
-          plan: (data.plan as typeof form.plan) || 'STARTER',
+          plan: (data.plan as 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE') || 'STARTER',
           expiresAt: toDateInput(data.expiresAt),
           icon: data.icon || '🏢',
-          color: (data.color as typeof form.color) || 'amber',
+          color: (data.color as 'amber' | 'cyan' | 'green' | 'neutral') || 'amber',
           razaoSocial: data.razaoSocial ?? data.name ?? '',
           nomeFantasia: data.nomeFantasia ?? '',
           cnpj: data.cnpj ?? '',
@@ -1228,7 +1219,7 @@ export function AdminTenantDetailScreen() {
       showToast('Empresa atualizada', 'success');
       void refreshCompanies();
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Erro ao salvar', 'warn');
+      showToast(getErrorMessage(err, 'Erro ao salvar'), 'warn');
     } finally {
       setSaving(false);
     }

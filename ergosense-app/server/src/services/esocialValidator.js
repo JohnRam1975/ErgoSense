@@ -1,35 +1,7 @@
 import { onlyDigits } from './esocialXml.js';
 import { validateEsocialXsdS13 } from './esocialXsdValidator.js';
-
-function isValidCpf(cpf) {
-  const s = onlyDigits(cpf);
-  if (s.length !== 11 || /^(\d)\1+$/.test(s)) return false;
-  let sum = 0;
-  for (let i = 0; i < 9; i += 1) sum += Number(s[i]) * (10 - i);
-  let d1 = (sum * 10) % 11;
-  if (d1 === 10) d1 = 0;
-  if (d1 !== Number(s[9])) return false;
-  sum = 0;
-  for (let i = 0; i < 10; i += 1) sum += Number(s[i]) * (11 - i);
-  let d2 = (sum * 10) % 11;
-  if (d2 === 10) d2 = 0;
-  return d2 === Number(s[10]);
-}
-
-function isValidCnpj(cnpj) {
-  const s = onlyDigits(cnpj);
-  if (s.length !== 14 || /^(\d)\1+$/.test(s)) return false;
-  const w1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
-  const w2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
-  let sum = 0;
-  for (let i = 0; i < 12; i += 1) sum += Number(s[i]) * w1[i];
-  let d1 = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-  if (d1 !== Number(s[12])) return false;
-  sum = 0;
-  for (let i = 0; i < 13; i += 1) sum += Number(s[i]) * w2[i];
-  let d2 = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-  return d2 === Number(s[13]);
-}
+import { isValidCpf } from '../utils/cpf.js';
+import { isValidCnpj } from '../utils/cnpj.js';
 
 function isIsoDate(value) {
   return /^\d{4}-\d{2}-\d{2}$/.test(String(value ?? ''));

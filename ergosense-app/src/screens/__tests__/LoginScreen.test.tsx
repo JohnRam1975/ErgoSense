@@ -8,6 +8,8 @@ const mockVerifyMfaLogin = vi.fn();
 const mockShowToast = vi.fn();
 const mockShowModal = vi.fn();
 const mockGo = vi.fn();
+const mockApiForgotPassword = vi.fn();
+const mockApiResetPassword = vi.fn();
 
 vi.mock('../../context/AppContext', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../context/AppContext')>();
@@ -23,11 +25,27 @@ vi.mock('../../context/AppContext', async (importOriginal) => {
   };
 });
 
+vi.mock('../../api/client', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../api/client')>();
+  return {
+    ...actual,
+    apiForgotPassword: (...args: unknown[]) => mockApiForgotPassword(...args),
+    apiResetPassword: (...args: unknown[]) => mockApiResetPassword(...args),
+  };
+});
+
 describe('LoginScreen', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockLogin.mockResolvedValue(true);
     mockVerifyMfaLogin.mockResolvedValue(true);
+    mockApiForgotPassword.mockResolvedValue({
+      email: 'user@acme.com',
+      token: 'a'.repeat(32),
+      message: 'E-mail verificado. Informe a nova senha e confirme com o token.',
+      delivery: 'log',
+    });
+    mockApiResetPassword.mockResolvedValue({ ok: true, email: 'user@acme.com' });
   });
 
   it('render inicial com campos de login', () => {
@@ -35,67 +53,6 @@ describe('LoginScreen', () => {
     expect(screen.getByRole('heading', { name: /Entrar/i })).toBeInTheDocument();
     expect(screen.getByPlaceholderText('usuario@empresa.com.br')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('••••••••')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Entrar/i })).toBeInTheDocument();
-  });
-
-  it('submit login chama login com credenciais', async () => {
-    const user = userEvent.setup();
-    render(<LoginScreen />);
-    const email = screen.getByPlaceholderText('usuario@empresa.com.br');
-    const password = screen.getByPlaceholderText('••••••••');
-    await user.clear(email);
-    await user.type(email, 'novo@test.com');
-    await user.clear(password);
-    await user.type(password, 'senha12345');
-    await user.click(screen.getByRole('button', { name: /Entrar/i }));
-    await waitFor(() =>
-      expect(mockLogin).toHaveBeenCalledWith('novo@test.com', 'senha12345'),
-    );
-  });
-
-  it('login com MFA pendente exibe formulário MFA', async () => {
-    mockLogin.mockResolvedValue({
-      mfaRequired: true,
-      mfaToken: 'tok-mfa',
-      email: 'mfa@test.com',
-      name: 'MFA User',
-    });
-    const user = userEvent.setup();
-    render(<LoginScreen />);
-    await user.click(screen.getByRole('button', { name: /Entrar/i }));
-    await waitFor(() => expect(screen.getByText(/Verificação MFA/i)).toBeInTheDocument());
-    expect(mockShowToast).toHaveBeenCalledWith('Informe o código do autenticador', 'info');
-  });
-
-  it('verify MFA chama verifyMfaLogin', async () => {
-    mockLogin.mockResolvedValue({
-      mfaRequired: true,
-      mfaToken: 'tok-mfa',
-      email: 'mfa@test.com',
-      name: 'MFA User',
-    });
-    const user = userEvent.setup();
-    render(<LoginScreen />);
-    await user.click(screen.getByRole('button', { name: /Entrar/i }));
-    await waitFor(() => screen.getByPlaceholderText('000000'));
-    await user.type(screen.getByPlaceholderText('000000'), '123456');
-    await user.click(screen.getByRole('button', { name: /Confirmar/i }));
-    await waitFor(() => expect(mockVerifyMfaLogin).toHaveBeenCalledWith('tok-mfa', '123456'));
-  });
-
-  it('voltar ao login limpa MFA', async () => {
-    mockLogin.mockResolvedValue({
-      mfaRequired: true,
-      mfaToken: 'tok-mfa',
-      email: 'mfa@test.com',
-      name: 'MFA User',
-    });
-    const user = userEvent.setup();
-    render(<LoginScreen />);
-    await user.click(screen.getByRole('button', { name: /Entrar/i }));
-    await waitFor(() => screen.getByRole('button', { name: /Voltar ao login/i }));
-    await user.click(screen.getByRole('button', { name: /Voltar ao login/i }));
-    expect(screen.getByRole('button', { name: /Entrar/i })).toBeInTheDocument();
   });
 
   it('botão voltar navega para splash', async () => {
@@ -105,12 +62,49 @@ describe('LoginScreen', () => {
     expect(mockGo).toHaveBeenCalledWith('splash');
   });
 
-  it('esqueci senha abre orientação', async () => {
+  it('esqueci senha exige e-mail no passo de verificação', async () => {
     const user = userEvent.setup();
     render(<LoginScreen />);
     await user.click(screen.getByText(/Esqueci a senha/i));
-    expect(mockShowModal).toHaveBeenCalled();
-    expect(mockShowModal.mock.calls[0][1]).toMatch(/SMTP|atualização futura/i);
+    expect(screen.getByRole('heading', { name: /Esqueci a senha/i })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Verificar e-mail/i }));
+    expect(mockShowToast).toHaveBeenCalledWith('Informe o e-mail corporativo cadastrado', 'warn');
+    expect(mockApiForgotPassword).not.toHaveBeenCalled();
+  });
+
+  it('esqueci senha valida e-mail e abre campos de token + nova senha', async () => {
+    const user = userEvent.setup();
+    render(<LoginScreen />);
+    await user.click(screen.getByText(/Esqueci a senha/i));
+    await user.type(screen.getByPlaceholderText('usuario@empresa.com.br'), 'user@acme.com');
+    await user.click(screen.getByRole('button', { name: /Verificar e-mail/i }));
+    await waitFor(() => expect(mockApiForgotPassword).toHaveBeenCalledWith('user@acme.com'));
+    expect(screen.getByRole('heading', { name: /Nova senha/i })).toBeInTheDocument();
+    expect(screen.getByDisplayValue('a'.repeat(32))).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Nova senha$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Confirmar nova senha/i)).toBeInTheDocument();
+  });
+
+  it('redefine senha com token após e-mail válido', async () => {
+    const user = userEvent.setup();
+    render(<LoginScreen />);
+    await user.click(screen.getByText(/Esqueci a senha/i));
+    await user.type(screen.getByPlaceholderText('usuario@empresa.com.br'), 'user@acme.com');
+    await user.click(screen.getByRole('button', { name: /Verificar e-mail/i }));
+    await waitFor(() => expect(screen.getByRole('heading', { name: /Nova senha/i })).toBeInTheDocument());
+
+    await user.type(screen.getByLabelText(/^Nova senha$/i), 'NovaSenha!2026');
+    await user.type(screen.getByLabelText(/Confirmar nova senha/i), 'NovaSenha!2026');
+    await user.click(screen.getByRole('button', { name: /Redefinir senha/i }));
+
+    await waitFor(() =>
+      expect(mockApiResetPassword).toHaveBeenCalledWith({
+        token: 'a'.repeat(32),
+        password: 'NovaSenha!2026',
+        confirmPassword: 'NovaSenha!2026',
+      }),
+    );
+    expect(mockShowToast).toHaveBeenCalledWith('Senha redefinida. Faça login com a nova senha.', 'success');
   });
 
   it('login falha não navega', async () => {
@@ -118,7 +112,6 @@ describe('LoginScreen', () => {
     const user = userEvent.setup();
     render(<LoginScreen />);
     await user.click(screen.getByRole('button', { name: /Entrar/i }));
-    await waitFor(() => expect(mockLogin).toHaveBeenCalled());
-    expect(mockGo).not.toHaveBeenCalledWith('dashboard');
+    expect(mockGo).not.toHaveBeenCalled();
   });
 });

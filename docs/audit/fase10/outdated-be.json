@@ -1,0 +1,37 @@
+﻿{
+  "@aws-sdk/client-s3": {
+    "current": "3.1067.0",
+    "wanted": "3.1093.0",
+    "latest": "3.1093.0",
+    "dependent": "server",
+    "location": "C:\\Users\\Djohn\\Desktop\\SOFTWARE\\ERGOSENSE\\ergosense-app\\server\\node_modules\\@aws-sdk\\client-s3"
+  },
+  "dotenv": {
+    "current": "16.6.1",
+    "wanted": "16.6.1",
+    "latest": "17.4.2",
+    "dependent": "server",
+    "location": "C:\\Users\\Djohn\\Desktop\\SOFTWARE\\ERGOSENSE\\ergosense-app\\server\\node_modules\\dotenv"
+  },
+  "express": {
+    "current": "4.22.2",
+    "wanted": "4.22.2",
+    "latest": "5.2.1",
+    "dependent": "server",
+    "location": "C:\\Users\\Djohn\\Desktop\\SOFTWARE\\ERGOSENSE\\ergosense-app\\server\\node_modules\\express"
+  },
+  "ioredis": {
+    "current": "5.11.0",
+    "wanted": "5.11.1",
+    "latest": "5.11.1",
+    "dependent": "server",
+    "location": "C:\\Users\\Djohn\\Desktop\\SOFTWARE\\ERGOSENSE\\ergosense-app\\server\\node_modules\\ioredis"
+  },
+  "pg": {
+    "current": "8.21.0",
+    "wanted": "8.22.0",
+    "latest": "8.22.0",
+    "dependent": "server",
+    "location": "C:\\Users\\Djohn\\Desktop\\SOFTWARE\\ERGOSENSE\\ergosense-app\\server\\node_modules\\pg"
+  }
+}

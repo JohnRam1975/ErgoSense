@@ -3,6 +3,8 @@
  */
 import { useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { PaginationBar } from '../components/PaginationBar';
+import { useClientPagination } from '../hooks/useClientPagination';
 import {
   DENUNCIA_STATUS_LABELS,
   DENUNCIA_TYPE_OPTIONS,
@@ -102,6 +104,8 @@ export function DenunciaListScreen() {
     [denuncias, filter],
   );
 
+  const pager = useClientPagination(filtered, { resetKey: filter || 'all' });
+
   return (
     <div className="scroll">
       <div className="sec row" style={{ justifyContent: 'space-between' }}>
@@ -121,20 +125,33 @@ export function DenunciaListScreen() {
       ) : filtered.length === 0 ? (
         <div className="card"><p style={{ fontSize: 12, color: 'var(--t2)', margin: 0 }}>Nenhuma denúncia registrada.</p></div>
       ) : (
-        filtered.map((d) => (
-          <div key={d.id} className="card list-row" style={{ cursor: 'pointer', marginBottom: 8 }} onClick={() => openDenunciaDetail(d.id)}>
-            <div className="row" style={{ justifyContent: 'space-between' }}>
-              <strong style={{ fontSize: 13 }}>{d.protocol}</strong>
-              <span style={{ fontSize: 10, color: denunciaStatusColor(d.status) }}>{DENUNCIA_STATUS_LABELS[d.status]}</span>
+        <>
+          {pager.pageItems.map((d) => (
+            <div key={d.id} className="card list-row" style={{ cursor: 'pointer', marginBottom: 8 }} onClick={() => openDenunciaDetail(d.id)}>
+              <div className="row" style={{ justifyContent: 'space-between' }}>
+                <strong style={{ fontSize: 13 }}>{d.protocol}</strong>
+                <span style={{ fontSize: 10, color: denunciaStatusColor(d.status) }}>{DENUNCIA_STATUS_LABELS[d.status]}</span>
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--t2)' }}>
+                {d.typeLabel} · {d.modality} · <span style={{ color: denunciaSeverityColor(d.severity) }}>{d.severity}</span>
+              </div>
+              {d.inventoryRiskId && (
+                <div style={{ fontSize: 10, color: 'var(--green)', marginTop: 4 }}>Integrada Inventário/GRO #{d.inventoryRiskId}</div>
+              )}
             </div>
-            <div style={{ fontSize: 11, color: 'var(--t2)' }}>
-              {d.typeLabel} · {d.modality} · <span style={{ color: denunciaSeverityColor(d.severity) }}>{d.severity}</span>
-            </div>
-            {d.inventoryRiskId && (
-              <div style={{ fontSize: 10, color: 'var(--green)', marginTop: 4 }}>Integrada Inventário/GRO #{d.inventoryRiskId}</div>
-            )}
-          </div>
-        ))
+          ))}
+          <PaginationBar
+            page={pager.page}
+            totalPages={pager.totalPages}
+            total={pager.total}
+            start={pager.start}
+            end={pager.end}
+            hasPrev={pager.hasPrev}
+            hasNext={pager.hasNext}
+            onPrev={pager.prev}
+            onNext={pager.next}
+          />
+        </>
       )}
 
       <button type="button" className="btn bs mt8" onClick={() => go('denuncia-dashboard')}>Voltar</button>

@@ -22,7 +22,7 @@ describe('evaluateErgonomicSession', () => {
       ...DEFAULT_LOAD_MANUAL_INPUT,
       enabled: true,
       weightKg: 50,
-      distanceCmManual: 60,
+      measuredDistanceCm: 60,
       trunkTwist: true,
       displacementWithLoad: true,
       exposureMinutes: 30,

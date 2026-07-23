@@ -64,7 +64,10 @@ export async function loginAsErgonomista(page: Page) {
 
   await expect(page.locator('#s-dashboard.active')).toBeVisible({ timeout: 60000 });
   await expect(page.locator('#app-chrome')).toBeVisible({ timeout: 10000 });
-  await page.waitForFunction(() => Boolean(window.__ERGOSENSE_E2E__?.go), undefined, { timeout: 30000 });
+  // Bridge só existe em DEV ou build com VITE_E2E=true (ex.: imagem e2e)
+  await page
+    .waitForFunction(() => Boolean(window.__ERGOSENSE_E2E__?.go), undefined, { timeout: 8000 })
+    .catch(() => undefined);
 }
 
 /** Login admin global → painel global-admin */

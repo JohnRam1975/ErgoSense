@@ -3,7 +3,8 @@
  */
 import type { VideoAnalysisProgress } from '../types/videoErgo';
 import type { VideoFrameSample } from '../services/videoAnalysis';
-import { VisionPipeline, disposePoseLandmarker, ERGOSENSE_VISION_STACK } from '../vision/posePipeline';
+import { VisionPipeline, ERGOSENSE_VISION_STACK } from '../vision/posePipeline';
+import { disposeYoloSession } from '../vision/yoloDetector';
 
 export { ERGOSENSE_VISION_STACK };
 
@@ -24,13 +25,8 @@ function loadVideoSource(source: File | Blob | string): Promise<HTMLVideoElement
     video.playsInline = true;
     video.crossOrigin = 'anonymous';
 
-    const cleanup = () => {
-      if (typeof source === 'string') URL.revokeObjectURL(source);
-    };
-
     video.onloadedmetadata = () => resolve(video);
     video.onerror = () => {
-      cleanup();
       reject(new Error('Falha ao carregar vídeo'));
     };
 
@@ -40,6 +36,15 @@ function loadVideoSource(source: File | Blob | string): Promise<HTMLVideoElement
       video.src = source;
     }
   });
+}
+
+function releaseVideoElement(video: HTMLVideoElement | null, revokeBlob: boolean) {
+  if (!video) return;
+  if (revokeBlob && video.src.startsWith('blob:')) {
+    URL.revokeObjectURL(video.src);
+  }
+  video.removeAttribute('src');
+  video.load();
 }
 
 function captureThumbnail(video: HTMLVideoElement, timeMs: number): Promise<string | undefined> {
@@ -95,71 +100,74 @@ export async function processVideoFile(
   if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
 
   pipeline.reset();
-  const video = await loadVideoSource(source);
+  let video: HTMLVideoElement | null = null;
 
-  const durationSecs = Math.min(video.duration || 0, maxDurationSecs);
-  const intervalSec = 1 / samplesPerSec;
-  const totalFrames = Math.max(1, Math.floor(durationSecs * samplesPerSec));
-  const frames: VideoFrameSample[] = [];
+  try {
+    video = await loadVideoSource(source);
 
-  onProgress?.({
-    phase: 'extracting',
-    progressPct: 10,
-    framesProcessed: 0,
-    totalFrames,
-    message: `Extraindo ${totalFrames} frames (multi-pose + YOLO)...`,
-  });
-
-  const thumbnail = await captureThumbnail(video, 0);
-
-  for (let i = 0; i < totalFrames; i++) {
-    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
-
-    const timeSec = i * intervalSec;
-    if (timeSec >= durationSecs) break;
-
-    await seekVideo(video, timeSec);
-
-    const processed = await pipeline.processVideoFrame(video, timeSec * 1000, detectObjects);
-    if (processed) {
-      frames.push({
-        timestampMs: processed.timestampMs,
-        angles: processed.angles,
-        landmarks: processed.landmarks,
-        personId: processed.personId,
-        personCount: processed.personCount,
-        objects: processed.objects,
-      });
-    }
+    const durationSecs = Math.min(video.duration || 0, maxDurationSecs);
+    const intervalSec = 1 / samplesPerSec;
+    const totalFrames = Math.max(1, Math.floor(durationSecs * samplesPerSec));
+    const frames: VideoFrameSample[] = [];
 
     onProgress?.({
       phase: 'extracting',
-      progressPct: 10 + Math.round((i / totalFrames) * 80),
-      framesProcessed: i + 1,
+      progressPct: 10,
+      framesProcessed: 0,
       totalFrames,
-      message: `Frame ${i + 1}/${totalFrames} · ${processed?.personCount ?? 0} pessoa(s)`,
+      message: `Extraindo ${totalFrames} frames (multi-pose + YOLO)...`,
     });
 
-    await new Promise((r) => setTimeout(r, 0));
+    const thumbnail = await captureThumbnail(video, 0);
+
+    for (let i = 0; i < totalFrames; i++) {
+      if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+
+      const timeSec = i * intervalSec;
+      if (timeSec >= durationSecs) break;
+
+      await seekVideo(video, timeSec);
+
+      const processed = await pipeline.processVideoFrame(video, timeSec * 1000, detectObjects);
+      if (processed) {
+        frames.push({
+          timestampMs: processed.timestampMs,
+          angles: processed.angles,
+          landmarks: processed.landmarks,
+          personId: processed.personId,
+          personCount: processed.personCount,
+          objects: processed.objects,
+        });
+      }
+
+      onProgress?.({
+        phase: 'extracting',
+        progressPct: 10 + Math.round((i / totalFrames) * 80),
+        framesProcessed: i + 1,
+        totalFrames,
+        message: `Frame ${i + 1}/${totalFrames} · ${processed?.personCount ?? 0} pessoa(s)`,
+      });
+
+      await new Promise((r) => setTimeout(r, 0));
+    }
+
+    onProgress?.({
+      phase: 'complete',
+      progressPct: 100,
+      framesProcessed: frames.length,
+      totalFrames,
+      message: `${frames.length} frames · ${ERGOSENSE_VISION_STACK}`,
+    });
+
+    return { frames, durationSecs, thumbnail };
+  } finally {
+    releaseVideoElement(video, source instanceof File || source instanceof Blob);
+    pipeline.release();
   }
-
-  if (source instanceof File || source instanceof Blob) {
-    URL.revokeObjectURL(video.src);
-  }
-  video.src = '';
-
-  onProgress?.({
-    phase: 'complete',
-    progressPct: 100,
-    framesProcessed: frames.length,
-    totalFrames,
-    message: `${frames.length} frames · ${ERGOSENSE_VISION_STACK}`,
-  });
-
-  return { frames, durationSecs, thumbnail };
 }
 
 export function disposeVideoProcessor() {
-  disposePoseLandmarker();
+  pipeline.release();
   pipeline.reset();
+  disposeYoloSession();
 }

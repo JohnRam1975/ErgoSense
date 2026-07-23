@@ -43,7 +43,7 @@ describe('analyzeLoadHandling', () => {
       ...DEFAULT_LOAD_MANUAL_INPUT,
       enabled: true,
       weightKg: 40,
-      distanceCmManual: 35,
+      measuredDistanceCm: 35,
     });
     if (!params) throw new Error('params expected');
     const individual = analyzeLoadHandling({ ...params, handlingMode: 'individual' }, baseAngles);

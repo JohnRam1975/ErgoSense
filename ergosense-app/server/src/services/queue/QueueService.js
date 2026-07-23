@@ -28,6 +28,7 @@ export const QUEUES = {
 const DLQ_SUFFIX = '.dlq';
 const MAX_RETRIES = 3;
 const handlers = new Map();
+let localPollTimer = null;
 let channel = null;
 let connection = null;
 const localQueue = [];
@@ -85,12 +86,14 @@ async function publishLocal(queueName, payload, attempt = 0) {
 export async function initQueueWorkers() {
   const ch = await connectRabbit();
   if (!ch) {
-    setInterval(() => {
-      while (localQueue.length) {
-        const job = localQueue.shift();
-        void publishLocal(job.queue, job.payload);
-      }
-    }, 500);
+    if (!localPollTimer) {
+      localPollTimer = setInterval(() => {
+        while (localQueue.length) {
+          const job = localQueue.shift();
+          void publishLocal(job.queue, job.payload);
+        }
+      }, 500);
+    }
     return;
   }
 
@@ -157,6 +160,10 @@ export async function publishJob(queueName, payload) {
 }
 
 export async function closeQueue() {
+  if (localPollTimer) {
+    clearInterval(localPollTimer);
+    localPollTimer = null;
+  }
   try {
     if (channel) await channel.close();
     if (connection) await connection.close();

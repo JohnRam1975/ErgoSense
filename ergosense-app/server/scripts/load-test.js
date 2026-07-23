@@ -90,8 +90,19 @@ async function main() {
     await new Promise((res) => setTimeout(res, 2000));
   }
 
+  const report = { generatedAt: new Date().toISOString(), summary, brokeAt };
   console.log('\n=== RESUMO ===');
-  console.log(JSON.stringify({ summary, brokeAt }, null, 2));
+  console.log(JSON.stringify(report, null, 2));
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    const { fileURLToPath } = await import('url');
+    const outDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../../docs/audit');
+    fs.mkdirSync(outDir, { recursive: true });
+    fs.writeFileSync(path.join(outDir, 'load-test-results.json'), JSON.stringify(report, null, 2));
+  } catch (e) {
+    console.warn('Não gravou load-test-results.json:', e.message);
+  }
   process.exit(brokeAt && brokeAt.ok < brokeAt.n * 0.5 ? 1 : 0);
 }
 

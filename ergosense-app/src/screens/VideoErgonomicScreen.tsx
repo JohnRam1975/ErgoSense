@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { getErrorMessage } from '../utils/errors';
 import { ErgoBodyHeatmap } from '../components/ErgoBodyHeatmap';
 import { ErgoVideoTimeline } from '../components/ErgoVideoTimeline';
 import { AnalysisVideoPlayer } from '../components/AnalysisVideoPlayer';
@@ -103,7 +104,7 @@ export function VideoErgonomicScreen() {
         captureVideoAnalysis(result, collabId, source, videoBlob ?? null);
         setTab('results');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Não foi possível salvar a análise', 'warn');
+        showToast(getErrorMessage(err, 'Não foi possível salvar a análise'), 'warn');
       }
     },
     [captureVideoAnalysis, resolveCollabId, showToast],
@@ -119,7 +120,7 @@ export function VideoErgonomicScreen() {
         startRecording();
         showToast('Análise em tempo real iniciada', 'info');
       } catch (err) {
-        showToast(err instanceof Error ? err.message : 'Não foi possível iniciar', 'warn');
+        showToast(getErrorMessage(err, 'Não foi possível iniciar'), 'warn');
       }
     })();
   };
@@ -155,7 +156,7 @@ export function VideoErgonomicScreen() {
         showToast(`${result.frameCount} frames analisados`, 'success');
       }
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Falha no upload', 'warn');
+      showToast(getErrorMessage(err, 'Falha no upload'), 'warn');
     }
   };
 

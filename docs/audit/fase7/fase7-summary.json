@@ -1,0 +1,64 @@
+﻿{
+    "generatedAt":  "2026-07-23T15:22:49.0072941-03:00",
+    "target":  "local Docker Desktop / project ergosense",
+    "allOk":  true,
+    "steps":  [
+                  {
+                      "id":  "build",
+                      "title":  "Build imagens API + Web",
+                      "ok":  true,
+                      "detail":  "apiExit=0 webExit=0",
+                      "ms":  78955
+                  },
+                  {
+                      "id":  "rebuild",
+                      "title":  "Rebuild + recreate backend/frontend",
+                      "ok":  true,
+                      "detail":  "rebuildExit=0 backend=running/healthy readyHttp=200",
+                      "ms":  49667
+                  },
+                  {
+                      "id":  "restart",
+                      "title":  "Restart de todos os servicos",
+                      "ok":  true,
+                      "detail":  "ergosense-db=running/healthy; ergosense-cache=running/healthy; ergosense-backend=running/healthy; ergosense-frontend=running/healthy ready=200",
+                      "ms":  25073
+                  },
+                  {
+                      "id":  "volumes",
+                      "title":  "Volumes nomeados + persistencia apos restart DB",
+                      "ok":  true,
+                      "detail":  "missingCount=0; persist=True; probe=fase7_6544017ddd33",
+                      "ms":  15777
+                  },
+                  {
+                      "id":  "network",
+                      "title":  "Rede bridge + DNS interno + frontend-\u003ebackend",
+                      "ok":  true,
+                      "detail":  "network=ergosense_ergosense; dnsDb=172.18.0.5        db  db; viaBackend={\"ok\":true,\"database\":\"ergosense\"}",
+                      "ms":  2810
+                  },
+                  {
+                      "id":  "healthcheck",
+                      "title":  "Healthchecks Docker + endpoints HTTP",
+                      "ok":  true,
+                      "detail":  "live=200 ready=200 spa=200",
+                      "ms":  13297
+                  },
+                  {
+                      "id":  "recovery",
+                      "title":  "Recuperacao apos kill backend + restart cache",
+                      "ok":  true,
+                      "detail":  "failDetected=True down=exited; backend=running/healthy ready=200; cache=running/healthy ready2=200",
+                      "ms":  59460
+                  },
+                  {
+                      "id":  "compose-config",
+                      "title":  "docker compose config valido",
+                      "ok":  true,
+                      "detail":  "exit=0",
+                      "ms":  0
+                  }
+              ],
+    "note":  "Recovery: docker kill leaves exited; compose up -d recovers. unless-stopped did not auto-restart after kill on this host."
+}

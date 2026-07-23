@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-01T22:37:17.074Z",
+  "generatedAt": "2026-07-23T16:50:33.066Z",
   "version": "v2-contract",
-  "base": "http://localhost:3001",
+  "base": "http://127.0.0.1:8090",
   "routes": {
     "GET /api/sectors": {
       "method": "GET",
@@ -26,7 +26,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 200 17ms",
+          "detail": "HTTP 200 34ms",
           "classification": null
         },
         "schema_valid": {
@@ -69,7 +69,7 @@
         },
         "success_auth": {
           "ok": true,
-          "detail": "HTTP 403 7ms",
+          "detail": "HTTP 403 16ms",
           "classification": null
         },
         "schema_valid": {

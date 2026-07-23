@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type RefObject } from 'react';
 import type { JointAngles } from '../types';
 import type { PoseFrame, PosePoint } from '../types/pose';
 import { RepetitionCounter, computeJointAngles, landmarkToScreenPercent } from '../utils/poseGeometry';
-import { getPoseLandmarker } from '../vision/posePipeline';
+import { getPoseLandmarker, releasePoseLandmarker } from '../vision/posePipeline';
 import { MultiPersonPoseTracker } from '../vision/poseTracker';
 import { LandmarkSmoother } from '../vision/temporalSmoother';
 import { VISION_CONFIG } from '../vision/config';
@@ -26,10 +26,13 @@ export function usePoseDetection(
   const [tracking, setTracking] = useState(false);
   const [personCount, setPersonCount] = useState(0);
   const [error, setError] = useState('');
+  const acquiredRef = useRef(false);
   const landmarkerRef = useRef<Awaited<ReturnType<typeof getPoseLandmarker>> | null>(null);
   const trackerRef = useRef(new MultiPersonPoseTracker());
   const smootherRef = useRef(new LandmarkSmoother());
   const rafRef = useRef<number>(0);
+  const lastTsRef = useRef(0);
+  const failStreakRef = useRef(0);
   const repCounterRef = useRef(new RepetitionCounter());
   const onAnglesRef = useRef(onAngles);
   const onPersonCountRef = useRef(onPersonCount);
@@ -51,15 +54,22 @@ export function usePoseDetection(
     const repCounter = repCounterRef.current;
     setStatus('loading');
     setError('');
+    failStreakRef.current = 0;
+    lastTsRef.current = 0;
 
     getPoseLandmarker(true)
       .then((landmarker) => {
-        if (!active) return;
+        if (!active) {
+          releasePoseLandmarker();
+          return;
+        }
+        acquiredRef.current = true;
         landmarkerRef.current = landmarker;
         setStatus('ready');
       })
       .catch((err) => {
         if (!active) return;
+        acquiredRef.current = false;
         setError(err instanceof Error ? err.message : 'Falha ao carregar IA de pose');
         setStatus('error');
       });
@@ -67,12 +77,15 @@ export function usePoseDetection(
     return () => {
       active = false;
       cancelAnimationFrame(rafRef.current);
-      const landmarker = landmarkerRef.current;
       landmarkerRef.current = null;
-      landmarker?.close?.();
+      if (acquiredRef.current) {
+        acquiredRef.current = false;
+        releasePoseLandmarker();
+      }
       tracker.reset();
       smoother.reset();
       repCounter.reset();
+      lastTsRef.current = 0;
     };
   }, [enabled]);
 
@@ -90,10 +103,17 @@ export function usePoseDetection(
       }
 
       try {
-        const result = landmarker.detectForVideo(video, performance.now());
+        // MediaPipe VIDEO exige timestamps monotônicos
+        let ts = performance.now();
+        if (ts <= lastTsRef.current) ts = lastTsRef.current + 1;
+        lastTsRef.current = ts;
+
+        const result = landmarker.detectForVideo(video, ts);
         const allRaw: PosePoint[][] = (result.landmarks ?? []).map((raw) =>
           raw.map((p) => ({ x: p.x, y: p.y, visibility: p.visibility ?? 0 })),
         );
+
+        failStreakRef.current = 0;
 
         if (allRaw.length) {
           const tracks = trackerRef.current.update(allRaw);
@@ -128,8 +148,15 @@ export function usePoseDetection(
           setTracking(false);
           setPersonCount(0);
         }
-      } catch {
-        /* frame skip */
+      } catch (err) {
+        failStreakRef.current += 1;
+        // Instância fechada / WASM quebrado — não engolir para sempre
+        if (failStreakRef.current >= 30) {
+          setError(err instanceof Error ? err.message : 'Falha no tracking de pose');
+          setStatus('error');
+          setTracking(false);
+          return;
+        }
       }
 
       rafRef.current = requestAnimationFrame(detect);

@@ -1,9 +1,11 @@
-# Rodar local — ErgoSense
+# Rodar local — ErgoSense (Node + Postgres, sem stack Docker completa)
+
+Para **stack Docker completa** (frontend+API+DB na porta 8090), use o [`README.md`](README.md) na raiz.
 
 ## Requisitos
 
 - **Node.js** 20+
-- **Docker Desktop** (PostgreSQL local)
+- **Docker Desktop** (só para o PostgreSQL via `npm run db:up`)
 
 ---
 
@@ -78,7 +80,7 @@ API: **http://localhost:3001** · Docs: **http://localhost:3001/api/docs**
 
 | Perfil | E-mail | Senha |
 |--------|--------|-------|
-| Admin global | `ergosense@dejohn.com.br` | `@Ergo!2026/Adm` (ou `SEED_GLOBAL_ADMIN_PASSWORD`) |
+| Admin global | `ergosense@dejohn.com.br` | valor de `SEED_GLOBAL_ADMIN_PASSWORD` no `infra/.env` (arquivo `infra/.env.admin-credentials.local` se gerou com o script). Fallback só em seed local/CI: `@Ergo!2026/Adm` |
 
 Não há mais login demo Vale/Carajás.
 

@@ -4,8 +4,6 @@
 import { query } from '../db.js';
 import { compareNormTexts } from './complianceDiffCore.js';
 
-export { compareNormTexts } from './complianceDiffCore.js';
-
 export async function compareNormVersions(tenantId, normId, fromVersionId, toVersionId) {
   const { rows } = await query(
     `SELECT id, numero_versao, tipo_alteracao, texto_resumo, texto_completo, data_publicacao, validada_por

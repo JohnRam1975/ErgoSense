@@ -35,8 +35,11 @@ export interface LoadAssessmentManualInput {
   /** Há deslocamento horizontal/vertical com carga nas mãos */
   displacementWithLoad: boolean;
   handlingMode: HandlingMode;
-  /** @deprecated Não usar na UI — distância apenas pela câmera (measuredDistanceCm) */
-  distanceCmManual: number;
+  /**
+   * @deprecated Apenas leitura de payloads antigos — UI usa measuredDistanceCm.
+   * Remover após migração completa dos dados persistidos.
+   */
+  distanceCmManual?: number;
   /** Altura da carga em relação ao quadril (cm). 0 = usar visão */
   heightCmManual: number;
   /** Observações específicas da movimentação de carga */

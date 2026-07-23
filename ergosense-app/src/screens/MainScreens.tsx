@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
+import { getErrorMessage } from '../utils/errors';
+import { validatePasswordForm } from '../utils/passwordForm';
 import { useApp } from '../context/AppContext';
 import { ErgoSenseLogo } from '../components/ErgoSenseLogo';
 import { AnalysisCard } from '../components/UI';
+import { PaginationBar } from '../components/PaginationBar';
 import { PwaDownloadCard } from '../components/PwaInstallBanner';
 import { PasswordField } from '../components/PasswordField';
 import { SELF_COLLABORATOR_MATRICULA } from '../data/constants';
-import { openCollaboratorEditor } from './AnalysisScreens';
+import { openCollaboratorEditor } from '../utils/collaboratorEdit';
 import { countPostureRisks, riskBadgeClass, riskLabel } from '../utils/ergonomics';
 import { vibrate } from '../hooks/useClock';
+import { useClientPagination } from '../hooks/useClientPagination';
 import type { Analysis } from '../types';
+import { apiForgotPassword, apiResetPassword, apiResetPasswordPreview } from '../api/client';
 
 function analysisTimestamp(a: Analysis) {
   const [d, m, y] = a.date.split('/').map(Number);
@@ -26,7 +31,12 @@ function activityShortLabel(activity: string) {
 }
 
 export function SplashScreen() {
-  const { go } = useApp();
+  const { go, session, isGlobalAdmin } = useApp();
+
+  useEffect(() => {
+    if (!session) return;
+    go(isGlobalAdmin ? 'global-admin' : 'dashboard');
+  }, [go, isGlobalAdmin, session]);
 
   return (
     <div className="home-screen">
@@ -39,7 +49,7 @@ export function SplashScreen() {
         <p className="home-tagline">
           Análise ergonômica com IA para todas as atividades · Conformidade NR-17
         </p>
-        <button type="button" className="btn bp home-enter-btn" onClick={() => go('login')}>
+        <button type="button" className="btn bp home-enter-btn" onClick={() => go(session ? (isGlobalAdmin ? 'global-admin' : 'dashboard') : 'login')}>
           Acessar o Sistema
         </button>
       </div>
@@ -50,12 +60,32 @@ export function SplashScreen() {
   );
 }
 
+type LoginMode = 'login' | 'forgot-email' | 'forgot-reset';
+
 export function LoginScreen() {
-  const { login, verifyMfaLogin, showToast, showModal, go } = useApp();
+  const { login, verifyMfaLogin, showToast, go, session, isGlobalAdmin } = useApp();
+  const [mode, setMode] = useState<LoginMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [mfaPending, setMfaPending] = useState<{ token: string; email: string; name: string } | null>(null);
   const [mfaCode, setMfaCode] = useState('');
+  const [forgotBusy, setForgotBusy] = useState(false);
+  const [resetToken, setResetToken] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  useEffect(() => {
+    if (!session || mfaPending || mode !== 'login') return;
+    go(isGlobalAdmin ? 'global-admin' : 'dashboard');
+  }, [go, isGlobalAdmin, mfaPending, mode, session]);
+
+  const resetForgotState = () => {
+    setMode('login');
+    setResetToken('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setForgotBusy(false);
+  };
 
   const handleLogin = async () => {
     const result = await login(email, password);
@@ -72,9 +102,86 @@ export function LoginScreen() {
     if (ok) setMfaPending(null);
   };
 
+  /** Passo 1: valida e-mail cadastrado e gera token */
+  const handleForgotVerifyEmail = async () => {
+    const trimmed = email.trim();
+    if (!trimmed || !trimmed.includes('@')) {
+      showToast('Informe o e-mail corporativo cadastrado', 'warn');
+      return;
+    }
+    setForgotBusy(true);
+    try {
+      const result = await apiForgotPassword(trimmed);
+      setEmail(result.email);
+      setResetToken(result.token);
+      setNewPassword('');
+      setConfirmPassword('');
+      setMode('forgot-reset');
+      showToast('E-mail verificado. Defina a nova senha e confirme o token.', 'success');
+    } catch (err) {
+      showToast(getErrorMessage(err, 'E-mail não cadastrado'), 'warn');
+    } finally {
+      setForgotBusy(false);
+    }
+  };
+
+  /** Passo 2: nova senha + confirmação com token */
+  const handleForgotReset = async () => {
+    const token = resetToken.trim();
+    if (!token) {
+      showToast('Informe o token de redefinição', 'warn');
+      return;
+    }
+    const check = validatePasswordForm(newPassword, confirmPassword);
+    if (!check.ok) {
+      showToast(check.message, 'warn');
+      return;
+    }
+    setForgotBusy(true);
+    try {
+      await apiResetPassword({ token, password: newPassword, confirmPassword });
+      showToast('Senha redefinida. Faça login com a nova senha.', 'success');
+      setPassword('');
+      resetForgotState();
+    } catch (err) {
+      showToast(getErrorMessage(err, 'Falha ao redefinir senha'), 'warn');
+    } finally {
+      setForgotBusy(false);
+    }
+  };
+
+  const title =
+    mfaPending ? 'Verificação MFA'
+    : mode === 'forgot-email' ? 'Esqueci a senha'
+    : mode === 'forgot-reset' ? 'Nova senha'
+    : 'Entrar';
+
+  const subtitle =
+    mfaPending ? `Olá, ${mfaPending.name}. Informe o código do autenticador.`
+    : mode === 'forgot-email' ? 'Informe o e-mail cadastrado para gerar o token'
+    : mode === 'forgot-reset' ? `Conta ${email}. Confirme o token e defina a nova senha.`
+    : 'Acesse sua conta corporativa';
+
   return (
     <div className="login-page">
-      <button type="button" className="btn bp login-back-btn login-page-back" onClick={() => go('splash')}>
+      <button
+        type="button"
+        className="btn bp login-back-btn login-page-back"
+        onClick={() => {
+          if (mode === 'forgot-reset') {
+            setMode('forgot-email');
+            setResetToken('');
+            setNewPassword('');
+            setConfirmPassword('');
+            return;
+          }
+          if (mode === 'forgot-email') {
+            resetForgotState();
+            return;
+          }
+          go('splash');
+        }}
+      >
         Voltar
       </button>
 
@@ -88,15 +195,13 @@ export function LoginScreen() {
           onSubmit={(e) => {
             e.preventDefault();
             if (mfaPending) void handleMfaVerify();
+            else if (mode === 'forgot-email') void handleForgotVerifyEmail();
+            else if (mode === 'forgot-reset') void handleForgotReset();
             else void handleLogin();
           }}
         >
-          <h1 className="login-form-title">{mfaPending ? 'Verificação MFA' : 'Entrar'}</h1>
-          <p className="login-form-sub">
-            {mfaPending
-              ? `Olá, ${mfaPending.name}. Informe o código do autenticador.`
-              : 'Acesse sua conta corporativa'}
-          </p>
+          <h1 className="login-form-title">{title}</h1>
+          <p className="login-form-sub">{subtitle}</p>
 
           {mfaPending ? (
             <>
@@ -129,6 +234,74 @@ export function LoginScreen() {
                 </button>
               </div>
             </>
+          ) : mode === 'forgot-email' ? (
+            <>
+              <label className="lbl" htmlFor="forgot-email">
+                E-mail cadastrado
+              </label>
+              <input
+                id="forgot-email"
+                className="inp login-inp"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="usuario@empresa.com.br"
+              />
+              <div className="login-form-actions">
+                <button type="submit" className="btn bp" disabled={forgotBusy}>
+                  {forgotBusy ? 'Verificando…' : 'Verificar e-mail'}
+                </button>
+                <button type="button" className="btn bs" onClick={resetForgotState}>
+                  Voltar ao login
+                </button>
+              </div>
+            </>
+          ) : mode === 'forgot-reset' ? (
+            <>
+              <label className="lbl" htmlFor="forgot-token">
+                Token
+              </label>
+              <input
+                id="forgot-token"
+                className="inp login-inp"
+                type="text"
+                autoComplete="one-time-code"
+                value={resetToken}
+                onChange={(e) => setResetToken(e.target.value)}
+                placeholder="Cole ou confirme o token"
+              />
+              <label className="lbl" htmlFor="forgot-new-pass">
+                Nova senha
+              </label>
+              <PasswordField
+                id="forgot-new-pass"
+                inputClassName="inp login-inp"
+                autoComplete="new-password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="••••••••"
+              />
+              <label className="lbl" htmlFor="forgot-confirm-pass">
+                Confirmar nova senha
+              </label>
+              <PasswordField
+                id="forgot-confirm-pass"
+                inputClassName="inp login-inp"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+              />
+              <div className="login-form-actions">
+                <button type="submit" className="btn bp" disabled={forgotBusy}>
+                  {forgotBusy ? 'Salvando…' : 'Redefinir senha'}
+                </button>
+                <button type="button" className="btn bs" onClick={resetForgotState}>
+                  Cancelar
+                </button>
+              </div>
+            </>
           ) : (
             <>
               <label className="lbl" htmlFor="login-email">
@@ -157,13 +330,12 @@ export function LoginScreen() {
               <button
                 type="button"
                 className="login-forgot"
-                onClick={() =>
-                  showModal(
-                    'Redefinir senha',
-                    'Recuperação por e-mail (SMTP) está planejada para uma atualização futura. Por enquanto, use “Falar com o suporte” (ergosense.suporte@dejohn.com.br) ou peça ao administrador da empresa para redefinir sua senha.',
-                    'Entendi',
-                  )
-                }
+                onClick={() => {
+                  setMode('forgot-email');
+                  setResetToken('');
+                  setNewPassword('');
+                  setConfirmPassword('');
+                }}
               >
                 Esqueci a senha
               </button>
@@ -188,6 +360,123 @@ export function LoginScreen() {
               <PwaDownloadCard />
             </>
           )}
+        </form>
+
+        <div className="login-panel-foot">JWT · TLS · LGPD</div>
+      </div>
+    </div>
+  );
+}
+
+export function ResetPasswordScreen() {
+  const { go, showToast } = useApp();
+  const initialToken = useMemo(() => new URLSearchParams(window.location.search).get('token') ?? '', []);
+  const [token, setToken] = useState(initialToken);
+  const [preview, setPreview] = useState<{ email: string; name?: string } | null>(null);
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!token.trim()) return;
+    void apiResetPasswordPreview(token.trim())
+      .then(setPreview)
+      .catch(() => {
+        setPreview(null);
+        showToast('Token inválido ou expirado', 'warn');
+      });
+  }, [token, showToast]);
+
+  const handleSubmit = async () => {
+    const trimmedToken = token.trim();
+    if (!trimmedToken) {
+      showToast('Informe o token de redefinição', 'warn');
+      return;
+    }
+    const check = validatePasswordForm(password, confirm);
+    if (!check.ok) {
+      showToast(check.message, 'warn');
+      return;
+    }
+    setLoading(true);
+    try {
+      await apiResetPassword({ token: trimmedToken, password, confirmPassword: confirm });
+      showToast('Senha redefinida. Faça login com a nova senha.', 'success');
+      window.history.replaceState({}, '', '/');
+      go('login');
+    } catch (err) {
+      showToast(getErrorMessage(err, 'Falha ao redefinir senha'), 'warn');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="login-page">
+      <button type="button" className="btn bp login-back-btn login-page-back" onClick={() => go('login')}>
+        Voltar
+      </button>
+
+      <div className="login-panel">
+        <div className="login-panel-brand">
+          <ErgoSenseLogo size="md" showTagline className="ergo-logo--login" />
+        </div>
+
+        <form
+          className="login-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void handleSubmit();
+          }}
+        >
+          <h1 className="login-form-title">Nova senha</h1>
+          <p className="login-form-sub">
+            {preview?.email
+              ? `Redefina a senha de ${preview.email}`
+              : 'Informe o token, a nova senha e a confirmação'}
+          </p>
+
+          <label className="lbl" htmlFor="reset-token">
+            Token
+          </label>
+          <input
+            id="reset-token"
+            className="inp login-inp"
+            type="text"
+            autoComplete="one-time-code"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            placeholder="Cole o token de redefinição"
+          />
+
+          <label className="lbl" htmlFor="reset-pass">
+            Nova senha
+          </label>
+          <PasswordField
+            id="reset-pass"
+            inputClassName="inp login-inp"
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+          />
+          <label className="lbl" htmlFor="reset-pass2">
+            Confirmar senha
+          </label>
+          <PasswordField
+            id="reset-pass2"
+            inputClassName="inp login-inp"
+            autoComplete="new-password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            placeholder="••••••••"
+          />
+
+          <div className="login-form-actions">
+            <button type="submit" className="btn bp" disabled={loading || !token.trim()}>
+              {loading ? 'Salvando…' : 'Redefinir senha'}
+            </button>
+          </div>
         </form>
 
         <div className="login-panel-foot">JWT · TLS · LGPD</div>
@@ -221,12 +510,9 @@ export function RegisterCompanyScreen() {
       showToast('Informe responsável e e-mail válido', 'warn');
       return;
     }
-    if (form.adminPassword.length < 8) {
-      showToast('Senha com mínimo 8 caracteres (maiúscula, minúscula e número)', 'warn');
-      return;
-    }
-    if (form.adminPassword !== form.adminPassword2) {
-      showToast('Senhas não conferem', 'warn');
+    const check = validatePasswordForm(form.adminPassword, form.adminPassword2, { requireComplexity: true });
+    if (!check.ok) {
+      showToast(check.message, 'warn');
       return;
     }
     void (async () => {
@@ -373,7 +659,7 @@ export function CompanyScreen() {
         }),
       )
       .then(() => showToast('Solicitação registrada. Aguarde o admin da empresa.', 'success'))
-      .catch((err) => showToast(err instanceof Error ? err.message : 'Falha ao enviar solicitação', 'warn'));
+      .catch((err) => showToast(getErrorMessage(err, 'Falha ao enviar solicitação'), 'warn'));
   };
 
   return (
@@ -701,12 +987,18 @@ export function CollabsScreen() {
     return ['Todos', ...merged];
   }, [collaborators, sectors]);
 
-  const filtered = collaborators.filter((c) => {
-    if (c.matricula === SELF_COLLABORATOR_MATRICULA) return false;
-    const matchSearch = c.name.toLowerCase().includes(search.toLowerCase()) || c.matricula.includes(search);
-    const matchTag = filter === 'Todos' || c.setor === filter;
-    return matchSearch && matchTag;
-  });
+  const filtered = useMemo(
+    () =>
+      collaborators.filter((c) => {
+        if (c.matricula === SELF_COLLABORATOR_MATRICULA) return false;
+        const matchSearch = c.name.toLowerCase().includes(search.toLowerCase()) || c.matricula.includes(search);
+        const matchTag = filter === 'Todos' || c.setor === filter;
+        return matchSearch && matchTag;
+      }),
+    [collaborators, search, filter],
+  );
+
+  const pager = useClientPagination(filtered, { resetKey: `${search}|${filter}` });
 
   return (
     <>
@@ -735,7 +1027,7 @@ export function CollabsScreen() {
             </div>
           ))}
         </div>
-        {filtered.map((c) => (
+        {pager.pageItems.map((c) => (
           <AnalysisCard
             key={c.id}
             icon={c.icon}
@@ -750,6 +1042,17 @@ export function CollabsScreen() {
             }}
           />
         ))}
+        <PaginationBar
+          page={pager.page}
+          totalPages={pager.totalPages}
+          total={pager.total}
+          start={pager.start}
+          end={pager.end}
+          hasPrev={pager.hasPrev}
+          hasNext={pager.hasNext}
+          onPrev={pager.prev}
+          onNext={pager.next}
+        />
         <button className="btn bp mt8" onClick={() => { openCollaboratorEditor(null); go('new-collab'); }}>
           ＋ Novo Colaborador
         </button>

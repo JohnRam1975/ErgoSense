@@ -82,3 +82,19 @@ export async function sendSupportContactEmail({
   console.log(JSON.stringify(payload));
   return { sent: true, mode: 'log', future: 'smtp', to: payload.to };
 }
+
+export async function sendPasswordResetEmail({ to, name, resetUrl, expiresAt }) {
+  const payload = {
+    level: 'info',
+    msg: 'email_password_reset_queued',
+    to,
+    subject: 'ErgoSense — Redefinição de senha',
+    name: name || null,
+    resetUrl,
+    expiresAt: expiresAt instanceof Date ? expiresAt.toISOString() : expiresAt,
+    service: config.observability.serviceName,
+    note: SMTP_FUTURE,
+  };
+  console.log(JSON.stringify(payload));
+  return { sent: true, mode: 'log', future: 'smtp' };
+}

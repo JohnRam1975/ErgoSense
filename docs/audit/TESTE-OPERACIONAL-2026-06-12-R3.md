@@ -2,7 +2,8 @@
 
 **Data:** 2026-06-12 (rodada 3 — auditoria completa)  
 **Ambiente:** API `:3001`, Vite `:5173`, Postgres `ergosense@localhost:5433`, tenant demo `vale`  
-**Executor:** bateria automatizada + mapeamento estático do repositório
+**Executor:** bateria automatizada + mapeamento estático do repositório  
+**Canônico** desta série (R1/R2 removidos). Índice: [`README.md`](README.md).
 
 ---
 

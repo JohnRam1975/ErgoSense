@@ -29,8 +29,9 @@ export function classifyErgoIndex(value: number): ErgoIndexBand {
   return 'critico';
 }
 
-export function ergoIndexBandLabel(band: ErgoIndexBand): string {
-  return ERGO_INDEX_BANDS[band].label;
+export function ergoIndexBandLabel(band: ErgoIndexBand | string | undefined): string {
+  if (!band) return '—';
+  return ERGO_INDEX_BANDS[band as ErgoIndexBand]?.label ?? String(band);
 }
 
 /** Fórmulas documentadas — exibidas em laudos e UI */

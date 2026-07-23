@@ -45,19 +45,18 @@ test.describe('Recuperação', () => {
 
   test('Queda de conexão — UI estável e recupera ao voltar', async ({ page }) => {
     await loginAsErgonomista(page);
-    await e2eGo(page, 'collabs');
-    await expect(page.locator('#s-collabs.active')).toBeVisible();
 
-    await page.context().setOffline(true);
-
-    // Tentativa de escrita / refresh de dados enquanto offline
+    // Monta a tela online primeiro (chunk lazy); offline depois impede import do JS
     await e2eGo(page, 'new-collab');
     await expect(page.locator('#s-new-collab.active')).toBeVisible({ timeout: 15000 });
+    const nameInput = page.locator('#s-new-collab.active input').first();
+    await expect(nameInput).toBeVisible({ timeout: 15000 });
+
+    await page.context().setOffline(true);
 
     const stamp = Date.now();
     const inputs = page.locator('#s-new-collab.active input');
     await fillReactInput(page, inputs.nth(0), `Offline ${stamp}`);
-    // matrícula costuma ser o 2º campo texto
     if ((await inputs.count()) > 1) {
       await fillReactInput(page, inputs.nth(1), `OFF-${stamp}`);
     }
@@ -74,7 +73,16 @@ test.describe('Recuperação', () => {
     await page.context().setOffline(false);
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.locator('#s-dashboard.active')).toBeVisible({ timeout: 60000 });
-    await e2eGo(page, 'collabs');
-    await expect(page.locator('#s-collabs.active')).toBeVisible({ timeout: 20000 });
+    await page.waitForFunction(() => Boolean(window.__ERGOSENSE_E2E__?.go), undefined, { timeout: 30000 });
+    // go() logo após bootstrap pode ser engolido — tenta até a tela ativar
+    await expect
+      .poll(
+        async () => {
+          await page.evaluate(() => window.__ERGOSENSE_E2E__?.go('collabs'));
+          return page.locator('#s-collabs.active').isVisible().catch(() => false);
+        },
+        { timeout: 30000, intervals: [500, 1000, 2000] },
+      )
+      .toBeTruthy();
   });
 });

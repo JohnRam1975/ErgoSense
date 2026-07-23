@@ -673,6 +673,7 @@ function repairAnalysis(a: Analysis): Analysis {
     : undefined;
   return {
     ...a,
+    id: String(a.id),
     collaboratorName: repairPortugueseText(a.collaboratorName),
     setor: repairPortugueseText(a.setor),
     activity: repairPortugueseText(a.activity),
@@ -909,7 +910,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const currentAnalysis = useMemo(
-    () => stored.analyses.find((a) => a.id === currentAnalysisId) ?? null,
+    () => stored.analyses.find((a) => String(a.id) === String(currentAnalysisId)) ?? null,
     [stored.analyses, currentAnalysisId],
   );
 
@@ -3949,7 +3950,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     },
     openAnalysis: (id) => {
-      setCurrentAnalysisId(id);
+      setCurrentAnalysisId(String(id));
       setResultDetailsRevealed(true);
       go('result');
     },
@@ -4158,7 +4159,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       openPgrVersion,
       openAetProcess,
       openAnalysis: (id: string) => {
-        setCurrentAnalysisId(id);
+        setCurrentAnalysisId(String(id));
         setResultDetailsRevealed(true);
         go('result');
       },

@@ -138,7 +138,10 @@ test.describe('Interface UI/UX', () => {
 
     await e2eGo(page, 'dashboard');
     await openMenu(page);
-    await page.locator('#menuDrawer button').filter({ hasText: /Sair/i }).first().click({ force: true });
+    const sair = page.locator('#menuDrawer button').filter({ hasText: /Sair/i }).first();
+    await sair.scrollIntoViewIfNeeded();
+    // Drawer longo: force click ainda exige viewport; dispara click nativo
+    await sair.evaluate((el) => (el as HTMLButtonElement).click());
     await expect(page.locator('#modal.open')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('#modal .modal-title')).toContainText(/Sair/i);
     await expect(page.locator('#modal .modal-body')).toBeVisible();

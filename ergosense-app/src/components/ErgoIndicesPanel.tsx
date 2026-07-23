@@ -8,8 +8,9 @@ interface Props {
   compact?: boolean;
 }
 
-function bandColor(band: keyof typeof ERGO_INDEX_BANDS): string {
-  return ERGO_INDEX_BANDS[band].color;
+function bandColor(band: keyof typeof ERGO_INDEX_BANDS | string | undefined): string {
+  const entry = band ? ERGO_INDEX_BANDS[band as keyof typeof ERGO_INDEX_BANDS] : undefined;
+  return entry?.color ?? 'var(--t1)';
 }
 
 export function ErgoIndicesPanel({ indices, sampling, compact }: Props) {

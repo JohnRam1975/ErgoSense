@@ -83,46 +83,137 @@ test.describe('Cobertura UI — Câmera / PDF / PWA / V2', () => {
   });
 
   test('PDF: Exportar PDF na tela de resultado (ou banner de plano)', async ({ page }) => {
-    if (await hasE2EBridge(page)) {
+    const apiBase = process.env.E2E_API_URL ?? 'http://localhost:3001';
+    const email = process.env.E2E_EMAIL ?? process.env.AUDIT_EMAIL ?? 'auditor@ergosense.test';
+    const password = process.env.E2E_PASSWORD ?? process.env.AUDIT_PASS ?? 'AuditTest!2026';
+
+    // CI seed não cria análises — garante uma via API antes de abrir o resultado
+    const loginRes = await fetch(`${apiBase}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const loginJson = await loginRes.json();
+    const token = (loginJson.data ?? loginJson).accessToken as string | undefined;
+    expect(loginRes.ok && token, `login API para seed PDF: ${loginRes.status}`).toBeTruthy();
+    const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+    const stamp = Date.now();
+    const collabRes = await fetch(`${apiBase}/api/collaborators`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        nome: `PDF E2E ${stamp}`,
+        name: `PDF E2E ${stamp}`,
+        matricula: `PDF${stamp}`,
+        setor: 'Produção',
+        consent: true,
+      }),
+    });
+    const collabJson = await collabRes.json();
+    const collabId = (collabJson.data ?? collabJson).id;
+    expect(collabRes.ok, `criar colaborador PDF: ${collabRes.status}`).toBeTruthy();
+
+    const anRes = await fetch(`${apiBase}/api/analyses`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        collaboratorId: collabId,
+        activity: 'Montagem PDF e2e',
+        atividade: 'Montagem PDF e2e',
+        setor: 'Produção',
+        mode: 'complete',
+        score: 72,
+        riskLevel: 'medio',
+        synced: true,
+      }),
+    });
+    expect(anRes.status, `criar análise PDF: ${anRes.status}`).toBe(201);
+    const analysisId = String(((await anRes.json()).data ?? {}).id ?? '');
+    expect(analysisId).toBeTruthy();
+
+    // Recarrega app autenticado para puxar a análise criada
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#s-dashboard.active')).toBeVisible({ timeout: 60000 });
+    await page
+      .waitForResponse((r) => /\/api\/analyses\b/.test(r.url()) && r.ok(), { timeout: 45000 })
+      .catch(() => undefined);
+
+    const openFromBridge = async () => {
       await waitForE2EBridge(page);
-      const opened = await page.evaluate(() => {
-        const ids = window.__ERGOSENSE_E2E__?.getFirstIds?.();
-        if (ids?.analysis) {
-          window.__ERGOSENSE_E2E__?.openAnalysis?.(ids.analysis);
-          return true;
-        }
-        return false;
-      });
-      if (!opened) {
-        await goScreen(page, 'history');
-        const first = page.locator('#s-history.active .list-row, #s-history.active .card').first();
-        if (await first.isVisible().catch(() => false)) await first.click();
-        else await goScreen(page, 'result');
-      }
+      await expect
+        .poll(async () => page.evaluate(() => Boolean(window.__ERGOSENSE_E2E__?.getFirstIds?.()?.analysis)), {
+          timeout: 45000,
+          intervals: [500, 1000, 2000],
+        })
+        .toBeTruthy();
+      // Abre com o id do estado (mesmo tipo); preferido só se bater com algum da lista
+      await page.evaluate((preferred) => {
+        const first = window.__ERGOSENSE_E2E__?.getFirstIds?.()?.analysis;
+        const pick =
+          first != null && String(first) === String(preferred) ? first : first != null ? first : preferred;
+        if (pick != null) window.__ERGOSENSE_E2E__?.openAnalysis?.(pick as string);
+      }, analysisId);
+    };
+
+    if (await hasE2EBridge(page)) {
+      await openFromBridge();
     } else {
       await goScreen(page, 'history');
-      const first = page.locator('#s-history.active .list-row, #s-history.active .card').first();
-      if (await first.isVisible().catch(() => false)) {
-        await first.click();
-      } else {
-        // Sem análises: valida caminho Nova Análise → resultado stub via menu Reports não aplica
-        test.info().annotations.push({ type: 'note', description: 'Sem análises no tenant — valida botão PDF após nova análise mínima' });
-        await goScreen(page, 'new-analysis');
-        await expect(page.locator('#s-new-analysis.active')).toBeVisible();
-        return;
-      }
+      const first = page.locator('#s-history.active .list-row, #s-history.active .card, #s-history.active button').first();
+      await expect(first).toBeVisible({ timeout: 30000 });
+      await first.click();
+    }
+
+    await page.keyboard.press('Escape').catch(() => undefined);
+    if (await page.locator('#menuOverlay.open').count()) {
+      await page
+        .locator('#menuDrawer .drawer-close, #menuOverlay button', { hasText: /Fechar/i })
+        .first()
+        .click({ force: true })
+        .catch(() => undefined);
+    }
+
+    const emptyResult = page.locator('#s-result.active').getByText(/Nenhuma análise selecionada/i);
+    if (
+      !(await page.locator('#s-result.active').isVisible().catch(() => false)) ||
+      (await emptyResult.count()) > 0
+    ) {
+      const verHist = page.locator('#s-result.active button', { hasText: /Ver histórico/i });
+      if ((await verHist.count()) > 0) await verHist.first().click();
+      else await goScreen(page, 'history');
+      const first = page.locator('#s-history.active .list-row, #s-history.active .card, #s-history.active button').first();
+      await expect(first).toBeVisible({ timeout: 30000 });
+      await first.click();
+      await page.keyboard.press('Escape').catch(() => undefined);
     }
 
     await expect(page.locator('#s-result.active')).toBeVisible({ timeout: 30000 });
-    const exportBtn = page.locator('#s-result.active button', { hasText: /Exportar PDF/i });
-    const upgrade = page.locator('#s-result.active').getByText(/Exportação PDF completa|plano Profissional|Modo gratuito/i);
-    const hasExport = await exportBtn.first().isVisible().catch(() => false);
-    const hasUpgrade = await upgrade.first().isVisible().catch(() => false);
-    expect(hasExport || hasUpgrade, 'Deve exibir Exportar PDF ou banner de plano').toBeTruthy();
+    await expect(emptyResult).toHaveCount(0, { timeout: 15000 });
 
-    if (hasExport) {
+    const reveal = page.locator('#s-result.active button', { hasText: /Exibir análise ergonômica/i });
+    if ((await reveal.count()) > 0) {
+      await reveal.first().click();
+    }
+
+    // Classe .upgrade-banner é estável; isVisible falha se o botão estiver abaixo da dobra
+    const exportOrUpgrade = page.locator(
+      '#s-result.active button:has-text("Exportar PDF"), #s-result.active .upgrade-banner',
+    );
+    await expect
+      .poll(async () => {
+        if ((await reveal.count()) > 0) await reveal.first().click().catch(() => undefined);
+        const n = await exportOrUpgrade.count();
+        if (n > 0) await exportOrUpgrade.first().scrollIntoViewIfNeeded().catch(() => undefined);
+        return n;
+      }, { timeout: 20000, intervals: [500, 1000] })
+      .toBeGreaterThan(0);
+
+    const exportBtn = page.locator('#s-result.active button', { hasText: /Exportar PDF/i });
+    if ((await exportBtn.count()) > 0) {
       const errors: string[] = [];
       page.on('pageerror', (e) => errors.push(String(e.message || e)));
+      await exportBtn.first().scrollIntoViewIfNeeded();
       await exportBtn.first().click();
       await page.waitForTimeout(1500);
       expect(errors.filter((e) => !/ResizeObserver|Non-Error/i.test(e))).toEqual([]);

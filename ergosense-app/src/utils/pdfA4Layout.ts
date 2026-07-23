@@ -21,8 +21,8 @@ export function getA4Sizes(doc: jsPDF) {
   return { pageW, pageH, contentW, centerX, marginLeft: A4_MARGIN };
 }
 
-export function pdfSafeText(text: string): string {
-  return text
+export function pdfSafeText(text: string | null | undefined): string {
+  return String(text ?? '')
     .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
     .replace(/[\u2600-\u27BF]/g, '')
     .replace(/\u2264/g, '<=')

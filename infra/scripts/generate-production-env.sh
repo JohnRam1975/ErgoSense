@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="$ROOT/.env.production"
 DOMAIN="${DOMAIN:-https://ergosense.dejohn.com.br}"
-TAG="${IMAGE_TAG:-20260722-apifix}"
+TAG="${IMAGE_TAG:-20260723-forgotfix}"
 
 if [[ -f "$OUT" && "${FORCE:-}" != "1" ]]; then
   echo "Já existe $OUT — use FORCE=1 para regenerar" >&2

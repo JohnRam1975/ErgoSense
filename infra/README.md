@@ -6,18 +6,18 @@ Use **apenas** `infra/docker-compose.yml` + `.env` (a partir de `.env.example`).
 
 Tag pinada atual (obrigatório no Hostinger — `:latest` sozinho não atualiza sem pull):
 
-- `ghcr.io/johnram1975/ergosense-postgres:20260722-nolegacy`
-- `ghcr.io/johnram1975/ergosense-api:20260722-nolegacy`
-- `ghcr.io/johnram1975/ergosense-web:20260722-nolegacy`
+- `ghcr.io/johnram1975/ergosense-postgres:20260723-forgotfix`
+- `ghcr.io/johnram1975/ergosense-api:20260723-forgotfix`
+- `ghcr.io/johnram1975/ergosense-web:20260723-forgotfix`
 
-(+ `redis:7-alpine` e `minio/minio:latest` públicos)
+(+ `redis:7-alpine` e MinIO pinado no compose)
 
 **Não usa Docker Hub pago.** Packages do GitHub devem estar **Public**.
 
 ## Publicar imagens novas (PC)
 
 ```powershell
-powershell -File infra/docker-publish.ps1 -Tag 20260722-nolegacy
+powershell -File infra/docker-publish.ps1 -Tag 20260723-forgotfix
 ```
 
 Depois: https://github.com/users/JohnRam1975/packages → cada package ErgoSense → Package settings → Change visibility → **Public**.

@@ -3,7 +3,7 @@
 param(
   [switch]$Force,
   [string]$Domain = "https://ergosense.dejohn.com.br",
-  [string]$ImageTag = "20260722-apifix"
+  [string]$ImageTag = "20260723-forgotfix"
 )
 
 $ErrorActionPreference = "Stop"
